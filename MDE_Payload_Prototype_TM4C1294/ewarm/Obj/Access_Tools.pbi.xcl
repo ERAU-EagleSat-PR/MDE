@@ -1,0 +1,48 @@
+"E:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\Access_Tools.c"
+-std=c99
+-ferror-limit=100
+-I
+E:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\..
+-I
+E:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\..\..\..\..
+-I
+C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.5\arm\inc
+-I
+C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.5\arm\inc\c
+-I
+E:\EagleSat\MDE_Payload_Prototype
+-I
+E:
+-Dewarm=1
+-DPART_TM4C1294NCPDT=1
+-DTARGET_IS_TM4C129_RA0=1
+-D__CODE_MEMORY_LIST1__()=__CODE_MEM_HELPER1__(__code, 0 )
+-D__CODE_MEMORY_LIST2__(_P1)=__CODE_MEM_HELPER2__(__code, 0 ,  _P1 )
+-D__CODE_MEMORY_LIST3__(_P1, _P2)=__CODE_MEM_HELPER3__(__code, 0 ,  _P1 ,  _P2 )
+-D__DATA_MEMORY_LIST1__()=__DATA_MEM_HELPER1__(__data, 0 )
+-D__DATA_MEMORY_LIST2__(_P1)=__DATA_MEM_HELPER2__(__data, 0 ,  _P1 )
+-D__DATA_MEMORY_LIST3__(_P1, _P2)=__DATA_MEM_HELPER3__(__data, 0 ,  _P1 ,  _P2 )
+-D__CODE_PTR_MEMORY_LIST1__()=__CODE_PTR_MEM_HELPER1__(__code, 0 )
+-D__CODE_PTR_MEMORY_LIST2__(_P1)=__CODE_PTR_MEM_HELPER2__(__code, 0 ,  _P1 )
+-D__CODE_PTR_MEMORY_LIST3__(_P1, _P2)=__CODE_PTR_MEM_HELPER3__(__code, 0 ,  _P1 ,  _P2 )
+-D__DATA_PTR_MEMORY_LIST1__()=__DATA_PTR_MEM_HELPER1__(__data, 0 )
+-D__DATA_PTR_MEMORY_LIST2__(_P1)=__DATA_PTR_MEM_HELPER2__(__data, 0 ,  _P1 )
+-D__DATA_PTR_MEMORY_LIST3__(_P1, _P2)=__DATA_PTR_MEM_HELPER3__(__data, 0 ,  _P1 ,  _P2 )
+-D__VAR_MEMORY_LIST1__()=__VAR_MEM_HELPER1__(__data, 0 )
+-D__VAR_MEMORY_LIST2__(_P1)=__VAR_MEM_HELPER2__(__data, 0 ,  _P1 )
+-D__VAR_MEMORY_LIST3__(_P1, _P2)=__VAR_MEM_HELPER3__(__data, 0 ,  _P1 ,  _P2 )
+-D__VARD_MEMORY_LIST1__()=__VARD_MEM_HELPER1__(__data, 0, _ )
+-D__HEAP_MEMORY_LIST1__()=__HEAP_MEM_HELPER1__(__data, 0 )
+-D__HEAP_MEMORY_LIST2__(_P1)=__HEAP_MEM_HELPER2__(__data, 0 ,  _P1 )
+-D__HEAP_MEMORY_LIST3__(_P1, _P2)=__HEAP_MEM_HELPER3__(__data, 0 ,  _P1 ,  _P2 )
+-D__HVAR_MEMORY_LIST1__()=__HVAR_MEM_HELPER1__(__data, 0 )
+-D__HEAPD_MEMORY_LIST1__()=__HEAPD_MEM_HELPER1__(__data, 0, _ )
+-D__HEAPU_MEMORY_LIST1__()=__HEAPU_MEM_HELPER1__(__data, 0 )
+-D__TOPM_DATA_MEMORY_LIST1__()=
+-D__TOPM_DATA_MEMORY_LIST2__(_P1)=
+-D__TOPM_DATA_MEMORY_LIST3__(_P1, _P2)=
+-D__TOPP_DATA_MEMORY_LIST1__()=__TOPP_DATA_MEM_HELPER1__(__data, 0 )
+-D__TOPP_DATA_MEMORY_LIST2__(_P1)=__TOPP_DATA_MEM_HELPER2__(__data, 0 ,  _P1 )
+-D__TOPP_DATA_MEMORY_LIST3__(_P1, _P2)=__TOPP_DATA_MEM_HELPER3__(__data, 0 ,  _P1 ,  _P2 )
+-D__DATA_MEM0_SIZE_TYPE__=unsigned int
+-D__DATA_MEM0_INDEX_TYPE__=signed int
