@@ -1,0 +1,402 @@
+###############################################################################
+#
+# IAR ELF Linker V8.42.1.236/W32 for ARM                  22/Jan/2020  13:43:07
+# Copyright 2007-2019 IAR Systems AB.
+#
+#    Output file  =
+#        D:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\ewarm\Exe\MDE_Payload_Prototype.out
+#    Map file     =
+#        D:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\ewarm\List\MDE_Payload_Prototype.map
+#    Command line =
+#        -f C:\Users\Becca\AppData\Local\Temp\EWBCFD.tmp
+#        (D:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\ewarm\Obj\Access_Tools.o
+#        D:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\ewarm\Obj\CY15B104Q.o
+#        D:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\driverlib\ewarm\Exe\driverlib.a
+#        D:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\ewarm\Obj\IS62WVS5128GBLL.o
+#        D:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\ewarm\Obj\M95M02.o
+#        D:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\ewarm\Obj\MDE_Payload_Prototype.o
+#        D:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\ewarm\Obj\MR25H40.o
+#        D:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\ewarm\Obj\S25FL256LA.o
+#        D:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\ewarm\Obj\startup_ewarm.o
+#        --redirect _Printf=_PrintfTiny --redirect _Scanf=_ScanfSmallNoMb
+#        --no_out_extension -o
+#        D:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\ewarm\Exe\MDE_Payload_Prototype.out
+#        --map
+#        D:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\ewarm\List\MDE_Payload_Prototype.map
+#        --config
+#        D:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\MDE_Payload_Prototype.icf
+#        --semihosting --entry __iar_program_start --vfe --text_out locale)
+#
+###############################################################################
+
+*******************************************************************************
+*** MESSAGES
+***
+
+Warning[Lt009]: Inconsistent wchar_t size
+            gpio.o(driverlib.a) and 7 other objects in driverlib.a have wchar_t
+                      size 16 bits
+            Access_Tools.o and 23 other objects, some of them in dl7M_tln.a and
+                      11 other libraries have wchar_t size 32 bits
+
+
+*******************************************************************************
+*** RUNTIME MODEL ATTRIBUTES
+***
+
+CppFlavor       = *
+__SystemLibrary = DLib
+__dlib_version  = 6
+
+
+*******************************************************************************
+*** HEAP SELECTION
+***
+
+The basic heap was selected because some modules are built with
+size limitations (and not runtime checking), and --advanced_heap
+was not specified.
+
+
+*******************************************************************************
+*** PLACEMENT SUMMARY
+***
+
+"A0":  place at start of [from 0x0 to 0xf'ffff] { ro section .intvec };
+"P1":  place in [from 0x0 to 0xf'ffff] { ro };
+define block HEAP with size = 0, alignment = 8 { };
+"P2":  place in [from 0x2000'0000 to 0x2003'ffff] { rw, block HEAP };
+do not initialize { section .noinit };
+
+No sections matched the following patterns:
+
+  section VTABLE  in "A1"
+
+
+  Section          Kind         Address    Size  Object
+  -------          ----         -------    ----  ------
+"A0":                                     0x200
+  .intvec          const            0x0   0x200  startup_ewarm.o [1]
+                                - 0x200   0x200
+
+"P1":                                    0x3474
+  .text            ro code        0x200   0xa40  MDE_Payload_Prototype.o [1]
+  .text            ro code        0xc40    0x40  sprintf.o [2]
+  .text            ro code        0xc80    0x36  strlen.o [5]
+  .text            ro code        0xcb6    0x3a  zero_init3.o [5]
+  .text            ro code        0xcf0    0x1e  U64Shr.o [5]
+  .text            ro code        0xd0e     0xa  xsprout.o [2]
+  .text            ro code        0xd18    0xc6  uart.o [3]
+  .text            ro code        0xde0   0x530  Access_Tools.o [1]
+  .text            ro code       0x1310    0x8e  timer.o [3]
+  .text            ro code       0x13a0    0x20  fpu.o [3]
+  .text            ro code       0x13c0   0x544  sysctl.o [3]
+  .text            ro code       0x1904    0x84  interrupt.o [3]
+  .text            ro code       0x1988   0x250  gpio.o [3]
+  .text            ro code       0x1bd8    0x80  ssi.o [3]
+  .text            ro code       0x1c58   0x134  xprintftiny.o [2]
+  .text            ro code       0x1d8c   0x3b0  M95M02.o [1]
+  .text            ro code       0x213c   0x510  S25FL256LA.o [1]
+  .text            ro code       0x264c   0x304  CY15B104Q.o [1]
+  .text            ro code       0x2950   0x368  MR25H40.o [1]
+  .text            ro code       0x2cb8   0x2bc  IS62WVS5128GBLL.o [1]
+  .text            ro code       0x2f74     0xc  cpu.o [3]
+  .rodata          const         0x2f80    0x4c  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x2fcc    0x4c  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x3018    0x38  Access_Tools.o [1]
+  .rodata          const         0x3050    0x38  Access_Tools.o [1]
+  .rodata          const         0x3088    0x38  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x30c0    0x34  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x30f4    0x34  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x3128    0x34  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x315c    0x34  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x3190    0x34  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x31c4    0x34  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x31f8    0x34  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x322c    0x34  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x3260    0x34  S25FL256LA.o [1]
+  .rodata          const         0x3294    0x30  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x32c4    0x30  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x32f4    0x30  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x3324    0x30  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x3354    0x30  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x3384    0x30  S25FL256LA.o [1]
+  .rodata          const         0x33b4    0x2c  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x33e0    0x2c  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x340c    0x2c  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x3438    0x28  MDE_Payload_Prototype.o [1]
+  .text            ro code       0x3460    0x28  data_init.o [5]
+  .rodata          const         0x3488    0x24  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x34ac    0x24  S25FL256LA.o [1]
+  .text            ro code       0x34d0    0x22  fpinit_M.o [4]
+  .iar.init_table  const         0x34f4    0x10  - Linker created -
+  .text            ro code       0x3504    0x1e  startup_ewarm.o [1]
+  .text            ro code       0x3522     0xc  cstartup_M.o [5]
+  .text            ro code       0x3530    0x1e  cmain.o [5]
+  .text            ro code       0x354e     0x4  low_level_init.o [2]
+  .text            ro code       0x3552     0x4  exit.o [2]
+  .text            ro code       0x3558     0xa  cexit.o [5]
+  .text            ro code       0x3564    0x14  exit.o [6]
+  .rodata          const         0x3578    0x1c  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x3594    0x1c  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x35b0    0x1c  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x35cc    0x1c  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x35e8    0x18  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x3600    0x18  S25FL256LA.o [1]
+  .rodata          const         0x3618    0x14  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x362c    0x14  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x3640    0x10  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x3650    0x10  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x3660     0xc  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x366c     0x8  MDE_Payload_Prototype.o [1]
+  .rodata          const         0x3674     0x0  zero_init3.o [5]
+                               - 0x3674  0x3474
+
+"P2", part 1 of 2:                       0x1f68
+  .bss             zero     0x2000'0000  0x1f40  MDE_Payload_Prototype.o [1]
+  .bss             zero     0x2000'1f40     0x8  MDE_Payload_Prototype.o [1]
+  .bss             zero     0x2000'1f48     0x4  MDE_Payload_Prototype.o [1]
+  .bss             zero     0x2000'1f4c     0x4  MDE_Payload_Prototype.o [1]
+  .bss             zero     0x2000'1f50     0x4  MDE_Payload_Prototype.o [1]
+  .bss             zero     0x2000'1f54     0x4  MDE_Payload_Prototype.o [1]
+  .bss             zero     0x2000'1f58     0x4  MDE_Payload_Prototype.o [1]
+  .bss             zero     0x2000'1f5c     0x4  MDE_Payload_Prototype.o [1]
+  .bss             zero     0x2000'1f60     0x4  MDE_Payload_Prototype.o [1]
+  .bss             zero     0x2000'1f64     0x2  MDE_Payload_Prototype.o [1]
+  .bss             zero     0x2000'1f66     0x1  MDE_Payload_Prototype.o [1]
+  .bss             zero     0x2000'1f67     0x1  MDE_Payload_Prototype.o [1]
+                          - 0x2000'1f68  0x1f68
+
+"P2", part 2 of 2:                        0x800
+  .noinit          uninit   0x2000'1f68   0x800  startup_ewarm.o [1]
+                          - 0x2000'2768   0x800
+
+Unused ranges:
+
+         From           To      Size
+         ----           --      ----
+       0x3674     0xf'ffff  0xf'c98c
+  0x2000'2768  0x2003'ffff  0x3'd898
+
+
+*******************************************************************************
+*** INIT TABLE
+***
+
+          Address      Size
+          -------      ----
+Zero (__iar_zero_init3)
+    1 destination range, total size 0x1f68:
+          0x2000'0000  0x1f68
+
+
+
+*******************************************************************************
+*** MODULE SUMMARY
+***
+
+    Module                   ro code  ro data  rw data
+    ------                   -------  -------  -------
+command line/config:
+    --------------------------------------------------
+    Total:
+
+D:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\ewarm\Obj: [1]
+    Access_Tools.o             1'328      112
+    CY15B104Q.o                  772
+    IS62WVS5128GBLL.o            700
+    M95M02.o                     944
+    MDE_Payload_Prototype.o    2'624    1'300    8'040
+    MR25H40.o                    872
+    S25FL256LA.o               1'296      160
+    startup_ewarm.o               30      512    2'048
+    --------------------------------------------------
+    Total:                     8'566    2'084   10'088
+
+dl7M_tln.a: [2]
+    exit.o                         4
+    low_level_init.o               4
+    sprintf.o                     64
+    xprintftiny.o                308
+    xsprout.o                     10
+    --------------------------------------------------
+    Total:                       390
+
+driverlib.a: [3]
+    cpu.o                         12
+    fpu.o                         32
+    gpio.o                       592
+    interrupt.o                  132
+    ssi.o                        128
+    sysctl.o                   1'348
+    timer.o                      142
+    uart.o                       198
+    --------------------------------------------------
+    Total:                     2'584
+
+m7M_tls.a: [4]
+    fpinit_M.o                    34
+    --------------------------------------------------
+    Total:                        34
+
+rt7M_tl.a: [5]
+    U64Shr.o                      30
+    cexit.o                       10
+    cmain.o                       30
+    cstartup_M.o                  12
+    data_init.o                   40
+    strlen.o                      54
+    zero_init3.o                  58
+    --------------------------------------------------
+    Total:                       234
+
+shb_l.a: [6]
+    exit.o                        20
+    --------------------------------------------------
+    Total:                        20
+
+    Gaps                          10        2
+    Linker created                         16
+------------------------------------------------------
+    Grand Total:              11'838    2'102   10'088
+
+
+*******************************************************************************
+*** ENTRY LIST
+***
+
+Entry                       Address    Size  Type      Object
+-----                       -------    ----  ----      ------
+.iar.init_table$$Base        0x34f4           --   Gb  - Linker created -
+.iar.init_table$$Limit       0x3504           --   Gb  - Linker created -
+?main                        0x3531          Code  Gb  cmain.o [5]
+CPUcpsie                     0x2f75     0x8  Code  Gb  cpu.o [3]
+CPUwfi                       0x2f7d     0x4  Code  Gb  cpu.o [3]
+EEPROMSequenceRetrieve       0x1f21   0x1fa  Code  Gb  M95M02.o [1]
+EEPROMSequenceTransmit       0x1d8d   0x194  Code  Gb  M95M02.o [1]
+EnableChipSelects            0x1223    0xb4  Code  Gb  Access_Tools.o [1]
+FPUEnable                    0x13a1     0xc  Code  Gb  fpu.o [3]
+FPULazyStackingEnable        0x13ad     0xc  Code  Gb  fpu.o [3]
+FRAMSequenceRetrieve         0x273f   0x1fa  Code  Gb  CY15B104Q.o [1]
+FRAMSequenceTransmit         0x264d    0xf2  Code  Gb  CY15B104Q.o [1]
+FaultISR                     0x351f     0x2  Code  Lc  startup_ewarm.o [1]
+FlashSequenceRetrieve        0x246b   0x1b6  Code  Gb  S25FL256LA.o [1]
+FlashSequenceTransmit        0x213d   0x32e  Code  Gb  S25FL256LA.o [1]
+GPIODirModeSet               0x1989    0x28  Code  Gb  gpio.o [3]
+GPIOPadConfigSet             0x19b1    0xfe  Code  Gb  gpio.o [3]
+GPIOPinConfigure             0x1b0b    0x38  Code  Gb  gpio.o [3]
+GPIOPinRead                  0x1aaf     0x6  Code  Gb  gpio.o [3]
+GPIOPinTypeGPIOOutput        0x1abf     0xa  Code  Gb  gpio.o [3]
+GPIOPinTypeSSI               0x1ae3    0x14  Code  Gb  gpio.o [3]
+GPIOPinTypeUART              0x1af7    0x14  Code  Gb  gpio.o [3]
+GPIOPinWrite                 0x1ab5     0x6  Code  Gb  gpio.o [3]
+IntDefaultHandler            0x3521     0x2  Code  Lc  startup_ewarm.o [1]
+IntEnable                    0x1915    0x56  Code  Gb  interrupt.o [3]
+IntMasterEnable              0x1905     0x8  Code  Gb  interrupt.o [3]
+MRAMSequenceRetrieve         0x2a8b   0x214  Code  Gb  MR25H40.o [1]
+MRAMSequenceTransmit         0x2951   0x13a  Code  Gb  MR25H40.o [1]
+NmiSR                        0x351d     0x2  Code  Lc  startup_ewarm.o [1]
+ReadFromChip                 0x116d    0xb6  Code  Gb  Access_Tools.o [1]
+Region$$Table$$Base          0x34f4           --   Gb  - Linker created -
+Region$$Table$$Limit         0x3504           --   Gb  - Linker created -
+ResetISR                     0x3505    0x12  Code  Gb  startup_ewarm.o [1]
+RetrieveChipPin               0xde1   0x170  Code  Gb  Access_Tools.o [1]
+RetrieveChipPort              0xf51   0x170  Code  Gb  Access_Tools.o [1]
+SRAMSequenceRetrieve         0x2d63   0x1fa  Code  Gb  IS62WVS5128GBLL.o [1]
+SRAMSequenceTransmit         0x2cb9    0xaa  Code  Gb  IS62WVS5128GBLL.o [1]
+SSIBusy                      0x1c4f     0xa  Code  Gb  ssi.o [3]
+SSIConfigSetExpClk           0x1bd9    0x38  Code  Gb  ssi.o [3]
+SSIDataGet                   0x1c33     0xc  Code  Gb  ssi.o [3]
+SSIDataGetNonBlocking        0x1c3f    0x10  Code  Gb  ssi.o [3]
+SSIDataPut                   0x1c29     0xa  Code  Gb  ssi.o [3]
+SSIDisable                   0x1c1d     0xc  Code  Gb  ssi.o [3]
+SSIEnable                    0x1c11     0xc  Code  Gb  ssi.o [3]
+SysClkSpeed             0x2000'1f60     0x4  Data  Gb  MDE_Payload_Prototype.o [1]
+SysCtlClockFreqSet           0x1479   0x204  Code  Gb  sysctl.o [3]
+SysCtlDelay                  0x1471     0x8  Code  Gb  sysctl.o [3]
+SysCtlPeripheralClockGating
+                             0x1427    0x3c  Code  Gb  sysctl.o [3]
+SysCtlPeripheralEnable       0x1401     0x8  Code  Gb  sysctl.o [3]
+SysCtlPeripheralReady        0x13e1     0x8  Code  Gb  sysctl.o [3]
+SysCtlPeripheralSleepEnable
+                             0x141d     0xa  Code  Gb  sysctl.o [3]
+SysCtlSleep                  0x146b     0x4  Code  Gb  sysctl.o [3]
+SysCtlSleepPowerSet          0x1463     0x8  Code  Gb  sysctl.o [3]
+Timer0IntHandler              0x89b    0x24  Code  Gb  MDE_Payload_Prototype.o [1]
+TimerConfigure               0x131d    0x52  Code  Gb  timer.o [3]
+TimerEnable                  0x1311     0xc  Code  Gb  timer.o [3]
+TimerIntClear                0x139b     0x4  Code  Gb  timer.o [3]
+TimerIntEnable               0x1391     0x4  Code  Gb  timer.o [3]
+TimerLoadSet                 0x1381    0x10  Code  Gb  timer.o [3]
+TransmitErrors                0x201    0x90  Code  Gb  MDE_Payload_Prototype.o [1]
+TransmitHealth                0x291    0x8a  Code  Gb  MDE_Payload_Prototype.o [1]
+UART0IntHandler               0x85f    0x3c  Code  Gb  MDE_Payload_Prototype.o [1]
+UARTCharGet                   0xdb7     0xa  Code  Gb  uart.o [3]
+UARTCharPut                   0xdc1     0xa  Code  Gb  uart.o [3]
+UARTCharsAvail                0xda7     0x6  Code  Gb  uart.o [3]
+UARTConfigSetExpClk           0xd19    0x4c  Code  Gb  uart.o [3]
+UARTDisable                   0xd7f    0x1e  Code  Gb  uart.o [3]
+UARTEnable                    0xd65    0x1a  Code  Gb  uart.o [3]
+UARTIntClear                  0xddb     0x4  Code  Gb  uart.o [3]
+UARTIntEnable                 0xdcb     0x6  Code  Gb  uart.o [3]
+UARTIntStatus                 0xdd1     0xa  Code  Gb  uart.o [3]
+UARTSend                      0x31b    0x1e  Code  Gb  MDE_Payload_Prototype.o [1]
+WriteToChip                  0x10c1    0xac  Code  Gb  Access_Tools.o [1]
+_PrintfTiny                  0x1c71   0x11c  Code  Gb  xprintftiny.o [2]
+_SProut                       0xd0f     0xa  Code  Gb  xsprout.o [2]
+_SysCtlMemTimingGet          0x13c1    0x20  Code  Lc  sysctl.o [3]
+__aeabi_llsr                  0xcf1          Code  Gb  U64Shr.o [5]
+__cmain                      0x3531          Code  Gb  cmain.o [5]
+__exit                       0x3565    0x14  Code  Gb  exit.o [6]
+__iar_data_init3             0x3461    0x28  Code  Gb  data_init.o [5]
+__iar_init_vfp               0x34d1          Code  Gb  fpinit_M.o [4]
+__iar_program_start          0x3523          Code  Gb  cstartup_M.o [5]
+__iar_zero_init3              0xcb7    0x3a  Code  Gb  zero_init3.o [5]
+__low_level_init             0x354f     0x4  Code  Gb  low_level_init.o [2]
+__vector_table                  0x0   0x200  Data  Gb  startup_ewarm.o [1]
+_call_main                   0x353d          Code  Gb  cmain.o [5]
+_exit                        0x3559          Code  Gb  cexit.o [5]
+_main                        0x354b          Code  Gb  cmain.o [5]
+chip_unresponsive       0x2000'1f40     0x8  Data  Gb  MDE_Payload_Prototype.o [1]
+current_error           0x2000'1f50     0x4  Data  Gb  MDE_Payload_Prototype.o [1]
+current_sequence_offset
+                        0x2000'1f4c     0x4  Data  Gb  MDE_Payload_Prototype.o [1]
+current_sequence_start  0x2000'1f48     0x4  Data  Gb  MDE_Payload_Prototype.o [1]
+cycle_count             0x2000'1f64     0x2  Data  Gb  MDE_Payload_Prototype.o [1]
+error_buffer            0x2000'0000  0x1f40  Data  Gb  MDE_Payload_Prototype.o [1]
+exit                         0x3553     0x4  Code  Gb  exit.o [2]
+g_pppui32XTALtoVCO           0x171c   0x1b0  Data  Lc  sysctl.o [3]
+g_pui32EnRegs                0x1974    0x14  Data  Lc  interrupt.o [3]
+g_pui32GPIOBaseAddrs         0x1b48    0x90  Data  Lc  gpio.o [3]
+g_pui32VCOFrequencies        0x18fc     0x8  Data  Lc  sysctl.o [3]
+g_pui32Xtals                 0x16b0    0x6c  Data  Lc  sysctl.o [3]
+g_sXTALtoMEMTIM              0x18cc    0x30  Data  Lc  sysctl.o [3]
+main                          0x8bf   0x282  Code  Gb  MDE_Payload_Prototype.o [1]
+menu_state              0x2000'1f66     0x1  Data  Gb  MDE_Payload_Prototype.o [1]
+old_current_error       0x2000'1f54     0x4  Data  Gb  MDE_Payload_Prototype.o [1]
+out                          0x1c59    0x18  Code  Lc  xprintftiny.o [2]
+print_menu                    0x339   0x1a6  Code  Gb  MDE_Payload_Prototype.o [1]
+process_menu                  0x4df   0x380  Code  Gb  MDE_Payload_Prototype.o [1]
+pui32Stack              0x2000'1f68   0x800  Data  Lc  startup_ewarm.o [1]
+selected_chip_number    0x2000'1f58     0x4  Data  Gb  MDE_Payload_Prototype.o [1]
+sequence_offset_values       0x366c     0x8  Data  Gb  MDE_Payload_Prototype.o [1]
+sequence_start_values        0x3660     0xc  Data  Gb  MDE_Payload_Prototype.o [1]
+sprintf                       0xc41    0x40  Code  Gb  sprintf.o [2]
+strlen                        0xc81          Code  Gb  strlen.o [5]
+timer_current_cycle     0x2000'1f5c     0x4  Data  Gb  MDE_Payload_Prototype.o [1]
+timer_wakeup            0x2000'1f67     0x1  Data  Gb  MDE_Payload_Prototype.o [1]
+
+
+[1] = D:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\ewarm\Obj
+[2] = dl7M_tln.a
+[3] = driverlib.a
+[4] = m7M_tls.a
+[5] = rt7M_tl.a
+[6] = shb_l.a
+
+  11'838 bytes of readonly  code memory
+   2'102 bytes of readonly  data memory
+  10'088 bytes of readwrite data memory
+
+Errors: none
+Warnings: 1

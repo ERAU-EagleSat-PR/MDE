@@ -1,0 +1,16 @@
+M95M02.pbi: \
+  F:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\driverlib\ssi.h \
+  F:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\driverlib\pin_map.h \
+  F:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\driverlib\gpio.h \
+  F:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\inc\hw_types.h \
+  F:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\inc\hw_gpio.h \
+  F:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\inc\hw_memmap.h \
+  F:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\M95M02.h \
+  F:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\MDE_Payload_Prototype.h \
+  C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.4\arm\inc\c\stdbool.h \
+  C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.4\arm\inc\c\DLib_Product.h \
+  C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.4\arm\inc\c\DLib_Defaults.h \
+  C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.4\arm\inc\c\yvals.h \
+  C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.4\arm\inc\c\ycheck.h \
+  C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.4\arm\inc\c\stdint.h \
+  F:\EagleSat\MDE_Payload_Prototype\MDE_Payload_Prototype_TM4C1294\M95M02.c

@@ -1,0 +1,37 @@
+#Generating source browse information for project MDE_Payload_Prototype
+
+
+#Abbreviations
+cc = C$:\Program$ Files$ (x86)\IAR$ Systems\Embedded$ Workbench$ 8.4\common\bin\SourceIndexer.exe
+ll = C$:\Program$ Files$ (x86)\IAR$ Systems\Embedded$ Workbench$ 8.4\common\bin\PbdLink.exe
+bd = C$:\Program$ Files$ (x86)\IAR$ Systems\Embedded$ Workbench$ 8.4\common\bin\makeBrowseData.exe
+
+
+
+#Rules
+rule index
+  depfile = $out.dep
+  command = $cc -out=$out -f $in
+rule link
+  command = $ll -M $out $in
+rule browsedata
+  command = $bd $in -output  $out
+
+
+
+#Build steps
+build Access_Tools.pbi : index Access_Tools.xcl
+build CY15B104Q.pbi : index CY15B104Q.xcl
+build IS62WVS5128GBLL.pbi : index IS62WVS5128GBLL.xcl
+build M95M02.pbi : index M95M02.xcl
+build MDE_Payload_Prototype.pbi : index MDE_Payload_Prototype.xcl
+build MR25H40.pbi : index MR25H40.xcl
+build S25FL256LA.pbi : index S25FL256LA.xcl
+build startup_ewarm.pbi : index startup_ewarm.xcl
+build MDE_Payload_Prototype_part0.pbi : link Access_Tools.pbi CY15B104Q.pbi IS62WVS5128GBLL.pbi
+build MDE_Payload_Prototype_part1.pbi : link M95M02.pbi MDE_Payload_Prototype.pbi MR25H40.pbi
+build MDE_Payload_Prototype_part2.pbi : link S25FL256LA.pbi startup_ewarm.pbi
+build MDE_Payload_Prototype.pbd : link MDE_Payload_Prototype_part0.pbi MDE_Payload_Prototype_part1.pbi MDE_Payload_Prototype_part2.pbi
+build MDE_Payload_Prototype.pbw : browsedata MDE_Payload_Prototype.pbd
+
+
