@@ -11,7 +11,6 @@
 #include <string.h>
 #include "MDE_Payload_Prototype.h"
 #include "Access_Tools.h"
-#include "M95M02.h"
 #include "CY15B104Q.h"
 #include "MR25H40.h"
 #include "IS62WVS5128GBLL.h"
@@ -240,11 +239,11 @@ print_menu(void)
     UARTSend((uint8_t*) buf, strlen(buf));
     sprintf(buf,"1 through 8 - Select the chip to interact with. Currently selected: %i\n\r", selected_chip_number);
     UARTSend((uint8_t*) buf, strlen(buf));
-    sprintf(buf,"All commands are listed are in order of EEPROM, Flash, FRAM, MRAM, SRAM.\n\r");
+    sprintf(buf,"All commands are listed are in order of Flash, FRAM, MRAM, SRAM.\n\r");
     UARTSend((uint8_t*) buf, strlen(buf));
-    sprintf(buf,"Q, W, E, R, T - send sequence to a chip.\n\r");
+    sprintf(buf,"W, E, R, T - send sequence to a chip.\n\r");
     UARTSend((uint8_t*) buf, strlen(buf));
-    sprintf(buf,"A, S, D, F, G - get sequence from a chip.\n\r\n\r");
+    sprintf(buf,"S, D, F, G - get sequence from a chip.\n\r\n\r");
     UARTSend((uint8_t*) buf, strlen(buf));
     sprintf(buf,"Current Clock Speed: %d\n\r", SysClkSpeed);
     UARTSend((uint8_t*) buf, strlen(buf));
@@ -315,11 +314,6 @@ process_menu(int32_t recv_char)
     case '8':
       selected_chip_number = 7;
       break;
-    case 'q':
-      sprintf(buf,"Attempting to send data to EEPROM (chip %i)...\n\r", selected_chip_number);
-      UARTSend((uint8_t*) buf, strlen(buf));
-      WriteToChip(selected_chip_number, sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
-      break;
     case 'w':
       sprintf(buf,"Attempting to send data to Flash (chip %i)...\n\r", selected_chip_number + 8);
       UARTSend((uint8_t*) buf, strlen(buf));
@@ -340,11 +334,6 @@ process_menu(int32_t recv_char)
       UARTSend((uint8_t*) buf, strlen(buf));
       WriteToChip(selected_chip_number + 32, sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
       break; 
-    case 'a':
-      sprintf(buf,"Attempting to read data from EEPROM (chip %i)...\n\r", selected_chip_number);
-      UARTSend((uint8_t*) buf, strlen(buf));
-      ReadFromChip(selected_chip_number, sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
-      break;
     case 's':
       sprintf(buf,"Attempting to read data from Flash (chip %i)...\n\r", selected_chip_number);
       UARTSend((uint8_t*) buf, strlen(buf));
@@ -678,26 +667,6 @@ main(void)
   // Configure Memory Registers
   //
   /* IS THIS ALL SUPPOSED TO BE COMMENTED?
-  // Removing EEPROM write restrictions
-  
-  // Drop CS line
-  GPIOPinWrite(EEPROM_CHIP_SELECT_PORT, EEPROM_CHIP_SELECT_PIN, 0x0);
-  while(GPIOPinRead(EEPROM_CHIP_SELECT_PORT, EEPROM_CHIP_SELECT_PIN))
-  {
-}
-  
-  // Transmit instruction to remove any write protections
-  SSIDataPut(SPI_NUM_BASE, EEPROM_WRSR);
-  SSIDataPut(SPI_NUM_BASE, 0x0);
-  while(SSIBusy(SPI_NUM_BASE))
-  {
-}
-  
-  // Raise CS line
-  GPIOPinWrite(EEPROM_CHIP_SELECT_PORT, EEPROM_CHIP_SELECT_PIN, EEPROM_CHIP_SELECT_PIN);
-  while(!GPIOPinRead(EEPROM_CHIP_SELECT_PORT, EEPROM_CHIP_SELECT_PIN))
-  {
-}
   
   //
   // Removing Flash write restrictions
@@ -890,8 +859,7 @@ main(void)
 #endif
   
   GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_0, GPIO_PIN_0);
-  /*EEPROMSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
-  FlashSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset], SysClkSpeed);
+  /*FlashSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset], SysClkSpeed);
   FRAMSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
   MRAMSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
   SRAMSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);*/
@@ -923,8 +891,7 @@ main(void)
       
       // Read the old data
       GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_0, GPIO_PIN_0);
-      /*EEPROMSequenceRetrieve(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
-      FlashSequenceRetrieve(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
+      /*FlashSequenceRetrieve(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
       FRAMSequenceRetrieve(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
       MRAMSequenceRetrieve(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
       SRAMSequenceRetrieve(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);*/
@@ -945,8 +912,7 @@ main(void)
       
       // Transmit new data
       GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, GPIO_PIN_1);
-      /*EEPROMSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
-      FlashSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset], SysClkSpeed);
+      /*FlashSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset], SysClkSpeed);
       FRAMSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
       MRAMSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
       SRAMSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);*/
@@ -964,8 +930,7 @@ main(void)
       
       // Read the old data
       GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_0, GPIO_PIN_0);
-      /*EEPROMSequenceRetrieve(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
-      FlashSequenceRetrieve(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
+      /*FlashSequenceRetrieve(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
       FRAMSequenceRetrieve(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
       MRAMSequenceRetrieve(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
       SRAMSequenceRetrieve(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);*/
@@ -985,8 +950,7 @@ main(void)
       
       // Transmit new data
       GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_1, GPIO_PIN_1);
-      /*EEPROMSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
-      FlashSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset], SysClkSpeed);
+      /*FlashSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset], SysClkSpeed);
       FRAMSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
       MRAMSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);
       SRAMSequenceTransmit(sequence_start_values[current_sequence_start], sequence_offset_values[current_sequence_offset]);*/
