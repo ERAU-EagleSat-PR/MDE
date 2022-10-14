@@ -9,9 +9,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include "MDE_Payload_Prototype.h"
+#include "MDE_Payload_TM4C123GXL.h"
 #include "Access_Tools.h"
-#include "CY15B104Q.h"
+#include "MB85RS2MTYPNF.h"
 #include "MR25H40.h"
 #include "IS62WVS5128GBLL.h"
 #include "S25FL256LA.h"

@@ -33,7 +33,7 @@
 #define BAUD_RATE 115200
 
 // The total number of chips on the board
-#define TOTAL_CHIP_COUNT 40
+#define TOTAL_CHIP_COUNT 32
 
 // Sequence variables, which control what is written to the chips
 // Start and offset values are declared in the main c file, not here
