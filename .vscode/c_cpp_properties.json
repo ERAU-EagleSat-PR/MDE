@@ -3,7 +3,8 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "C:\\repos\\MDE\\MDE_Payload_TM4C123GXL"
             ],
             "defines": [
                 "_DEBUG",

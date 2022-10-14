@@ -5,8 +5,8 @@
 //*****************************************************************************
 
 // Make sure this file is only included once
-#ifndef MDE_PAYLOAD_PROTOTYPE_H
-#define MDE_PAYLOAD_PROTOTYPE_H
+#ifndef MDE_PAYLOAD_TM4C123GXL_H
+#define MDE_PAYLOAD_TM4C123GXL_H
 
 // Whether we are running in debug mode or not.
 // In debug mode, all output is printed in a human readable format, while in
