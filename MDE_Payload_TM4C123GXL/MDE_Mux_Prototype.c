@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "MDE_Mux_Prototype.h"
+#include "Access_Tools.h"
 #include "inc/hw_ints.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_gpio.h"

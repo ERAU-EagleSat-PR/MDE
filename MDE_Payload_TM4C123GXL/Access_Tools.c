@@ -96,16 +96,49 @@ uint32_t
 RetrieveChipPort(uint32_t chip_number){
   
   uint32_t result = 0;
-  if ( (chip_number <= 15) && (chip_number <= 15) ){
-    result = BOARD1_CS_PORT;
+  if ( (chip_number < 16) && (chip_number >= 0) ){
+    result = CS0_PORT;
   }
-  else if ( (chip_number >= 15) && (chip_number < 32) ){
-    result  = BOARD2_CS_PORT;
+  else if ( (chip_number >= 16) && (chip_number < 32) ){
+    result  = CS1_PORT;
   }
   else {
     result = 0;
   }
   return result;
+}
+
+//*****************************************************************************
+//
+// Mux select for both boards
+//
+//*****************************************************************************
+
+// Board 1
+void
+MuxAddressSelect(uint8_t chipNumber)
+{
+    // Retrieve chip port
+    chip_port = RetrieveChipPort(chipNumber);
+
+    // Set pins for board 1/board 2
+    if(chipPort == CS0_PORT)
+    {
+        pin_1 = CS0_PIN_0; pin_2 = CS0_PIN_1; pin_3 = CS0_PIN_2; pin_4 = CS0_PIN_3;
+    }
+    else if(chipPort == CS1_PORT)
+    {
+        pin_1 = CS1_PIN_0; pin_2 = CS1_PIN_1; pin_3 = CS1_PIN_2; pin_4 = CS1_PIN_3;
+    }
+
+    //Retrive mux address for chip
+    mux_port = RetriveChipMuxCode(chipNumber);
+
+    // Write chip select to pin
+    GPIOPinWrite(chip_port, pin_1, (mux_port & 0x1));
+    GPIOPinWrite(chip_port, pin_2, ((mux_port >> 1) & 0x1));
+    GPIOPinWrite(chip_port, pin_3, ((mux_port >> 2) & 0x1));
+    GPIOPinWrite(chip_port, pin_4, ((mux_port >> 3) & 0x1));
 }
 
 
@@ -165,16 +198,14 @@ ReadFromChip(uint32_t chip_number, unsigned char sequence_start, unsigned char s
   uint32_t chip_port = RetrieveChipPort(chip_number);
   uint32_t chip_pin = RetrieveChipPin(chip_number);
   
-  if(chip_number < 8){
-    EEPROMSequenceRetrieve(sequence_start, sequence_offset, chip_port, chip_pin, chip_number);
-  }else if(chip_number < 16){
-    FlashSequenceRetrieve(sequence_start, sequence_offset, chip_port, chip_pin, chip_number);
-  }else if(chip_number < 24){
-    FRAMSequenceRetrieve(sequence_start, sequence_offset, chip_port, chip_pin, chip_number);
-  }else if(chip_number < 32){
-    MRAMSequenceRetrieve(sequence_start, sequence_offset, chip_port, chip_pin, chip_number);
-  }else if(chip_number < 40){
-    SRAMSequenceRetrieve(sequence_start, sequence_offset, chip_port, chip_pin, chip_number);
+  if (chipNumber < 4) {
+      FlashSequenceRetrieve(sequence_start, sequence_offset, chip_number);
+  } else if (chipNumber < 8) {
+      FRAMSequenceRetrieve(sequence_start, sequence_offset, chip_number)
+  } else if (chipNumber < 12) {
+      MRAMSequenceRetrieve(sequence_start, sequence_offset, chip_number)
+  } else {
+      SRAMSequenceRetrieve(sequence_start, sequence_offset, chip_number)
   }
 }
 
@@ -185,44 +216,47 @@ ReadFromChip(uint32_t chip_number, unsigned char sequence_start, unsigned char s
 //*****************************************************************************
 void
 EnableChipSelects(){
-  
-  SysCtlPeripheralEnable(CS_SYSCTL_PORT_0);
-  SysCtlPeripheralEnable(CS_SYSCTL_PORT_1);
-  SysCtlPeripheralEnable(CS_SYSCTL_PORT_2);
-  SysCtlPeripheralEnable(CS_SYSCTL_PORT_3);
-  SysCtlPeripheralEnable(CS_SYSCTL_PORT_4);
-  SysCtlPeripheralEnable(CS_SYSCTL_PORT_5);
+
+  // Chip Select Port
+  SysCtlPeripheralEnable(CS0_SYSCTL_PORT);
+  SysCtlPeripheralEnable(CS1_SYSCTL_PORT);
 
   //
-  // Wait for all the peripherals to be enabled
+  // Wait for peripheral to be enabled
   //
-  while(!SysCtlPeripheralReady(CS_SYSCTL_PORT_0) ||
-        !SysCtlPeripheralReady(CS_SYSCTL_PORT_1) ||
-        !SysCtlPeripheralReady(CS_SYSCTL_PORT_2) ||
-        !SysCtlPeripheralReady(CS_SYSCTL_PORT_3) ||
-        !SysCtlPeripheralReady(CS_SYSCTL_PORT_4) ||
-        !SysCtlPeripheralReady(CS_SYSCTL_PORT_5))
+  while(!SysCtlPeripheralReady(CS0_SYSCTL_PORT) &&
+        !SysCtlPeripheralReady(CS1_SYSCTL_PORT))
   {
   }
   
-  // Write all the chip selects high (OFF) now
-  uint32_t chip_number;
-  uint32_t chip_port;
-  uint32_t chip_pin;
-  for(chip_number = 0; chip_number < MAX_CHIP_NUMBER; chip_number++){
-    chip_port = RetrieveChipPort(chip_number);
-    chip_pin = RetrieveChipPin(chip_number);
-    
-    // Protect against non-configured chips
-    if(chip_port == 0 || chip_pin == 0){
-      continue;
-    }
-    
-    GPIOPinTypeGPIOOutput(chip_port, chip_pin);
-    
     //
-    // Set chip select lines high for now
+    // Configure the pins
     //
-    GPIOPinWrite(chip_port, chip_pin, chip_pin);
+    // Board 1
+    GPIOPinTypeGPIOOutput(CS0_PORT, CS0_PIN_0);
+    GPIOPinTypeGPIOOutput(CS0_PORT, CS0_PIN_1);
+    GPIOPinTypeGPIOOutput(CS0_PORT, CS0_PIN_2);
+    GPIOPinTypeGPIOOutput(CS0_PORT, CS0_PIN_3);
+
+    //Board 2
+    GPIOPinTypeGPIOOutput(CS1_PORT, CS1_PIN_0);
+    GPIOPinTypeGPIOOutput(CS1_PORT, CS1_PIN_1);
+    GPIOPinTypeGPIOOutput(CS1_PORT, CS1_PIN_2);
+    GPIOPinTypeGPIOOutput(CS1_PORT, CS1_PIN_3);
+
+    //
+    // Set chip select lines low for now
+    //
+    // Board 1
+    GPIOPinWrite(CS0_PORT, CS0_PIN_0, 0x0);
+    GPIOPinWrite(CS0_PORT, CS0_PIN_1, 0x0);
+    GPIOPinWrite(CS0_PORT, CS0_PIN_2, 0x0);
+    GPIOPinWrite(CS0_PORT, CS0_PIN_3, 0x0);
+
+    //Board 2
+    GPIOPinWrite(CS1_PORT, CS1_PIN_0, 0x0);
+    GPIOPinWrite(CS1_PORT, CS1_PIN_1, 0x0);
+    GPIOPinWrite(CS1_PORT, CS1_PIN_2, 0x0);
+    GPIOPinWrite(CS1_PORT, CS1_PIN_3, 0x0);
   }
 }
