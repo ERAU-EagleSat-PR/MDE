@@ -13,6 +13,9 @@
 extern void WriteToChip(uint32_t chip_number, unsigned char sequence_start, unsigned char sequence_offset);
 extern void ReadFromChip(uint32_t chip_number, unsigned char sequence_start, unsigned char sequence_offset);
 extern void EnableChipSelects();
+extern uint8_t RetriveChipMuxCode(uint32_t chip_number);
+extern uint32_t RetrieveChipPort(uint32_t chip_number);
+
 
 //*****************************************
 // System Hardware Variables 
@@ -21,6 +24,10 @@ extern void EnableChipSelects();
 // The primary UART base to read and write to (OBC Communication)
 #define UART_PRIMARY UART1_BASE
 #define ENABLE_UART1
+
+// The UART to Use debug terminal through
+//#define UART_PRIMARY UART1_BASE
+//#define ENABLE_UART1
 
 // The baud rate to use for either UART connection
 #define BAUD_RATE 115200

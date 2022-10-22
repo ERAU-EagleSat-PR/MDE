@@ -35,6 +35,7 @@ MRAMSequenceTransmit(unsigned char sequence_start, unsigned char sequence_offset
   {
   }
   
+  // sends write enable byte
   SSIDataPut(SPI_NUM_BASE, MRAM_WRITE_ENABLE);
   while(SSIBusy(SPI_NUM_BASE))
   {
@@ -53,7 +54,7 @@ MRAMSequenceTransmit(unsigned char sequence_start, unsigned char sequence_offset
   // Transmit the write instruction
   SSIDataPut(SPI_NUM_BASE, MRAM_WRITE);
   
-  // Since this is sequential write, only need to send address zero
+  // Since this is sequential write, only need to send address zero (adress writing to)
   SSIDataPut(SPI_NUM_BASE, 0x0);
   SSIDataPut(SPI_NUM_BASE, 0x0);
   SSIDataPut(SPI_NUM_BASE, 0x0);

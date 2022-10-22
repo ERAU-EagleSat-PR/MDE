@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "MDE_Payload_Prototype.h"
+#include "MDE_Payload_TM4C123GXL.h"
 #include "IS62WVS5128GBLL.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_gpio.h"

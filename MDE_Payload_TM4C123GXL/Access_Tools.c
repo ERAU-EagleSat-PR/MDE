@@ -128,16 +128,18 @@ WriteToChip(uint32_t chip_number, unsigned char sequence_start, unsigned char se
   
   uint32_t chip_port = RetrieveChipPort(chip_number);
   uint8_t chip_mux = RetriveChipMuxCode(chip_number % 16);
+
+  //drip chip select here (look at the chip select sequence in each of the sequence tranits)
   
-  if(chip_number < 8){
-    EEPROMSequenceTransmit(sequence_start, sequence_offset, chip_port, chip_pin);
-  }else if(chip_number < 16){
+  // TODO  Change the transmit function for multiplexer (TYLER)
+  // for each board teh chiui numbering is the same
+  if( (chip_number % 16) < 4){
     FlashSequenceTransmit(sequence_start, sequence_offset, chip_port, chip_pin);
-  }else if(chip_number < 24){
+  }else if( (chip_number % 16) < 8){
     FRAMSequenceTransmit(sequence_start, sequence_offset, chip_port, chip_pin);
-  }else if(chip_number < 32){
+  }else if( (chip_number % 16) < 12){
     MRAMSequenceTransmit(sequence_start, sequence_offset, chip_port, chip_pin);
-  }else if(chip_number < 40){
+  }else if( (chip_number % 16) < 16){
     SRAMSequenceTransmit(sequence_start, sequence_offset, chip_port, chip_pin);
   }
 }

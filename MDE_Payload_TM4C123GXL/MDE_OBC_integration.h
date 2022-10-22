@@ -5,14 +5,15 @@
 //*****************************************************************************
 
 // Make sure this file is only included once
-#ifndef MDE_PAYLOAD_TM4C123GXL_H
-#define MDE_PAYLOAD_TM4C123GXL_H
+#ifndef MDE_PAYLOAD_OBC_INTEGRATION_H
+#define MDE_PAYLOAD_OBC_INTEGRATION_H
 
 // Whether we are running in debug mode or not.
 // In debug mode, all output is printed in a human readable format, while in
 // non-debug (flight) mode, all output is sent in the agreed packet format.
 // To enable and disable debug mode, comment or uncomment the following line.
-// #define DEBUG
+
+#define DEBUG
 
 // Whether to seed errors in the chips, and where and what to seed.
 // Inserting errors at addresses that are multiples of 256 are easiest to verify
@@ -80,8 +81,8 @@ extern uint32_t old_current_error;
 #define HEALTH_DATA_HEADER_VALUE 2
 // The shifts and masks for the health data, in case the health data formatting
 // needs to be redefined. Adding data needs changes in main .c file.
-#define HEALTH_DATA_HEADER_SHIFT 62
-#define HEALTH_DATA_HEADER_MASK 0x3
+#define HEALTH_DATA_HEADER_SHIFT 56                     //while byte header
+#define HEALTH_DATA_HEADER_MASK 0xF                     // 11111111h
 #define HEALTH_DATA_CYCLE_SHIFT 48
 #define HEALTH_DATA_CYCLE_MASK 0x3FFF // Only 14 bits allocated for the count
 #define HEALTH_DATA_RESPONSIVENESS_SHIFT 8

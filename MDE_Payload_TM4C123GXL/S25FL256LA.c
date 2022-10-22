@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include "MDE_Payload_Prototype.h"
+#include "MDE_Payload_TM4C123GXL.h"
 #include "S25FL256LA.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_gpio.h"
