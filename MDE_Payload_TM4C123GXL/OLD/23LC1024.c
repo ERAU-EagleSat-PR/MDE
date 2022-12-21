@@ -4,6 +4,7 @@
 //
 //*****************************************************************************
 
+/*
 #include <stdint.h>
 #include <stdbool.h>
 #include "MDE_Payload_Prototype.h"
@@ -207,3 +208,4 @@ SRAMSequenceRetrieve(unsigned char sequence_start, unsigned char sequence_offset
   }
   
 }
+//*/

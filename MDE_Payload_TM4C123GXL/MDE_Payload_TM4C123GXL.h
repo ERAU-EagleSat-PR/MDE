@@ -5,14 +5,14 @@
 //*****************************************************************************
 
 // Make sure this file is only included once
-#ifndef MDE_PAYLOAD_PROTOTYPE_H
-#define MDE_PAYLOAD_PROTOTYPE_H
+#ifndef MDE_PAYLOAD_TM4C123GXL_H
+#define MDE_PAYLOAD_TM4C123GXL_H
 
 // Whether we are running in debug mode or not.
 // In debug mode, all output is printed in a human readable format, while in
 // non-debug (flight) mode, all output is sent in the agreed packet format.
 // To enable and disable debug mode, comment or uncomment the following line.
-#define DEBUG
+// #define DEBUG
 
 // Whether to seed errors in the chips, and where and what to seed.
 // Inserting errors at addresses that are multiples of 256 are easiest to verify
@@ -114,31 +114,7 @@ extern enum MENU_STATES menu_state;
 extern uint32_t timer_current_cycle;
 
 // The target clock speed for the system clock.
-#define SYS_CLK_SPEED 20000000
-
-// SPI clock speed. Cannot exceed masterclock, defined above, or any of the
-// max chip speeds.
-#define SPI_CLK_SPEED 4000000
-
-// SSI pins and ports
-#define SPI_NUM_BASE SSI3_BASE
-#define SPI_SYS_PERIPH SYSCTL_PERIPH_SSI3
-#define SPI_PORT GPIO_PORTQ_BASE
-#define SPI_SYS_PORT SYSCTL_PERIPH_GPIOQ
-#define SPI_CLK GPIO_PQ0_SSI3CLK
-#define SPI_MOSI GPIO_PQ2_SSI3XDAT0
-#define SPI_MISO GPIO_PQ3_SSI3XDAT1
-#define SPI_CLK_NUM GPIO_PIN_0
-#define SPI_MOSI_NUM GPIO_PIN_2
-#define SPI_MISO_NUM GPIO_PIN_3
-
-// The 2 extra pins for SQI
-#define SPI_SYS_DAT_PORT SYSCTL_PERIPH_GPIOP
-#define SPI_DAT_PORT GPIO_PORTP_BASE
-#define SPI_DAT2 GPIO_PP0_SSI3XDAT2
-#define SPI_DAT3 GPIO_PP1_SSI3XDAT3
-#define SPI_DAT2_NUM GPIO_PIN_0
-#define SPI_DAT3_NUM GPIO_PIN_1
+#define SYS_CLK_SPEED 20000
 
 // UARTSend prototype
 extern void UARTSend(const uint8_t *pui8Buffer, uint32_t ui32Count);
