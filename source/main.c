@@ -1,27 +1,25 @@
+#include <source/driverlib/debug.h>
+#include <source/driverlib/fpu.h>
+#include <source/driverlib/gpio.h>
+#include <source/driverlib/interrupt.h>
+#include <source/driverlib/pin_map.h>
+#include <source/driverlib/rom.h>
+#include <source/driverlib/ssi.h>
+#include <source/driverlib/sysctl.h>
+#include <source/driverlib/timer.h>
+#include <source/driverlib/uart.h>
+#include <source/inc/hw_gpio.h>
+#include <source/inc/hw_ints.h>
+#include <source/inc/hw_memmap.h>
+#include <source/inc/hw_types.h>
+#include <source/mde.h>
+#include <source/tm4c123gxl_system.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
 //driver imports
-#include "inc/hw_ints.h"
-#include "inc/hw_memmap.h"
-#include "inc/hw_gpio.h"
-#include "inc/hw_types.h"
-#include "driverlib/debug.h"
-#include "driverlib/fpu.h"
-#include "driverlib/gpio.h"
-#include "driverlib/interrupt.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/rom.h"
-#include "driverlib/timer.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/uart.h"
-#include "driverlib/ssi.h"
-
-// Custom Imports
-#include "tm4c123gxl_system.h"
-#include "mde.h"
 
 /*
 *******************************************************************************

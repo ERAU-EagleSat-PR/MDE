@@ -5,8 +5,8 @@
  *      Author: Calvin
  */
 
-#ifndef CODE_OBC_INTEGRATION_H_
-#define CODE_OBC_INTEGRATION_H_
+#ifndef SOURCE_OBC_INTEGRATION_H_
+#define SOURCE_OBC_INTEGRATION_H_
 
 //*****************************************
 // UART Hardware Variables
@@ -23,4 +23,4 @@
 // The baud rate to use for either UART connection
 #define BAUD_RATE 115200
 
-#endif /* CODE_OBC_INTEGRATION_H_ */
+#endif /* SOURCE_OBC_INTEGRATION_H_ */
