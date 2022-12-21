@@ -1,0 +1,18 @@
+##############################
+# gitignore for EagleSat-2 MDE 
+##############################
+
+# Code Coposer Studio
+Debug					# Debug folder
+*.config
+*.launches
+
+# shit picked up from VS Code
+.vscode/				# .vscode folder
+
+# DO NOT add these File types to the gitignore (According to Source control with CCS Document)
+# .ccsproject			# contains priject information specific to CCS
+# .cproject				# Eclipse CDT Project files
+# .project				# Eclipse CDT Project files
+# .settings folder		# Elciple folder with settings for the project
+# makefile.defs			

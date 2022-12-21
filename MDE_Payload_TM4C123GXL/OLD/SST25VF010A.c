@@ -1,3 +1,4 @@
+/*
 //*****************************************************************************
 //
 // This file contains the functions for the SST25VF010A Flash

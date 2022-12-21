@@ -1,0 +1,62 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+################################################################################
+
+SHELL = cmd.exe
+
+# Add inputs and outputs from these tool invocations to the build variables 
+C_SRCS += \
+../code/IS62WVS5128GBLL.c \
+../code/MB85RS2MTYPNF.c \
+../code/MR25H40.c \
+../code/S25FL256LA.c \
+../code/main.c \
+../code/obc_integration.c \
+../code/tm4c123gh6pm_startup_ccs.c 
+
+C_DEPS += \
+./code/IS62WVS5128GBLL.d \
+./code/MB85RS2MTYPNF.d \
+./code/MR25H40.d \
+./code/S25FL256LA.d \
+./code/main.d \
+./code/obc_integration.d \
+./code/tm4c123gh6pm_startup_ccs.d 
+
+OBJS += \
+./code/IS62WVS5128GBLL.obj \
+./code/MB85RS2MTYPNF.obj \
+./code/MR25H40.obj \
+./code/S25FL256LA.obj \
+./code/main.obj \
+./code/obc_integration.obj \
+./code/tm4c123gh6pm_startup_ccs.obj 
+
+OBJS__QUOTED += \
+"code\IS62WVS5128GBLL.obj" \
+"code\MB85RS2MTYPNF.obj" \
+"code\MR25H40.obj" \
+"code\S25FL256LA.obj" \
+"code\main.obj" \
+"code\obc_integration.obj" \
+"code\tm4c123gh6pm_startup_ccs.obj" 
+
+C_DEPS__QUOTED += \
+"code\IS62WVS5128GBLL.d" \
+"code\MB85RS2MTYPNF.d" \
+"code\MR25H40.d" \
+"code\S25FL256LA.d" \
+"code\main.d" \
+"code\obc_integration.d" \
+"code\tm4c123gh6pm_startup_ccs.d" 
+
+C_SRCS__QUOTED += \
+"../code/IS62WVS5128GBLL.c" \
+"../code/MB85RS2MTYPNF.c" \
+"../code/MR25H40.c" \
+"../code/S25FL256LA.c" \
+"../code/main.c" \
+"../code/obc_integration.c" \
+"../code/tm4c123gh6pm_startup_ccs.c" 
+
+

@@ -1,0 +1,19 @@
+"--endian=little" 
+
+"--cpu=Cortex-M4" 
+
+"--fpu=VFPv4_SP" 
+
+"-p" 
+
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.5\arm\CONFIG\debugger\TexasInstruments\TM4C1230C3PM.ddf" 
+
+"--semihosting" 
+
+"--device=TM4C1230C3PM" 
+
+"--multicore_nr_of_cores=1" 
+
+
+
+

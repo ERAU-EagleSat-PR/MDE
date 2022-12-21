@@ -3,7 +3,7 @@
 // This file contains the functions for the BR25A1M EEPROM
 //
 //*****************************************************************************
-
+/*
 #include <stdint.h>
 #include <stdbool.h>
 #include "MDE_Payload_Prototype.h"
@@ -262,3 +262,4 @@ EEPROMSequenceRetrieve(unsigned char sequence_start, unsigned char sequence_offs
   }
   
 }
+//*/

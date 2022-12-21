@@ -230,8 +230,7 @@ print_menu(void)
 // Process changes to the menu.
 //
 //*****************************************************************************
-void
-process_menu(int32_t recv_char)
+void process_menu(int32_t recv_char)
 {
 
   char buf[200];
@@ -469,9 +468,7 @@ int main(void)
     //
     //TimerEnable(TIMER0_BASE, TIMER_A); Not currently used
 
-    //////////////////////
-    // End Timer Config //
-    //////////////////////
+
     menu_state = MAIN;
     print_menu();
 

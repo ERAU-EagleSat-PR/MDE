@@ -1,3 +1,4 @@
+/*
 //*****************************************************************************
 //
 // This file contains the functions for the MB85RS1MT FRAM
