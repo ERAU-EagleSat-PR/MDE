@@ -112,7 +112,7 @@ PDE_DEPS__QUOTED :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 . \
-code \
-code/driverlib \
-code/driverlib/ewarm/Exe \
+driverlib \
+driverlib/ewarm/Exe \
+source \
 

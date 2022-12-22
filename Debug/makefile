@@ -10,46 +10,41 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
-"./code/IS62WVS5128GBLL.obj" \
-"./code/MB85RS2MTYPNF.obj" \
-"./code/MR25H40.obj" \
-"./code/S25FL256LA.obj" \
-"./code/main.obj" \
-"./code/obc_integration.obj" \
-"./code/tm4c123gh6pm_startup_ccs.obj" \
-"./code/driverlib/adc.obj" \
-"./code/driverlib/aes.obj" \
-"./code/driverlib/can.obj" \
-"./code/driverlib/comp.obj" \
-"./code/driverlib/cpu.obj" \
-"./code/driverlib/crc.obj" \
-"./code/driverlib/des.obj" \
-"./code/driverlib/eeprom.obj" \
-"./code/driverlib/emac.obj" \
-"./code/driverlib/epi.obj" \
-"./code/driverlib/epi_workaround_ccs.obj" \
-"./code/driverlib/flash.obj" \
-"./code/driverlib/fpu.obj" \
-"./code/driverlib/gpio.obj" \
-"./code/driverlib/hibernate.obj" \
-"./code/driverlib/i2c.obj" \
-"./code/driverlib/interrupt.obj" \
-"./code/driverlib/lcd.obj" \
-"./code/driverlib/mpu.obj" \
-"./code/driverlib/onewire.obj" \
-"./code/driverlib/pwm.obj" \
-"./code/driverlib/qei.obj" \
-"./code/driverlib/shamd5.obj" \
-"./code/driverlib/ssi.obj" \
-"./code/driverlib/sw_crc.obj" \
-"./code/driverlib/sysctl.obj" \
-"./code/driverlib/sysexc.obj" \
-"./code/driverlib/systick.obj" \
-"./code/driverlib/timer.obj" \
-"./code/driverlib/uart.obj" \
-"./code/driverlib/udma.obj" \
-"./code/driverlib/usb.obj" \
-"./code/driverlib/watchdog.obj" \
+"./driverlib/adc.obj" \
+"./driverlib/aes.obj" \
+"./driverlib/can.obj" \
+"./driverlib/comp.obj" \
+"./driverlib/cpu.obj" \
+"./driverlib/crc.obj" \
+"./driverlib/des.obj" \
+"./driverlib/eeprom.obj" \
+"./driverlib/emac.obj" \
+"./driverlib/epi.obj" \
+"./driverlib/epi_workaround_ccs.obj" \
+"./driverlib/flash.obj" \
+"./driverlib/fpu.obj" \
+"./driverlib/gpio.obj" \
+"./driverlib/hibernate.obj" \
+"./driverlib/i2c.obj" \
+"./driverlib/interrupt.obj" \
+"./driverlib/lcd.obj" \
+"./driverlib/mpu.obj" \
+"./driverlib/onewire.obj" \
+"./driverlib/pwm.obj" \
+"./driverlib/qei.obj" \
+"./driverlib/shamd5.obj" \
+"./driverlib/ssi.obj" \
+"./driverlib/sw_crc.obj" \
+"./driverlib/sysctl.obj" \
+"./driverlib/sysexc.obj" \
+"./driverlib/systick.obj" \
+"./driverlib/timer.obj" \
+"./driverlib/uart.obj" \
+"./driverlib/udma.obj" \
+"./driverlib/usb.obj" \
+"./driverlib/watchdog.obj" \
+"./source/main.obj" \
+"./source/tm4c123gh6pm_startup_ccs.obj" \
 "../tm4c123gh6pm.cmd" \
 $(GEN_CMDS__FLAG) \
 -llibc.a \
@@ -62,13 +57,13 @@ RMDIR := RMDIR /S/Q
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include subdir_vars.mk
--include code/subdir_vars.mk
--include code/driverlib/subdir_vars.mk
--include code/driverlib/ewarm/Exe/subdir_vars.mk
+-include driverlib/subdir_vars.mk
+-include driverlib/ewarm/Exe/subdir_vars.mk
+-include source/subdir_vars.mk
 -include subdir_rules.mk
--include code/subdir_rules.mk
--include code/driverlib/subdir_rules.mk
--include code/driverlib/ewarm/Exe/subdir_rules.mk
+-include driverlib/subdir_rules.mk
+-include driverlib/ewarm/Exe/subdir_rules.mk
+-include source/subdir_rules.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -199,10 +194,9 @@ MDE_UART_CCS.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "code\IS62WVS5128GBLL.obj" "code\MB85RS2MTYPNF.obj" "code\MR25H40.obj" "code\S25FL256LA.obj" "code\main.obj" "code\obc_integration.obj" "code\tm4c123gh6pm_startup_ccs.obj" "code\driverlib\adc.obj" "code\driverlib\aes.obj" "code\driverlib\can.obj" "code\driverlib\comp.obj" "code\driverlib\cpu.obj" "code\driverlib\crc.obj" "code\driverlib\des.obj" "code\driverlib\eeprom.obj" "code\driverlib\emac.obj" "code\driverlib\epi.obj" "code\driverlib\epi_workaround_ccs.obj" "code\driverlib\flash.obj" "code\driverlib\fpu.obj" "code\driverlib\gpio.obj" "code\driverlib\hibernate.obj" "code\driverlib\i2c.obj" "code\driverlib\interrupt.obj" "code\driverlib\lcd.obj" "code\driverlib\mpu.obj" "code\driverlib\onewire.obj" "code\driverlib\pwm.obj" "code\driverlib\qei.obj" "code\driverlib\shamd5.obj" "code\driverlib\ssi.obj" "code\driverlib\sw_crc.obj" "code\driverlib\sysctl.obj" "code\driverlib\sysexc.obj" "code\driverlib\systick.obj" "code\driverlib\timer.obj" "code\driverlib\uart.obj" "code\driverlib\udma.obj" 
-	-$(RM) "code\driverlib\usb.obj" "code\driverlib\watchdog.obj" 
-	-$(RM) "code\IS62WVS5128GBLL.d" "code\MB85RS2MTYPNF.d" "code\MR25H40.d" "code\S25FL256LA.d" "code\main.d" "code\obc_integration.d" "code\tm4c123gh6pm_startup_ccs.d" "code\driverlib\adc.d" "code\driverlib\aes.d" "code\driverlib\can.d" "code\driverlib\comp.d" "code\driverlib\cpu.d" "code\driverlib\crc.d" "code\driverlib\des.d" "code\driverlib\eeprom.d" "code\driverlib\emac.d" "code\driverlib\epi.d" "code\driverlib\flash.d" "code\driverlib\fpu.d" "code\driverlib\gpio.d" "code\driverlib\hibernate.d" "code\driverlib\i2c.d" "code\driverlib\interrupt.d" "code\driverlib\lcd.d" "code\driverlib\mpu.d" "code\driverlib\onewire.d" "code\driverlib\pwm.d" "code\driverlib\qei.d" "code\driverlib\shamd5.d" "code\driverlib\ssi.d" "code\driverlib\sw_crc.d" "code\driverlib\sysctl.d" "code\driverlib\sysexc.d" "code\driverlib\systick.d" "code\driverlib\timer.d" "code\driverlib\uart.d" "code\driverlib\udma.d" "code\driverlib\usb.d" "code\driverlib\watchdog.d" 
-	-$(RM) "code\driverlib\epi_workaround_ccs.d" 
+	-$(RM) "driverlib\adc.obj" "driverlib\aes.obj" "driverlib\can.obj" "driverlib\comp.obj" "driverlib\cpu.obj" "driverlib\crc.obj" "driverlib\des.obj" "driverlib\eeprom.obj" "driverlib\emac.obj" "driverlib\epi.obj" "driverlib\epi_workaround_ccs.obj" "driverlib\flash.obj" "driverlib\fpu.obj" "driverlib\gpio.obj" "driverlib\hibernate.obj" "driverlib\i2c.obj" "driverlib\interrupt.obj" "driverlib\lcd.obj" "driverlib\mpu.obj" "driverlib\onewire.obj" "driverlib\pwm.obj" "driverlib\qei.obj" "driverlib\shamd5.obj" "driverlib\ssi.obj" "driverlib\sw_crc.obj" "driverlib\sysctl.obj" "driverlib\sysexc.obj" "driverlib\systick.obj" "driverlib\timer.obj" "driverlib\uart.obj" "driverlib\udma.obj" "driverlib\usb.obj" "driverlib\watchdog.obj" "source\main.obj" "source\tm4c123gh6pm_startup_ccs.obj" 
+	-$(RM) "driverlib\adc.d" "driverlib\aes.d" "driverlib\can.d" "driverlib\comp.d" "driverlib\cpu.d" "driverlib\crc.d" "driverlib\des.d" "driverlib\eeprom.d" "driverlib\emac.d" "driverlib\epi.d" "driverlib\flash.d" "driverlib\fpu.d" "driverlib\gpio.d" "driverlib\hibernate.d" "driverlib\i2c.d" "driverlib\interrupt.d" "driverlib\lcd.d" "driverlib\mpu.d" "driverlib\onewire.d" "driverlib\pwm.d" "driverlib\qei.d" "driverlib\shamd5.d" "driverlib\ssi.d" "driverlib\sw_crc.d" "driverlib\sysctl.d" "driverlib\sysexc.d" "driverlib\systick.d" "driverlib\timer.d" "driverlib\uart.d" "driverlib\udma.d" "driverlib\usb.d" "driverlib\watchdog.d" "source\main.d" "source\tm4c123gh6pm_startup_ccs.d" 
+	-$(RM) "driverlib\epi_workaround_ccs.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

@@ -1,25 +1,40 @@
-#include <source/driverlib/debug.h>
-#include <source/driverlib/fpu.h>
-#include <source/driverlib/gpio.h>
-#include <source/driverlib/interrupt.h>
-#include <source/driverlib/pin_map.h>
-#include <source/driverlib/rom.h>
-#include <source/driverlib/ssi.h>
-#include <source/driverlib/sysctl.h>
-#include <source/driverlib/timer.h>
-#include <source/driverlib/uart.h>
-#include <source/inc/hw_gpio.h>
-#include <source/inc/hw_ints.h>
-#include <source/inc/hw_memmap.h>
-#include <source/inc/hw_types.h>
-#include <source/mde.h>
-#include <source/tm4c123gxl_system.h>
+/*
+ * Main File for the EagleSat-2 Memory Degredation Experiment
+ */
+
+/*
+*******************************************************************************
+*                               Include Files                                 *
+*******************************************************************************
+*/
+
+// Standard Includes
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
-//driver imports
+// Hardware Files
+#include <inc/hw_gpio.h>
+#include <inc/hw_ints.h>
+#include <inc/hw_memmap.h>
+#include <inc/hw_types.h>
+
+// Driver Files
+#include <driverlib/debug.h>
+#include <driverlib/fpu.h>
+#include <driverlib/gpio.h>
+#include <driverlib/interrupt.h>
+#include <driverlib/pin_map.h>
+#include <driverlib/rom.h>
+#include <driverlib/ssi.h>
+#include <driverlib/sysctl.h>
+#include <driverlib/timer.h>
+#include <driverlib/uart.h>
+
+// Custom Header Files
+#include "source/mde.h"
+#include "source/tm4c123gxl_system.h"
 
 /*
 *******************************************************************************
@@ -35,11 +50,33 @@ uint32_t timer_current_cycle = 0;
 bool timer_wakeup = false;
 
 // The current clock speed
-uint32_t SysClkSpeed = 0;
+uint32_t SysClkSpeed = 16000000;
 
 // State trackers for the menu
 enum MENU_STATES menu_state = INIT;
 uint32_t selected_chip_number = 0;
+
+/*
+*******************************************************************************
+*                             Function Prototypes                             *
+*******************************************************************************
+*/
+
+// UART Functions
+void EnablePrimaryUART(void);
+void UARTSend(const uint8_t *pui8Buffer, uint32_t ui32Count);
+void UART0IntHandler(void);
+void EnableDebugUART(void);
+void UARTSendDebug(const uint8_t *pui8Buffer, uint32_t ui32Count);
+void UARTSendDebug(const uint8_t *pui8Buffer, uint32_t ui32Count);
+void printMenu(void);
+void processDebugMenu(int32_t recv_char);
+
+// LED Functions
+void EnableLED(void);
+void BlinkRedLED(void);
+void BlinkBlueLED(void);
+void BlinkGreenLED(void);
 
 
 /*
@@ -56,7 +93,6 @@ void EnablePrimaryUART(void)
 {
 
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -77,7 +113,7 @@ void UARTSend(const uint8_t *pui8Buffer, uint32_t ui32Count)
 }
 
 
-#ifdef ENABLE_UART_DEBUG
+#ifdef ENABLE_UART_DEBUG //////////////////////////////////////////////////////
 
 //-----------------------------------------------------------------------------
 // The UART0 interrupt handler. Debugging UART
@@ -137,18 +173,24 @@ void EnableDebugUART(void)
     GPIOPinConfigure(GPIO_PA1_U0TX);
     GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 
+    // Configure the UART for 115,200, 8-N-1 operation.
+    UARTConfigSetExpClk(UART0_BASE, SysCtlClockGet(), 115200,
+                       (UART_CONFIG_WLEN_8 |
+                        UART_CONFIG_STOP_ONE |
+                        UART_CONFIG_PAR_NONE));
+
     // Map the Interrupt handler for UART 0
-    UARTIntRegister( UART0_BASE , UART0IntHandler );
+    UARTIntRegister( UART_DEBUG , UART0IntHandler );
 
     // Enable interrupts for UART 0
-    UARTIntEnable(UART0_BASE, UART_INT_RX | UART_INT_RT);
+    UARTIntEnable( UART_DEBUG, UART_INT_RX | UART_INT_RT);
 }
 
 
 //-----------------------------------------------------------------------------
 // Send a string to the Debug UART.
 //-----------------------------------------------------------------------------
-void UARTSendDebug(const uint8_t *pui8Buffer, uint32_t ui32Count)
+void UARTDebugSend(const uint8_t *pui8Buffer, uint32_t ui32Count)
 {
     //
     // Loop while there are more characters to send.
@@ -161,8 +203,6 @@ void UARTSendDebug(const uint8_t *pui8Buffer, uint32_t ui32Count)
         UARTCharPut(UART_DEBUG, *pui8Buffer++);
     }
 }
-
-#endif
 
 
 //-----------------------------------------------------------------------------
@@ -178,24 +218,26 @@ void printMenu(void)
     case INIT:
         UARTCharPut(UART_DEBUG, 0xC);
         sprintf(buf,"MDE Debug and Development Interface\n\r");
-        UARTSendDebug((uint8_t*) buf, strlen(buf));
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
     case MAIN:
         UARTCharPut(UART_DEBUG, 0xC);
-        sprintf(buf,"Menu Selection:\n\r");
-        UARTSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf,"M - Return to this menu.\n\r");
-        UARTSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf,"I - Enter Auto mode.\n\r");
-        UARTSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "H - Send Health Packet (TransmitHealth) \n\r");
-        UARTSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "D - Send Data Packet (TransmitErrors) \n\r");
-        UARTSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "Menu Selection:\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "M - Return to this menu.\n\r");                   // TODO
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "C - Clear screen.\n\r");                          // TODO
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "H - Send Health Packet (TransmitHealth) \n\r");   // TODO
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "E - Send Data Packet (TransmitErrors) \n\r");     // TODO
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "X - Restart Program.\n\r");                       // TODO
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
     case AUTO:
         sprintf(buf,"AUTO MODE. Hit M to exit.\n\r");
-        UARTSend((uint8_t*) buf, strlen(buf));
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
     default:
         UARTCharPut(UART_DEBUG, 0xC);
@@ -204,13 +246,12 @@ void printMenu(void)
 
 }
 
-
 //-----------------------------------------------------------------------------
 // Process input from the debug menu
 //-----------------------------------------------------------------------------
 void processDebugMenu(int32_t recv_char)
 {
-    /*
+
     char buf[200];
 
     switch (menu_state)
@@ -218,45 +259,34 @@ void processDebugMenu(int32_t recv_char)
     case MAIN:
         switch (recv_char)
         {
-        case 'm':
+        case 'm':   // Stay on Main Menu
             menu_state = MAIN;
             break;
-        case 'a':
-            menu_state = AUTO;
-            UARTCharPut(UART_PRIMARY, 0xC);
+        case 'c':   // Clear the screen
+            UARTCharPut(UART_DEBUG, 0xC);
             break;
-        case '1':
-            selected_chip_number = 0;
-            ChipSelect(selected_chip_number);
+        case 'a':   // Enter Auto Mode
+            //menu_state = AUTO;
+            UARTCharPut(UART_DEBUG, 0xC);
+            printMenu();
+            sprintf(buf, "Function Not Implemented.\n\r");              // TODO
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
             break;
-        case '2':
-            selected_chip_number = 1;
-            ChipSelect(selected_chip_number);
-            break;
-        case '3':
-            selected_chip_number = 2;
-            ChipSelect(selected_chip_number);
-            break;
-        case '4':
-            selected_chip_number = 3;
-            ChipSelect(selected_chip_number);
-            break;
-        case '5':
-            selected_chip_number = 4;
-            ChipSelect(selected_chip_number);
-            break;
-        case '6':
-            selected_chip_number = 5;
-            ChipSelect(selected_chip_number);
-            break;
-        case '7':
-            selected_chip_number = 6;
-            ChipSelect(selected_chip_number);
-            break;
-        case '8':
-            selected_chip_number = 7;
-            ChipSelect(selected_chip_number);
-            break;
+        case 'h':
+            UARTCharPut(UART_DEBUG, 0xC);
+            printMenu();
+            sprintf(buf, "Function Not Implemented.\n\r");              // TODO
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
+        case 'e':
+            UARTCharPut(UART_DEBUG, 0xC);
+            printMenu();
+            sprintf(buf, "Function Not Implemented.\n\r");              // TODO
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
+        case 'x':
+            UARTCharPut(UART_DEBUG, 0xC);
+            printMenu();
+            sprintf(buf, "Function Not Implemented.\n\r");              // TODO
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
         }
         break;
     case AUTO:
@@ -268,9 +298,10 @@ void processDebugMenu(int32_t recv_char)
         }
         break;
     }
-    */
+
 }
 
+#endif ////////////////////////////////////////////////////////////////////////
 
 
 /*
@@ -305,28 +336,75 @@ void EnableLED(void)
 }
 
 //-----------------------------------------------------------------------------
+// Blinks the Red LED
+//-----------------------------------------------------------------------------
+void BlinkRedLED(void)
+{
+
+    // Turn on RED LED
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIO_PIN_1);
+
+    // Delay for a bit.
+    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    {
+    }
+
+    // Turn off RED LED.
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x0);
+
+    // Delay for a bit
+    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    {
+    }
+}
+
+//-----------------------------------------------------------------------------
 // Blinks the Blue LED, Signifying the MDE is IDLE / WAITING
 //-----------------------------------------------------------------------------
 void BlinkBlueLED(void)
 {
 
-  // Turn on BLUE LED
-  GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
+    // Turn on BLUE LED
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
 
-  // Delay for a bit.
-  for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
-  {
-  }
+    // Delay for a bit.
+    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    {
+    }
 
-  // Turn off BLUE LED.
-  GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x0);
+    // Turn off BLUE LED.
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x0);
 
-  // Delay for a bit
-  for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
-  {
-  }
+    // Delay for a bit
+    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    {
+    }
 }
 
+//-----------------------------------------------------------------------------
+// Blinks the Green LED
+//-----------------------------------------------------------------------------
+void BlinkGreenLED(void)
+{
+
+    // Turn on GREEN LED
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, GPIO_PIN_3);
+
+    // Delay for a bit.
+    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    {
+    }
+
+    // Turn off GREEN LED.
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x0);
+
+    // Delay for a bit
+    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    {
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 //*****************************************************************************
 //                                                                            *
@@ -353,29 +431,37 @@ int main(void)
     //*****************************
     EnableLED();
 
+#ifdef DEBUG
     //******************************
     // UART Enable and Configuration
     //******************************
-
-    #ifdef DEBUG
-
-
-    #endif
+    EnableDebugUART();
+#endif
 
 #ifdef DEBUG
-
-    printMenu();
 
     menu_state = MAIN;
     printMenu();
 
 #endif
 
+
     while (1)
     {
         // Idle "heart beat"
         BlinkBlueLED();
+        BlinkRedLED();
+        BlinkGreenLED();
+
     }
 
     return 0;
 }
+
+//*****************************************************************************
+//                                                                            *
+//                                END MAIN                                    *
+//                                                                            *
+//*****************************************************************************
+
+///////////////////////////////////////////////////////////////////////////////

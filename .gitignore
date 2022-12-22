@@ -4,6 +4,9 @@
 
 # Code Coposer Studio
 Debug					# Debug folder
+Release					# Release folder
+/Debug/
+/Release/
 *.config
 *.launches
 
@@ -16,5 +19,3 @@ Debug					# Debug folder
 # .project				# Eclipse CDT Project files
 # .settings folder		# Elciple folder with settings for the project
 # makefile.defs			
-/Debug/
-/Release/

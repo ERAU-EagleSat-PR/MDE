@@ -10,141 +10,42 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/adc.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/aes.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/can.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/comp.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/cpu.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/crc.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/des.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/eeprom.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/emac.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/epi.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/epi_workaround_ccs.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/flash.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/fpu.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/gpio.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/hibernate.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/i2c.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/interrupt.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/lcd.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/mpu.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/onewire.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/pwm.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/qei.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/shamd5.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/ssi.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/sw_crc.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/sysctl.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/sysexc.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/systick.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/timer.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/uart.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/udma.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/usb.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/driverlib/watchdog.obj" \
-"./MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/tm4c123gh6pm_startup_ccs.obj" \
-"./MDE_Payload_TM4C123GXL/Access_Tools.obj" \
-"./MDE_Payload_TM4C123GXL/IS62WVS5128GBLL.obj" \
-"./MDE_Payload_TM4C123GXL/MB85RS2MTYPNF.obj" \
-"./MDE_Payload_TM4C123GXL/MDE_Mux_Prototype.obj" \
-"./MDE_Payload_TM4C123GXL/MDE_Payload_TM4C123GXL.obj" \
-"./MDE_Payload_TM4C123GXL/MDE__OBC_integration.obj" \
-"./MDE_Payload_TM4C123GXL/MR25H40.obj" \
-"./MDE_Payload_TM4C123GXL/S25FL256LA.obj" \
-"./MDE_Payload_TM4C123GXL/startup_ewarm.obj" \
-"./MDE_Payload_TM4C123GXL/OLD/23LC1024.obj" \
-"./MDE_Payload_TM4C123GXL/OLD/BR25A1M.obj" \
-"./MDE_Payload_TM4C123GXL/OLD/CY15B104Q.obj" \
-"./MDE_Payload_TM4C123GXL/OLD/MB85RS1MT.obj" \
-"./MDE_Payload_TM4C123GXL/OLD/MR25H10.obj" \
-"./MDE_Payload_TM4C123GXL/OLD/SST25VF010A.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/adc.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/aes.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/can.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/comp.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/cpu.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/crc.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/des.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/eeprom.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/emac.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/epi.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/epi_workaround_ccs.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/flash.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/fpu.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/gpio.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/hibernate.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/i2c.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/interrupt.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/lcd.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/mpu.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/onewire.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/pwm.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/qei.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/shamd5.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/ssi.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/sw_crc.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/sysctl.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/sysexc.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/systick.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/timer.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/uart.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/udma.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/usb.obj" \
-"./MDE_Payload_TM4C123GXL/driverlib/watchdog.obj" \
-"../MDE_Payload_TM4C123GXL/ewarm/Obj/23LC1024.o" \
-"../MDE_Payload_TM4C123GXL/ewarm/Obj/Access_Tools.o" \
-"../MDE_Payload_TM4C123GXL/ewarm/Obj/BR25A1M.o" \
-"../MDE_Payload_TM4C123GXL/ewarm/Obj/CY15B104Q.o" \
-"../MDE_Payload_TM4C123GXL/ewarm/Obj/IS62WVS5128GBLL.o" \
-"../MDE_Payload_TM4C123GXL/ewarm/Obj/M95M02.o" \
-"../MDE_Payload_TM4C123GXL/ewarm/Obj/MB85RS1MT.o" \
-"../MDE_Payload_TM4C123GXL/ewarm/Obj/MDE_Payload_Prototype.o" \
-"../MDE_Payload_TM4C123GXL/ewarm/Obj/MR25H10.o" \
-"../MDE_Payload_TM4C123GXL/ewarm/Obj/MR25H40.o" \
-"../MDE_Payload_TM4C123GXL/ewarm/Obj/S25FL256LA.o" \
-"../MDE_Payload_TM4C123GXL/ewarm/Obj/SST25VF010A.o" \
-"../MDE_Payload_TM4C123GXL/ewarm/Obj/startup_ewarm.o" \
-"./code/Access_Tools.obj" \
-"./code/MDE_OBC_integration.obj" \
-"./code/main.obj" \
-"./code/obc_integration.obj" \
-"./code/tm4c123gh6pm_startup_ccs.obj" \
-"./code/driverlib/adc.obj" \
-"./code/driverlib/aes.obj" \
-"./code/driverlib/can.obj" \
-"./code/driverlib/comp.obj" \
-"./code/driverlib/cpu.obj" \
-"./code/driverlib/crc.obj" \
-"./code/driverlib/des.obj" \
-"./code/driverlib/eeprom.obj" \
-"./code/driverlib/emac.obj" \
-"./code/driverlib/epi.obj" \
-"./code/driverlib/epi_workaround_ccs.obj" \
-"./code/driverlib/flash.obj" \
-"./code/driverlib/fpu.obj" \
-"./code/driverlib/gpio.obj" \
-"./code/driverlib/hibernate.obj" \
-"./code/driverlib/i2c.obj" \
-"./code/driverlib/interrupt.obj" \
-"./code/driverlib/lcd.obj" \
-"./code/driverlib/mpu.obj" \
-"./code/driverlib/onewire.obj" \
-"./code/driverlib/pwm.obj" \
-"./code/driverlib/qei.obj" \
-"./code/driverlib/shamd5.obj" \
-"./code/driverlib/ssi.obj" \
-"./code/driverlib/sw_crc.obj" \
-"./code/driverlib/sysctl.obj" \
-"./code/driverlib/sysexc.obj" \
-"./code/driverlib/systick.obj" \
-"./code/driverlib/timer.obj" \
-"./code/driverlib/uart.obj" \
-"./code/driverlib/udma.obj" \
-"./code/driverlib/usb.obj" \
-"./code/driverlib/watchdog.obj" \
+"./driverlib/adc.obj" \
+"./driverlib/aes.obj" \
+"./driverlib/can.obj" \
+"./driverlib/comp.obj" \
+"./driverlib/cpu.obj" \
+"./driverlib/crc.obj" \
+"./driverlib/des.obj" \
+"./driverlib/eeprom.obj" \
+"./driverlib/emac.obj" \
+"./driverlib/epi.obj" \
+"./driverlib/epi_workaround_ccs.obj" \
+"./driverlib/flash.obj" \
+"./driverlib/fpu.obj" \
+"./driverlib/gpio.obj" \
+"./driverlib/hibernate.obj" \
+"./driverlib/i2c.obj" \
+"./driverlib/interrupt.obj" \
+"./driverlib/lcd.obj" \
+"./driverlib/mpu.obj" \
+"./driverlib/onewire.obj" \
+"./driverlib/pwm.obj" \
+"./driverlib/qei.obj" \
+"./driverlib/shamd5.obj" \
+"./driverlib/ssi.obj" \
+"./driverlib/sw_crc.obj" \
+"./driverlib/sysctl.obj" \
+"./driverlib/sysexc.obj" \
+"./driverlib/systick.obj" \
+"./driverlib/timer.obj" \
+"./driverlib/uart.obj" \
+"./driverlib/udma.obj" \
+"./driverlib/usb.obj" \
+"./driverlib/watchdog.obj" \
+"./source/main.obj" \
+"./source/tm4c123gh6pm_startup_ccs.obj" \
 "../tm4c123gh6pm.cmd" \
-"../MDE_Payload_Prototype_TM4C1294/MDE Mux Prototype/tm4c123gh6pm.cmd" \
 $(GEN_CMDS__FLAG) \
 -llibc.a \
 
@@ -156,31 +57,13 @@ RMDIR := RMDIR /S/Q
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include subdir_vars.mk
--include MDE_Payload_Prototype_TM4C1294/MDE\ Mux\ Prototype/driverlib/subdir_vars.mk
--include MDE_Payload_Prototype_TM4C1294/MDE\ Mux\ Prototype/driverlib/ewarm/Exe/subdir_vars.mk
--include MDE_Payload_Prototype_TM4C1294/MDE\ Mux\ Prototype/subdir_vars.mk
--include MDE_Payload_TM4C123GXL/subdir_vars.mk
--include MDE_Payload_TM4C123GXL/OLD/subdir_vars.mk
--include MDE_Payload_TM4C123GXL/driverlib/subdir_vars.mk
--include MDE_Payload_TM4C123GXL/driverlib/ewarm/Exe/subdir_vars.mk
--include MDE_Payload_TM4C123GXL/ewarm/Exe/subdir_vars.mk
--include MDE_Payload_TM4C123GXL/ewarm/Obj/subdir_vars.mk
--include code/subdir_vars.mk
--include code/driverlib/subdir_vars.mk
--include code/driverlib/ewarm/Exe/subdir_vars.mk
+-include driverlib/subdir_vars.mk
+-include driverlib/ewarm/Exe/subdir_vars.mk
+-include source/subdir_vars.mk
 -include subdir_rules.mk
--include MDE_Payload_Prototype_TM4C1294/MDE\ Mux\ Prototype/driverlib/subdir_rules.mk
--include MDE_Payload_Prototype_TM4C1294/MDE\ Mux\ Prototype/driverlib/ewarm/Exe/subdir_rules.mk
--include MDE_Payload_Prototype_TM4C1294/MDE\ Mux\ Prototype/subdir_rules.mk
--include MDE_Payload_TM4C123GXL/subdir_rules.mk
--include MDE_Payload_TM4C123GXL/OLD/subdir_rules.mk
--include MDE_Payload_TM4C123GXL/driverlib/subdir_rules.mk
--include MDE_Payload_TM4C123GXL/driverlib/ewarm/Exe/subdir_rules.mk
--include MDE_Payload_TM4C123GXL/ewarm/Exe/subdir_rules.mk
--include MDE_Payload_TM4C123GXL/ewarm/Obj/subdir_rules.mk
--include code/subdir_rules.mk
--include code/driverlib/subdir_rules.mk
--include code/driverlib/ewarm/Exe/subdir_rules.mk
+-include driverlib/subdir_rules.mk
+-include driverlib/ewarm/Exe/subdir_rules.mk
+-include source/subdir_rules.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -311,19 +194,9 @@ MDE_UART_CCS.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\adc.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\aes.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\can.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\comp.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\cpu.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\crc.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\des.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\eeprom.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\emac.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\epi.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\epi_workaround_ccs.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\flash.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\fpu.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\gpio.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\hibernate.obj" 
-	-$(RM) "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\i2c.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\interrupt.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\lcd.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\mpu.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\onewire.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\pwm.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\qei.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\shamd5.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\ssi.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\sw_crc.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\sysctl.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\sysexc.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\systick.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\timer.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\uart.obj" 
-	-$(RM) "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\udma.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\usb.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\watchdog.obj" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\tm4c123gh6pm_startup_ccs.obj" "MDE_Payload_TM4C123GXL\Access_Tools.obj" "MDE_Payload_TM4C123GXL\IS62WVS5128GBLL.obj" "MDE_Payload_TM4C123GXL\MB85RS2MTYPNF.obj" "MDE_Payload_TM4C123GXL\MDE_Mux_Prototype.obj" "MDE_Payload_TM4C123GXL\MDE_Payload_TM4C123GXL.obj" "MDE_Payload_TM4C123GXL\MDE__OBC_integration.obj" "MDE_Payload_TM4C123GXL\MR25H40.obj" "MDE_Payload_TM4C123GXL\S25FL256LA.obj" "MDE_Payload_TM4C123GXL\startup_ewarm.obj" "MDE_Payload_TM4C123GXL\OLD\23LC1024.obj" "MDE_Payload_TM4C123GXL\OLD\BR25A1M.obj" "MDE_Payload_TM4C123GXL\OLD\CY15B104Q.obj" "MDE_Payload_TM4C123GXL\OLD\MB85RS1MT.obj" "MDE_Payload_TM4C123GXL\OLD\MR25H10.obj" "MDE_Payload_TM4C123GXL\OLD\SST25VF010A.obj" "MDE_Payload_TM4C123GXL\driverlib\adc.obj" "MDE_Payload_TM4C123GXL\driverlib\aes.obj" 
-	-$(RM) "MDE_Payload_TM4C123GXL\driverlib\can.obj" "MDE_Payload_TM4C123GXL\driverlib\comp.obj" "MDE_Payload_TM4C123GXL\driverlib\cpu.obj" "MDE_Payload_TM4C123GXL\driverlib\crc.obj" "MDE_Payload_TM4C123GXL\driverlib\des.obj" "MDE_Payload_TM4C123GXL\driverlib\eeprom.obj" "MDE_Payload_TM4C123GXL\driverlib\emac.obj" "MDE_Payload_TM4C123GXL\driverlib\epi.obj" "MDE_Payload_TM4C123GXL\driverlib\epi_workaround_ccs.obj" "MDE_Payload_TM4C123GXL\driverlib\flash.obj" "MDE_Payload_TM4C123GXL\driverlib\fpu.obj" "MDE_Payload_TM4C123GXL\driverlib\gpio.obj" "MDE_Payload_TM4C123GXL\driverlib\hibernate.obj" "MDE_Payload_TM4C123GXL\driverlib\i2c.obj" "MDE_Payload_TM4C123GXL\driverlib\interrupt.obj" "MDE_Payload_TM4C123GXL\driverlib\lcd.obj" "MDE_Payload_TM4C123GXL\driverlib\mpu.obj" "MDE_Payload_TM4C123GXL\driverlib\onewire.obj" "MDE_Payload_TM4C123GXL\driverlib\pwm.obj" "MDE_Payload_TM4C123GXL\driverlib\qei.obj" "MDE_Payload_TM4C123GXL\driverlib\shamd5.obj" "MDE_Payload_TM4C123GXL\driverlib\ssi.obj" "MDE_Payload_TM4C123GXL\driverlib\sw_crc.obj" 
-	-$(RM) "MDE_Payload_TM4C123GXL\driverlib\sysctl.obj" "MDE_Payload_TM4C123GXL\driverlib\sysexc.obj" "MDE_Payload_TM4C123GXL\driverlib\systick.obj" "MDE_Payload_TM4C123GXL\driverlib\timer.obj" "MDE_Payload_TM4C123GXL\driverlib\uart.obj" "MDE_Payload_TM4C123GXL\driverlib\udma.obj" "MDE_Payload_TM4C123GXL\driverlib\usb.obj" "MDE_Payload_TM4C123GXL\driverlib\watchdog.obj" "code\Access_Tools.obj" "code\MDE_OBC_integration.obj" "code\main.obj" "code\obc_integration.obj" "code\tm4c123gh6pm_startup_ccs.obj" "code\driverlib\adc.obj" "code\driverlib\aes.obj" "code\driverlib\can.obj" "code\driverlib\comp.obj" "code\driverlib\cpu.obj" "code\driverlib\crc.obj" "code\driverlib\des.obj" "code\driverlib\eeprom.obj" "code\driverlib\emac.obj" "code\driverlib\epi.obj" "code\driverlib\epi_workaround_ccs.obj" "code\driverlib\flash.obj" "code\driverlib\fpu.obj" "code\driverlib\gpio.obj" "code\driverlib\hibernate.obj" "code\driverlib\i2c.obj" "code\driverlib\interrupt.obj" "code\driverlib\lcd.obj" "code\driverlib\mpu.obj" 
-	-$(RM) "code\driverlib\onewire.obj" "code\driverlib\pwm.obj" "code\driverlib\qei.obj" "code\driverlib\shamd5.obj" "code\driverlib\ssi.obj" "code\driverlib\sw_crc.obj" "code\driverlib\sysctl.obj" "code\driverlib\sysexc.obj" "code\driverlib\systick.obj" "code\driverlib\timer.obj" "code\driverlib\uart.obj" "code\driverlib\udma.obj" "code\driverlib\usb.obj" "code\driverlib\watchdog.obj" 
-	-$(RM) "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\adc.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\aes.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\can.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\comp.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\cpu.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\crc.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\des.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\eeprom.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\emac.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\epi.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\flash.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\fpu.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\gpio.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\hibernate.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\i2c.d" 
-	-$(RM) "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\interrupt.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\lcd.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\mpu.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\onewire.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\pwm.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\qei.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\shamd5.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\ssi.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\sw_crc.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\sysctl.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\sysexc.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\systick.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\timer.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\uart.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\udma.d" 
-	-$(RM) "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\usb.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\watchdog.d" "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\tm4c123gh6pm_startup_ccs.d" "MDE_Payload_TM4C123GXL\Access_Tools.d" "MDE_Payload_TM4C123GXL\IS62WVS5128GBLL.d" "MDE_Payload_TM4C123GXL\MB85RS2MTYPNF.d" "MDE_Payload_TM4C123GXL\MDE_Mux_Prototype.d" "MDE_Payload_TM4C123GXL\MDE_Payload_TM4C123GXL.d" "MDE_Payload_TM4C123GXL\MDE__OBC_integration.d" "MDE_Payload_TM4C123GXL\MR25H40.d" "MDE_Payload_TM4C123GXL\S25FL256LA.d" "MDE_Payload_TM4C123GXL\startup_ewarm.d" "MDE_Payload_TM4C123GXL\OLD\23LC1024.d" "MDE_Payload_TM4C123GXL\OLD\BR25A1M.d" "MDE_Payload_TM4C123GXL\OLD\CY15B104Q.d" "MDE_Payload_TM4C123GXL\OLD\MB85RS1MT.d" "MDE_Payload_TM4C123GXL\OLD\MR25H10.d" "MDE_Payload_TM4C123GXL\OLD\SST25VF010A.d" "MDE_Payload_TM4C123GXL\driverlib\adc.d" "MDE_Payload_TM4C123GXL\driverlib\aes.d" "MDE_Payload_TM4C123GXL\driverlib\can.d" "MDE_Payload_TM4C123GXL\driverlib\comp.d" 
-	-$(RM) "MDE_Payload_TM4C123GXL\driverlib\cpu.d" "MDE_Payload_TM4C123GXL\driverlib\crc.d" "MDE_Payload_TM4C123GXL\driverlib\des.d" "MDE_Payload_TM4C123GXL\driverlib\eeprom.d" "MDE_Payload_TM4C123GXL\driverlib\emac.d" "MDE_Payload_TM4C123GXL\driverlib\epi.d" "MDE_Payload_TM4C123GXL\driverlib\flash.d" "MDE_Payload_TM4C123GXL\driverlib\fpu.d" "MDE_Payload_TM4C123GXL\driverlib\gpio.d" "MDE_Payload_TM4C123GXL\driverlib\hibernate.d" "MDE_Payload_TM4C123GXL\driverlib\i2c.d" "MDE_Payload_TM4C123GXL\driverlib\interrupt.d" "MDE_Payload_TM4C123GXL\driverlib\lcd.d" "MDE_Payload_TM4C123GXL\driverlib\mpu.d" "MDE_Payload_TM4C123GXL\driverlib\onewire.d" "MDE_Payload_TM4C123GXL\driverlib\pwm.d" "MDE_Payload_TM4C123GXL\driverlib\qei.d" "MDE_Payload_TM4C123GXL\driverlib\shamd5.d" "MDE_Payload_TM4C123GXL\driverlib\ssi.d" "MDE_Payload_TM4C123GXL\driverlib\sw_crc.d" "MDE_Payload_TM4C123GXL\driverlib\sysctl.d" "MDE_Payload_TM4C123GXL\driverlib\sysexc.d" "MDE_Payload_TM4C123GXL\driverlib\systick.d" "MDE_Payload_TM4C123GXL\driverlib\timer.d" 
-	-$(RM) "MDE_Payload_TM4C123GXL\driverlib\uart.d" "MDE_Payload_TM4C123GXL\driverlib\udma.d" "MDE_Payload_TM4C123GXL\driverlib\usb.d" "MDE_Payload_TM4C123GXL\driverlib\watchdog.d" "code\Access_Tools.d" "code\MDE_OBC_integration.d" "code\main.d" "code\obc_integration.d" "code\tm4c123gh6pm_startup_ccs.d" "code\driverlib\adc.d" "code\driverlib\aes.d" "code\driverlib\can.d" "code\driverlib\comp.d" "code\driverlib\cpu.d" "code\driverlib\crc.d" "code\driverlib\des.d" "code\driverlib\eeprom.d" "code\driverlib\emac.d" "code\driverlib\epi.d" "code\driverlib\flash.d" "code\driverlib\fpu.d" "code\driverlib\gpio.d" "code\driverlib\hibernate.d" "code\driverlib\i2c.d" "code\driverlib\interrupt.d" "code\driverlib\lcd.d" "code\driverlib\mpu.d" "code\driverlib\onewire.d" "code\driverlib\pwm.d" "code\driverlib\qei.d" "code\driverlib\shamd5.d" "code\driverlib\ssi.d" "code\driverlib\sw_crc.d" "code\driverlib\sysctl.d" "code\driverlib\sysexc.d" "code\driverlib\systick.d" "code\driverlib\timer.d" "code\driverlib\uart.d" 
-	-$(RM) "code\driverlib\udma.d" "code\driverlib\usb.d" "code\driverlib\watchdog.d" 
-	-$(RM) "MDE_Payload_Prototype_TM4C1294\MDE Mux Prototype\driverlib\epi_workaround_ccs.d" "MDE_Payload_TM4C123GXL\driverlib\epi_workaround_ccs.d" "code\driverlib\epi_workaround_ccs.d" 
+	-$(RM) "driverlib\adc.obj" "driverlib\aes.obj" "driverlib\can.obj" "driverlib\comp.obj" "driverlib\cpu.obj" "driverlib\crc.obj" "driverlib\des.obj" "driverlib\eeprom.obj" "driverlib\emac.obj" "driverlib\epi.obj" "driverlib\epi_workaround_ccs.obj" "driverlib\flash.obj" "driverlib\fpu.obj" "driverlib\gpio.obj" "driverlib\hibernate.obj" "driverlib\i2c.obj" "driverlib\interrupt.obj" "driverlib\lcd.obj" "driverlib\mpu.obj" "driverlib\onewire.obj" "driverlib\pwm.obj" "driverlib\qei.obj" "driverlib\shamd5.obj" "driverlib\ssi.obj" "driverlib\sw_crc.obj" "driverlib\sysctl.obj" "driverlib\sysexc.obj" "driverlib\systick.obj" "driverlib\timer.obj" "driverlib\uart.obj" "driverlib\udma.obj" "driverlib\usb.obj" "driverlib\watchdog.obj" "source\main.obj" "source\tm4c123gh6pm_startup_ccs.obj" 
+	-$(RM) "driverlib\adc.d" "driverlib\aes.d" "driverlib\can.d" "driverlib\comp.d" "driverlib\cpu.d" "driverlib\crc.d" "driverlib\des.d" "driverlib\eeprom.d" "driverlib\emac.d" "driverlib\epi.d" "driverlib\flash.d" "driverlib\fpu.d" "driverlib\gpio.d" "driverlib\hibernate.d" "driverlib\i2c.d" "driverlib\interrupt.d" "driverlib\lcd.d" "driverlib\mpu.d" "driverlib\onewire.d" "driverlib\pwm.d" "driverlib\qei.d" "driverlib\shamd5.d" "driverlib\ssi.d" "driverlib\sw_crc.d" "driverlib\sysctl.d" "driverlib\sysexc.d" "driverlib\systick.d" "driverlib\timer.d" "driverlib\uart.d" "driverlib\udma.d" "driverlib\usb.d" "driverlib\watchdog.d" "source\main.d" "source\tm4c123gh6pm_startup_ccs.d" 
+	-$(RM) "driverlib\epi_workaround_ccs.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

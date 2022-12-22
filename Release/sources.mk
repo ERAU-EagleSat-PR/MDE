@@ -112,16 +112,7 @@ PDE_DEPS__QUOTED :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 . \
-MDE_Payload_Prototype_TM4C1294/MDE\ Mux\ Prototype/driverlib \
-MDE_Payload_Prototype_TM4C1294/MDE\ Mux\ Prototype/driverlib/ewarm/Exe \
-MDE_Payload_Prototype_TM4C1294/MDE\ Mux\ Prototype \
-MDE_Payload_TM4C123GXL \
-MDE_Payload_TM4C123GXL/OLD \
-MDE_Payload_TM4C123GXL/driverlib \
-MDE_Payload_TM4C123GXL/driverlib/ewarm/Exe \
-MDE_Payload_TM4C123GXL/ewarm/Exe \
-MDE_Payload_TM4C123GXL/ewarm/Obj \
-code \
-code/driverlib \
-code/driverlib/ewarm/Exe \
+driverlib \
+driverlib/ewarm/Exe \
+source \
 
