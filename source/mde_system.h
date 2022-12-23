@@ -9,12 +9,24 @@
 #ifndef TM4C123GXL_SYSTEM_H
 #define TM4C123GXL_SYSTEM_H
 
-// Method prototypes
-extern void WriteToChip(uint32_t chip_number, unsigned char sequence_start, unsigned char sequence_offset);
-extern void ReadFromChip(uint32_t chip_number, unsigned char sequence_start, unsigned char sequence_offset);
-extern void EnableChipSelects();
-extern uint8_t RetriveChipMuxCode(uint32_t chip_number);
-extern uint32_t RetrieveChipPort(uint32_t chip_number);
+/*
+*******************************************************************************
+*                             Function Prototypes                             *
+*******************************************************************************
+*/
+extern void     EnableChipSelects();
+extern uint8_t  RetriveCSCode(uint32_t chipNumber);
+extern uint32_t RetrieveCSPort(uint32_t chipNumber);
+extern void     setCSOutput(uint32_t chipNumber);
+
+extern void WriteToChip(    uint32_t chipNumber,
+                            unsigned char sequence_start,
+                            unsigned char sequence_offset);
+
+extern void ReadFromChip(   uint32_t chipNumber,
+                            unsigned char sequence_start,
+                            unsigned char sequence_offset);
+
 
 
 //*****************************************
@@ -85,22 +97,24 @@ extern uint32_t timer_current_cycle;
 #define SPI1_MOSI_NUM       GPIO_PIN_1
 #define SPI1_MISO_NUM       GPIO_PIN_0
 
-// Chip Select ports and pins for primary memory board
+// Chip Select ports and pins for Board 1
 // All pins are on the same port
-#define BOARD1_CS_PORT      GPIO_PORTD_BASE
-#define CS0_0_PIN           GPIO_PIN_0
-#define CS0_1_PIN           GPIO_PIN_1
-#define CS0_2_PIN           GPIO_PIN_2
-#define CS0_3_PIN           GPIO_PIN_3
+#define BOARD1_CS_PORT_BASE     GPIO_PORTD_BASE
+#define BOARD1_CS_PORT_SYSCTL   SYSCTL_PERIPH_GPIOD
+#define CS1_0_PIN           GPIO_PIN_0
+#define CS1_1_PIN           GPIO_PIN_1
+#define CS1_2_PIN           GPIO_PIN_2
+#define CS1_3_PIN           GPIO_PIN_3
 
 
-// Chip Select ports and pins for 2nd memory board
+// Chip Select ports and pins for Board 2
 // All pins are on the same port
-#define BOARD2_CS_PORT      GPIO_PORTC_BASE
-#define CS1_0_PIN           GPIO_PIN_4
-#define CS1_1_PIN           GPIO_PIN_5
-#define CS1_2_PIN           GPIO_PIN_6
-#define CS1_3_PIN           GPIO_PIN_7
+#define BOARD2_CS_PORT_BASE     GPIO_PORTC_BASE
+#define BOARD2_CS_PORT_SYSCTL   SYSCTL_PERIPH_GPIOC
+#define CS2_0_PIN           GPIO_PIN_4
+#define CS2_1_PIN           GPIO_PIN_5
+#define CS2_2_PIN           GPIO_PIN_6
+#define CS2_3_PIN           GPIO_PIN_7
 
 
 // Multiplexer input for both boards

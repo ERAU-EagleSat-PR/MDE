@@ -33,8 +33,8 @@
 #include <driverlib/uart.h>
 
 // Custom Header Files
+#include "source/mde_system.h"
 #include "source/mde.h"
-#include "source/tm4c123gxl_system.h"
 
 /*
 *******************************************************************************
@@ -81,7 +81,7 @@ void BlinkGreenLED(void);
 
 /*
 *******************************************************************************
-*                               UART FUNCTIONS                                *
+*                               UART Functions                                *
 *******************************************************************************
 */
 
@@ -141,7 +141,7 @@ void UART0IntHandler(void)
         local_char = UARTCharGet(UART_DEBUG);
         if(local_char != -1)
         {
-            processDebugMenu(local_char);
+            processDebugInput(local_char);
         }
     }
 
@@ -224,9 +224,11 @@ void printMenu(void)
         UARTCharPut(UART_DEBUG, 0xC);
         sprintf(buf, "Menu Selection:\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "M - Return to this menu.\n\r");                   // TODO
+        sprintf(buf, "M - Return to this menu.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "C - Clear screen.\n\r");                          // TODO
+        sprintf(buf, "C - Clear screen.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "Q - Chip Functions.\n\r");                        // TODO
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         sprintf(buf, "H - Send Health Packet (TransmitHealth) \n\r");   // TODO
         UARTDebugSend((uint8_t*) buf, strlen(buf));
@@ -239,6 +241,15 @@ void printMenu(void)
         sprintf(buf,"AUTO MODE. Hit M to exit.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
+    case CHIP_SELECT_BOARD:                                             // TODO
+        UARTCharPut(UART_DEBUG, 0xC);
+        sprintf(buf, "Chip Select Menu (Board):\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "1 - Board 1:\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "2 - Board2\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        break;
     default:
         UARTCharPut(UART_DEBUG, 0xC);
         sprintf(buf,"State failure!");
@@ -249,21 +260,43 @@ void printMenu(void)
 //-----------------------------------------------------------------------------
 // Process input from the debug menu
 //-----------------------------------------------------------------------------
-void processDebugMenu(int32_t recv_char)
+void processDebugInput(int32_t recv_char)
 {
-
-    char buf[200];
 
     switch (menu_state)
     {
-    case MAIN:
-        switch (recv_char)
-        {
+        case MAIN:
+            processMainMenu();
+            break
+        case AUTO:
+            switch (recv_char)
+            {
+                case 'm':
+                    menu_state = MAIN;
+                    break;
+            }
+        break;
+    }
+
+}
+
+void processMainMenu(int32_t recv_char)
+{
+    char buf[200];
+
+    switch (recv_char)
+    {
         case 'm':   // Stay on Main Menu
             menu_state = MAIN;
+            printMenu();
             break;
         case 'c':   // Clear the screen
             UARTCharPut(UART_DEBUG, 0xC);
+            printMenu();
+            break;
+        case 'q':   // Manually select/enable chip
+            menu_state = CHIP_SELECT;
+            printMenu()
             break;
         case 'a':   // Enter Auto Mode
             //menu_state = AUTO;
@@ -277,32 +310,67 @@ void processDebugMenu(int32_t recv_char)
             printMenu();
             sprintf(buf, "Function Not Implemented.\n\r");              // TODO
             UARTDebugSend((uint8_t*) buf, strlen(buf));
+            break;
         case 'e':
             UARTCharPut(UART_DEBUG, 0xC);
             printMenu();
             sprintf(buf, "Function Not Implemented.\n\r");              // TODO
             UARTDebugSend((uint8_t*) buf, strlen(buf));
+            break;
         case 'x':
             UARTCharPut(UART_DEBUG, 0xC);
             printMenu();
             sprintf(buf, "Function Not Implemented.\n\r");              // TODO
             UARTDebugSend((uint8_t*) buf, strlen(buf));
-        }
-        break;
-    case AUTO:
-        switch (recv_char)
-        {
-        case 'm':
-            menu_state = MAIN;
             break;
         }
-        break;
-    }
 
 }
 
 #endif ////////////////////////////////////////////////////////////////////////
 
+/*
+*******************************************************************************
+*                               Chip Select Pins                              *
+*******************************************************************************
+*/
+
+//-----------------------------------------------------------------------------
+// Enables GPIO for Board 1 chip select
+//-----------------------------------------------------------------------------
+void EnableBoard1ChipSelectPins(void)
+{
+    // Enable GPIO
+    SysCtlPeripheralEnable(BOARD1_CS_PORT_SYSCTL);
+
+    // wait to be ready
+    while(!SysCtlPeripheralReady(BOARD1_CS_PORT_SYSCTL))
+    {
+    }
+
+    //Set pins as output
+    GPIOPinTypeGPIOOutput(BOARD1_CS_PORT_BASE,
+                          CS1_0_PIN | CS1_1_PIN | CS1_2_PIN | CS1_3_PIN );
+}
+
+//-----------------------------------------------------------------------------
+// Enables GPIO for Board 2 chip select
+//-----------------------------------------------------------------------------
+void EnableBoard2ChipSelectPins(void)
+{
+    // Enable GPIO for Board 2 chip select
+    SysCtlPeripheralEnable(BOARD2_CS_PORT_SYSCTL);
+
+    // Wait to be ready
+    while(!SysCtlPeripheralReady(BOARD2_CS_PORT_SYSCTL))
+    {
+    }
+
+    // Set pins as output
+    GPIOPinTypeGPIOOutput(BOARD2_CS_PORT_BASE,
+                          CS2_0_PIN | CS2_1_PIN | CS2_2_PIN | CS2_3_PIN );
+
+}
 
 /*
 *******************************************************************************
@@ -421,7 +489,8 @@ int main(void)
     FPULazyStackingEnable();
 
     // Set the clock speed.
-    SysCtlClockFreqSet(SYSCTL_OSC_INT | SYSCTL_USE_PLL | SYSCTL_CFG_VCO_320, SYS_CLK_SPEED);
+    SysCtlClockFreqSet(SYSCTL_OSC_INT | SYSCTL_USE_PLL | SYSCTL_CFG_VCO_320,
+                       SYS_CLK_SPEED);
 
     // Enable processor interrupts.
     IntMasterEnable();
