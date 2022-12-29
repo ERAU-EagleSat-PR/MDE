@@ -123,7 +123,6 @@ MuxAddressSelect(uint8_t chipNumber)
     chipPort = RetrieveChipPort(chipNumber);
 
 
-
     // Set pins for board 1/board 2
     if(chipPort == BOARD1_CS_PORT)
     {
@@ -169,7 +168,7 @@ WriteToChip(uint32_t chip_number, unsigned char sequence_start, unsigned char se
   //drip chip select here (look at the chip select sequence in each of the sequence tranits)
   
   // TODO  Change the transmit function for multiplexer (TYLER)
-  // for each board teh chiui numbering is the same
+  // for each board the chip numbering is the same
   if( (chip_number % 16) < 4){
     FlashSequenceTransmit(sequence_start, sequence_offset, chip_port, chip_pin);
   }else if( (chip_number % 16) < 8){

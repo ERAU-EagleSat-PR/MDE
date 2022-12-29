@@ -4,6 +4,9 @@
 
 # Code Coposer Studio
 Debug					# Debug folder
+Release					# Release folder
+/Debug/
+/Release/
 *.config
 *.launches
 
