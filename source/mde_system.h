@@ -15,7 +15,7 @@
 *******************************************************************************
 */
 extern void     EnableChipSelects();
-extern uint8_t  RetriveCSCode(uint32_t chipNumber);
+extern uint8_t  RetreiveCSCode(uint32_t chipNumber);
 extern uint32_t RetrieveCSPort(uint32_t chipNumber);
 extern void     setCSOutput(uint32_t chipNumber);
 
@@ -101,20 +101,20 @@ extern uint32_t timer_current_cycle;
 // All pins are on the same port
 #define BOARD1_CS_PORT_BASE     GPIO_PORTD_BASE
 #define BOARD1_CS_PORT_SYSCTL   SYSCTL_PERIPH_GPIOD
-#define CS1_0_PIN           GPIO_PIN_0
-#define CS1_1_PIN           GPIO_PIN_1
-#define CS1_2_PIN           GPIO_PIN_2
-#define CS1_3_PIN           GPIO_PIN_3
+#define CS1_PIN_0           GPIO_PIN_0
+#define CS1_PIN_1           GPIO_PIN_1
+#define CS1_PIN_2           GPIO_PIN_2
+#define CS1_PIN_3           GPIO_PIN_3
 
 
 // Chip Select ports and pins for Board 2
 // All pins are on the same port
 #define BOARD2_CS_PORT_BASE     GPIO_PORTC_BASE
 #define BOARD2_CS_PORT_SYSCTL   SYSCTL_PERIPH_GPIOC
-#define CS2_0_PIN           GPIO_PIN_4
-#define CS2_1_PIN           GPIO_PIN_5
-#define CS2_2_PIN           GPIO_PIN_6
-#define CS2_3_PIN           GPIO_PIN_7
+#define CS2_PIN_0           GPIO_PIN_4
+#define CS2_PIN_1           GPIO_PIN_5
+#define CS2_PIN_2           GPIO_PIN_6
+#define CS2_PIN_3           GPIO_PIN_7
 
 
 // Multiplexer input for both boards
@@ -136,11 +136,12 @@ extern uint32_t timer_current_cycle;
 #define SRAM4_MUX_CS        0x0F
 
 // alternative method for
+/*
 uint8_t CHIP_SELECT_MUX_PINS[16] = { 0x00, 0x01, 0x02, 0x03,
                                      0x04, 0x05, 0x06, 0x07,
                                      0x08, 0x09, 0x0A, 0x0B,
                                      0x0C, 0x0D, 0x0E, 0x0F };
-
+*/
 
 //*************************
 // SPI port and pin defines
@@ -148,7 +149,7 @@ uint8_t CHIP_SELECT_MUX_PINS[16] = { 0x00, 0x01, 0x02, 0x03,
 
 // SPI clock speed. Cannot exceed master clock (16MHz) defined above, or any of
 // the max chip speeds.
-#define SPI_CLK_SPEED 4000000
+#define SPI_CLK_SPEED       4000000
 
 // SSI pins and ports Board 1
 #define SPI0_NUM_BASE       SSI0_BASE

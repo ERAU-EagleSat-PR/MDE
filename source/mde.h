@@ -29,22 +29,23 @@
 #define TOTAL_CHIP_COUNT    32
 
 // Chip Numbers
-#define FLASH1  0
-#define FLASH2  1
-#define FLASH3  2
-#define FLASH4  3
-#define FRAM1   4
-#define FRAM2   5
-#define FRAM3   6
-#define FRAM4   7
-#define MRAM1   8
-#define MRAM2   9
-#define MRAM3   10
-#define MRAM4   11
-#define SRAM1   12
-#define SRAM2   13
-#define SRAM3   14
-#define SRAM4   15
+#define CS_FLASH1  0
+#define CS_FLASH2  1
+#define CS_FLASH3  2
+#define CS_FLASH4  3
+#define CS_FRAM1   4
+#define CS_FRAM2   5
+#define CS_FRAM3   6
+#define CS_FRAM4   7
+#define CS_MRAM1   8
+#define CS_MRAM2   9
+#define CS_MRAM3   10
+#define CS_MRAM4   11
+#define CS_SRAM1   12
+#define CS_SRAM2   13
+#define CS_SRAM3   14
+#define CS_SRAM4   15
+
 
 // Sequence variables, which control what is written to the chips
 // Start and offset values are declared in the main c file, not here
@@ -119,6 +120,24 @@ enum MENU_STATES {  INIT,
                     CHIP_SELECT_BOARD,
                     CHIP_SELECT_TYPE,
                     CHIP_SELECT_NUM};
+extern enum MENU_STATES menu_state;
+
+enum BOARDS      {  NO_BOARD,
+                    BOARD1,
+                    BOARD2};
+
+enum MEM_TYPES   {  NO_MEM_TYPE,
+                    FLASH,
+                    FRAM,
+                    MRAM,
+                    SRAM};
+
+enum CHIP_NUMBERS{  NO_CHIP,
+                    FLASH1, FLASH2, FLASH3, FLASH4,
+                    FRAM1, FRAM2, FRAM3, FRAM4,
+                    MRAM1, MRAM2, MRAM3, MRAM4,
+                    SRAM1, SRAM2, SRAM3, SRAM4};
+
 extern enum MENU_STATES menu_state;
 #endif
 

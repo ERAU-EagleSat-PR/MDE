@@ -54,7 +54,9 @@ uint32_t SysClkSpeed = 16000000;
 
 // State trackers for the menu
 enum MENU_STATES menu_state = INIT;
-uint32_t selected_chip_number = 0;
+uint32_t selectedBoardNumber = 0;
+uint32_t selectedChipType = 0;
+uint32_t selectedChipNumber = 0;
 
 /*
 *******************************************************************************
@@ -70,7 +72,11 @@ void EnableDebugUART(void);
 void UARTSendDebug(const uint8_t *pui8Buffer, uint32_t ui32Count);
 void UARTSendDebug(const uint8_t *pui8Buffer, uint32_t ui32Count);
 void printMenu(void);
-void processDebugMenu(int32_t recv_char);
+void processDebugInput(int32_t recv_char);
+void processMainMenuInput(int32_t recv_char);
+void processCSBoardMenuInput(int32_t recv_char);
+void processCSTypeMenuInput(int32_t recv_char);
+void processCSNumMenuInput(int32_t recv_char);
 
 // LED Functions
 void EnableLED(void);
@@ -89,11 +95,12 @@ void BlinkGreenLED(void);
 //-----------------------------------------------------------------------------
 // Enable and configure UART1 for science
 //-----------------------------------------------------------------------------
+/*
 void EnablePrimaryUART(void)
 {
 
 }
-
+*/
 
 //-----------------------------------------------------------------------------
 // Send a string to the Primary UART.
@@ -241,13 +248,51 @@ void printMenu(void)
         sprintf(buf,"AUTO MODE. Hit M to exit.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
-    case CHIP_SELECT_BOARD:                                             // TODO
+    case CHIP_SELECT_BOARD:
         UARTCharPut(UART_DEBUG, 0xC);
         sprintf(buf, "Chip Select Menu (Board):\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "1 - Board 1:\n\r");
+        sprintf(buf, "1 - Board 1\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "2 - Board2\n\r");
+        sprintf(buf, "2 - Board 2\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "X - Return to Main Menu.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        break;
+    case CHIP_SELECT_TYPE:
+        UARTCharPut(UART_DEBUG, 0xC);
+        sprintf(buf, "Chip Select Menu (TYPE):\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "Q - Flash \n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "F - FRAM \n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "M - MRAM \n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "S - SRAM \n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "Z - Previous Menu (Board) \n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "X - Return to Main Menu.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        break;
+    case CHIP_SELECT_NUM:
+        UARTCharPut(UART_DEBUG, 0xC);
+        sprintf(buf, "Chip Select Menu (Chip Number):\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "Selected Chip Type : %d \n\r", selectedChipType);
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "1 - Chip 1 \n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "2 - Chip 2 \n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "3 - Chip 3 \n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "4 - Chip 4 \n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "Z - Previous Menu (Type) \n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "X - Return to Main Menu.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
     default:
@@ -258,16 +303,29 @@ void printMenu(void)
 }
 
 //-----------------------------------------------------------------------------
-// Process input from the debug menu
+// Direct input to proper handler
 //-----------------------------------------------------------------------------
 void processDebugInput(int32_t recv_char)
 {
 
     switch (menu_state)
     {
+        case INIT:
+            menu_state = MAIN;
+            printMenu();
+            break;
         case MAIN:
-            processMainMenu();
-            break
+            processMainMenuInput(recv_char);
+            break;
+        case CHIP_SELECT_BOARD:
+            processCSBoardMenuInput(recv_char);
+            break;
+        case CHIP_SELECT_TYPE:
+            processCSTypeMenuInput(recv_char);
+            break;
+        case CHIP_SELECT_NUM:
+            processCSNumMenuInput(recv_char);
+            break;
         case AUTO:
             switch (recv_char)
             {
@@ -280,7 +338,10 @@ void processDebugInput(int32_t recv_char)
 
 }
 
-void processMainMenu(int32_t recv_char)
+//-----------------------------------------------------------------------------
+// Process input from the debug menu
+//-----------------------------------------------------------------------------
+void processMainMenuInput(int32_t recv_char)
 {
     char buf[200];
 
@@ -295,8 +356,8 @@ void processMainMenu(int32_t recv_char)
             printMenu();
             break;
         case 'q':   // Manually select/enable chip
-            menu_state = CHIP_SELECT;
-            printMenu()
+            menu_state = CHIP_SELECT_BOARD;
+            printMenu();
             break;
         case 'a':   // Enter Auto Mode
             //menu_state = AUTO;
@@ -305,13 +366,13 @@ void processMainMenu(int32_t recv_char)
             sprintf(buf, "Function Not Implemented.\n\r");              // TODO
             UARTDebugSend((uint8_t*) buf, strlen(buf));
             break;
-        case 'h':
+        case 'h':   // Health Packet
             UARTCharPut(UART_DEBUG, 0xC);
             printMenu();
             sprintf(buf, "Function Not Implemented.\n\r");              // TODO
             UARTDebugSend((uint8_t*) buf, strlen(buf));
             break;
-        case 'e':
+        case 'e':   // Data/ Error Packet
             UARTCharPut(UART_DEBUG, 0xC);
             printMenu();
             sprintf(buf, "Function Not Implemented.\n\r");              // TODO
@@ -327,6 +388,129 @@ void processMainMenu(int32_t recv_char)
 
 }
 
+//-----------------------------------------------------------------------------
+// Process Board Selection Menu
+//-----------------------------------------------------------------------------
+void processCSBoardMenuInput(int32_t recv_char)
+{
+
+    IntMasterDisable();
+
+    switch (recv_char)
+    {
+        case '1':   // Select Board 1
+            selectedBoardNumber = BOARD1;
+            menu_state = CHIP_SELECT_TYPE;;
+            break;
+        case '2':   // Select Board 2
+            selectedBoardNumber = BOARD2;
+            menu_state = CHIP_SELECT_TYPE;
+            break;
+        case 'x':   // Return to Main Menu
+            selectedBoardNumber = NO_BOARD;
+            selectedChipType = NO_MEM_TYPE;
+            selectedChipNumber = NO_CHIP;
+            menu_state = MAIN;
+            break;
+    }
+
+    printMenu();
+
+    IntMasterEnable();
+}
+
+//-----------------------------------------------------------------------------
+// Process Memory Type Selection Menu
+//-----------------------------------------------------------------------------
+void processCSTypeMenuInput(int32_t recv_char)
+{
+    IntMasterDisable();
+
+    switch (recv_char)
+    {
+        case 'q': // Flash Memory
+            selectedChipType = FLASH;
+            menu_state = CHIP_SELECT_NUM;
+            break;
+        case 'f': // FRAM
+            selectedChipType = FRAM;
+            menu_state = CHIP_SELECT_NUM;
+            break;
+        case 'm': // MRAM
+            selectedChipType = MRAM;
+            menu_state = CHIP_SELECT_NUM;
+            break;
+        case 's': // SRAM
+            selectedChipType = SRAM;
+            menu_state = CHIP_SELECT_NUM;
+            break;
+        case 'z': // Return to board selection
+            selectedBoardNumber = NO_BOARD;
+            selectedChipType = NO_MEM_TYPE;
+            selectedChipNumber = NO_CHIP;
+            menu_state = CHIP_SELECT_BOARD;
+            break;
+        case 'x': // Return to Main Menu
+            selectedBoardNumber = NO_BOARD;
+            selectedChipType = NO_MEM_TYPE;
+            selectedChipNumber = NO_CHIP;
+            menu_state = MAIN;
+            break;
+    }
+
+    // Re-print menu with updated state
+    printMenu();
+
+    IntMasterEnable();
+
+}
+
+//-----------------------------------------------------------------------------
+// Process Chip Selection Menu
+//-----------------------------------------------------------------------------
+void processCSNumMenuInput(int32_t recv_char)
+{
+    IntMasterDisable();
+
+    switch (recv_char)
+    {
+        case '1':   // chip 1
+            selectedChipNumber = selectedBoardNumber * selectedChipType;
+            break;
+        case '2':   // chip 2
+            selectedChipNumber = 2 * selectedBoardNumber * selectedChipType;
+            break;
+        case '3':
+            selectedChipNumber = 3 * selectedBoardNumber * selectedChipType;
+            break;
+        case '4':
+            selectedChipNumber = 4 * selectedBoardNumber * selectedChipType;
+            break;
+        case 'z': // Return to type selection
+            selectedChipType = NO_MEM_TYPE;
+            selectedChipNumber = NO_CHIP;
+            menu_state = CHIP_SELECT_TYPE;
+            break;
+        case 'x': // Return to Main Menu
+            selectedBoardNumber = NO_BOARD;
+            selectedChipType = NO_MEM_TYPE;
+            selectedChipNumber = NO_CHIP;
+            menu_state = MAIN;
+            break;
+    }
+
+    printMenu();
+    // TODO delete later
+    char buf[200];
+    sprintf(buf, "Chip Number = %d \n\r", selectedChipNumber);
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
+
+    //Enable the Selected Chip
+    setCSOutput(selectedChipNumber);
+
+    IntMasterEnable();
+}
+
 #endif ////////////////////////////////////////////////////////////////////////
 
 /*
@@ -340,6 +524,8 @@ void processMainMenu(int32_t recv_char)
 //-----------------------------------------------------------------------------
 void EnableBoard1ChipSelectPins(void)
 {
+    IntMasterDisable();
+
     // Enable GPIO
     SysCtlPeripheralEnable(BOARD1_CS_PORT_SYSCTL);
 
@@ -350,7 +536,9 @@ void EnableBoard1ChipSelectPins(void)
 
     //Set pins as output
     GPIOPinTypeGPIOOutput(BOARD1_CS_PORT_BASE,
-                          CS1_0_PIN | CS1_1_PIN | CS1_2_PIN | CS1_3_PIN );
+                          CS1_PIN_0 | CS1_PIN_1 | CS1_PIN_2 | CS1_PIN_3 );
+
+    IntMasterEnable();
 }
 
 //-----------------------------------------------------------------------------
@@ -358,6 +546,8 @@ void EnableBoard1ChipSelectPins(void)
 //-----------------------------------------------------------------------------
 void EnableBoard2ChipSelectPins(void)
 {
+    IntMasterDisable();
+
     // Enable GPIO for Board 2 chip select
     SysCtlPeripheralEnable(BOARD2_CS_PORT_SYSCTL);
 
@@ -368,8 +558,9 @@ void EnableBoard2ChipSelectPins(void)
 
     // Set pins as output
     GPIOPinTypeGPIOOutput(BOARD2_CS_PORT_BASE,
-                          CS2_0_PIN | CS2_1_PIN | CS2_2_PIN | CS2_3_PIN );
+                          CS2_PIN_0 | CS2_PIN_1 | CS2_PIN_2 | CS2_PIN_3 );
 
+    IntMasterEnable();
 }
 
 /*
@@ -484,7 +675,6 @@ int main(void)
 
     // Enable lazy stacking for interrupt handlers.  This allows floating-point
     // instructions to be used within interrupt handlers, but at the expense of
-    // extra stack usage.
     FPUEnable();
     FPULazyStackingEnable();
 
@@ -496,19 +686,22 @@ int main(void)
     IntMasterEnable();
 
     //*****************************
-    // LED enable and configuration
+    // Peripheral Enablers
     //*****************************
+
     EnableLED();
 
+    EnableBoard1ChipSelectPins();
+
+    EnableBoard2ChipSelectPins();
+
+
 #ifdef DEBUG
-    //******************************
+
     // UART Enable and Configuration
-    //******************************
     EnableDebugUART();
-#endif
 
-#ifdef DEBUG
-
+    // Initialize Debug Menu
     menu_state = MAIN;
     printMenu();
 
@@ -519,8 +712,29 @@ int main(void)
     {
         // Idle "heart beat"
         BlinkBlueLED();
-        BlinkRedLED();
-        BlinkGreenLED();
+        //BlinkRedLED();
+        //BlinkGreenLED();
+
+
+        /*
+        uint8_t code;
+        int chipNum;
+
+        for (chipNum = 0; chipNum <= 15; chipNum++)
+        {
+            //setCSOutput(chipNum);
+
+            code = RetreiveCSCode(chipNum);
+
+            GPIOPinWrite(BOARD1_CS_PORT_BASE,
+                         CS1_PIN_0 | CS1_PIN_1 | CS1_PIN_2 | CS1_PIN_3 ,
+                         code);
+            GPIOPinWrite(BOARD2_CS_PORT_BASE,
+                         CS2_PIN_0 | CS2_PIN_1 | CS2_PIN_2 | CS2_PIN_3 ,
+                         code);
+
+        }
+        */
 
     }
 

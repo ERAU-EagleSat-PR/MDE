@@ -50,7 +50,7 @@
 //-----------------------------------------------------------------------------
 // Retrieves the associated port for
 //-----------------------------------------------------------------------------
-uint32_t RetrieveCSPort(uint32_t chip_number){      //TODO Come back to this
+uint32_t RetreiveCSPort(uint32_t chip_number){      //TODO Come back to this
 
     uint32_t result = 0;
     if (chip_number < 16)
@@ -59,7 +59,7 @@ uint32_t RetrieveCSPort(uint32_t chip_number){      //TODO Come back to this
     }
     else if ( (chip_number >= 16) && (chip_number < 32) )
     {
-        result  = BOARD2_CS_PORT_BASE;
+        result = BOARD2_CS_PORT_BASE;
     }
     else
     {
@@ -73,11 +73,12 @@ uint32_t RetrieveCSPort(uint32_t chip_number){      //TODO Come back to this
 // Retrieves the associated Hex value for the CS Multiplexer
 //-----------------------------------------------------------------------------
 uint8_t RetreiveCSCode(uint32_t chipNumber){
+
     uint32_t result = 0;
 
+    // uint32_t mulitboardCS = chipNumber % 16;
 
-
-    switch (chipNumber % 16){
+    switch (chipNumber){
         case 0:
             result = FLASH1_MUX_CS;
             break;
@@ -133,6 +134,11 @@ uint8_t RetreiveCSCode(uint32_t chipNumber){
 
 void setCSOutput(uint32_t chipNumber)
 {
+
+    IntMasterDisable();
+
+    uint32_t pin0, pin1, pin2, pin3;
+
     // Identify Port and pin logic for selected chip
     uint8_t chipSelectInput = RetreiveCSCode(chipNumber);
     uint32_t chipSelectPortBase = RetreiveCSPort(chipNumber);
@@ -155,6 +161,7 @@ void setCSOutput(uint32_t chipNumber)
     // Set pins to Enable selected chip
     GPIOPinWrite(chipSelectPortBase, pin0 | pin1 | pin2 | pin3, chipSelectInput);
 
+    IntMasterEnable();
 }
 
 
