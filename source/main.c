@@ -33,8 +33,13 @@
 #include <driverlib/uart.h>
 
 // Custom Header Files
-#include "source/mde_system.h"
 #include "source/mde.h"
+// #include "source/mde_system.h"
+#include "source/multiplexer.h"
+#include "source/obc.h"
+#include "source/devtools.h"
+#include "source/chips.h"
+//#include "source/mde_timer.h"
 
 /*
 *******************************************************************************
@@ -65,6 +70,7 @@ uint32_t selectedChipNumber = 0;
 */
 
 // UART Functions
+/*
 void EnablePrimaryUART(void);
 void UARTSend(const uint8_t *pui8Buffer, uint32_t ui32Count);
 void UART0IntHandler(void);
@@ -77,19 +83,13 @@ void processMainMenuInput(int32_t recv_char);
 void processCSBoardMenuInput(int32_t recv_char);
 void processCSTypeMenuInput(int32_t recv_char);
 void processCSNumMenuInput(int32_t recv_char);
+*/
 
 // LED Functions
 void EnableLED(void);
 void BlinkRedLED(void);
 void BlinkBlueLED(void);
 void BlinkGreenLED(void);
-
-
-/*
-*******************************************************************************
-*                               UART Functions                                *
-*******************************************************************************
-*/
 
 
 //-----------------------------------------------------------------------------
@@ -102,416 +102,11 @@ void EnablePrimaryUART(void)
 }
 */
 
-//-----------------------------------------------------------------------------
-// Send a string to the Primary UART.
-//-----------------------------------------------------------------------------
-void UARTSend(const uint8_t *pui8Buffer, uint32_t ui32Count)
-{
-    //
-    // Loop while there are more characters to send.
-    //
-    while(ui32Count--)
-    {
-        //
-        // Write the next character to the UART.
-        //
-        UARTCharPut(UART_PRIMARY, *pui8Buffer++);
-    }
-}
+
+#ifdef ENABLE_UART_DEBUG
 
 
-#ifdef ENABLE_UART_DEBUG //////////////////////////////////////////////////////
-
-//-----------------------------------------------------------------------------
-// The UART0 interrupt handler. Debugging UART
-//-----------------------------------------------------------------------------
-void UART0IntHandler(void)
-{
-    uint32_t ui32Status;
-
-    //
-    // Get the interrupt status.
-    //
-    ui32Status = UARTIntStatus(UART_DEBUG, true);
-
-    //
-    // Clear the asserted interrupts.
-    //
-    UARTIntClear(UART_DEBUG, ui32Status);
-
-    //
-    // Loop while there are unsigned characters in the receive FIFO.
-    //
-    while(UARTCharsAvail(UART_DEBUG))
-    {
-        int32_t local_char;
-        local_char = UARTCharGet(UART_DEBUG);
-        if(local_char != -1)
-        {
-            processDebugInput(local_char);
-        }
-    }
-
-}
-
-//-----------------------------------------------------------------------------
-// Enable and configure UART0 for debugging
-//-----------------------------------------------------------------------------
-void EnableDebugUART(void)
-{
-    // Enable Debug UART0
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
-
-    // Wait while un-ready
-    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_UART0))
-    {
-    }
-
-    // Enable GPIO A for Virtual Com Port
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
-
-    // Wait while un-ready
-    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOA))
-    {
-    }
-
-    // Set GPIO A0 and A1 as UART pins.
-    GPIOPinConfigure(GPIO_PA0_U0RX);
-    GPIOPinConfigure(GPIO_PA1_U0TX);
-    GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-
-    // Configure the UART for 115,200, 8-N-1 operation.
-    UARTConfigSetExpClk(UART0_BASE, SysCtlClockGet(), 115200,
-                       (UART_CONFIG_WLEN_8 |
-                        UART_CONFIG_STOP_ONE |
-                        UART_CONFIG_PAR_NONE));
-
-    // Map the Interrupt handler for UART 0
-    UARTIntRegister( UART_DEBUG , UART0IntHandler );
-
-    // Enable interrupts for UART 0
-    UARTIntEnable( UART_DEBUG, UART_INT_RX | UART_INT_RT);
-}
-
-
-//-----------------------------------------------------------------------------
-// Send a string to the Debug UART.
-//-----------------------------------------------------------------------------
-void UARTDebugSend(const uint8_t *pui8Buffer, uint32_t ui32Count)
-{
-    //
-    // Loop while there are more characters to send.
-    //
-    while(ui32Count--)
-    {
-        //
-        // Write the next character to the UART.
-        //
-        UARTCharPut(UART_DEBUG, *pui8Buffer++);
-    }
-}
-
-
-//-----------------------------------------------------------------------------
-// Print the debug/ development menu to the console
-//-----------------------------------------------------------------------------
-void printMenu(void)
-{
-
-    char buf[200];
-
-    switch (menu_state)
-    {
-    case INIT:
-        UARTCharPut(UART_DEBUG, 0xC);
-        sprintf(buf,"MDE Debug and Development Interface\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        break;
-    case MAIN:
-        UARTCharPut(UART_DEBUG, 0xC);
-        sprintf(buf, "Menu Selection:\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "M - Return to this menu.\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "C - Clear screen.\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "Q - Chip Functions.\n\r");                        // TODO
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "H - Send Health Packet (TransmitHealth) \n\r");   // TODO
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "E - Send Data Packet (TransmitErrors) \n\r");     // TODO
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "X - Restart Program.\n\r");                       // TODO
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        break;
-    case AUTO:
-        sprintf(buf,"AUTO MODE. Hit M to exit.\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        break;
-    case CHIP_SELECT_BOARD:
-        UARTCharPut(UART_DEBUG, 0xC);
-        sprintf(buf, "Chip Select Menu (Board):\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "1 - Board 1\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "2 - Board 2\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "X - Return to Main Menu.\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        break;
-    case CHIP_SELECT_TYPE:
-        UARTCharPut(UART_DEBUG, 0xC);
-        sprintf(buf, "Chip Select Menu (TYPE):\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "Q - Flash \n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "F - FRAM \n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "M - MRAM \n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "S - SRAM \n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "Z - Previous Menu (Board) \n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "X - Return to Main Menu.\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        break;
-    case CHIP_SELECT_NUM:
-        UARTCharPut(UART_DEBUG, 0xC);
-        sprintf(buf, "Chip Select Menu (Chip Number):\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "Selected Chip Type : %d \n\r", selectedChipType);
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "1 - Chip 1 \n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "2 - Chip 2 \n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "3 - Chip 3 \n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "4 - Chip 4 \n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "Z - Previous Menu (Type) \n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "X - Return to Main Menu.\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        break;
-    default:
-        UARTCharPut(UART_DEBUG, 0xC);
-        sprintf(buf,"State failure!");
-    }
-
-}
-
-//-----------------------------------------------------------------------------
-// Direct input to proper handler
-//-----------------------------------------------------------------------------
-void processDebugInput(int32_t recv_char)
-{
-
-    switch (menu_state)
-    {
-        case INIT:
-            menu_state = MAIN;
-            printMenu();
-            break;
-        case MAIN:
-            processMainMenuInput(recv_char);
-            break;
-        case CHIP_SELECT_BOARD:
-            processCSBoardMenuInput(recv_char);
-            break;
-        case CHIP_SELECT_TYPE:
-            processCSTypeMenuInput(recv_char);
-            break;
-        case CHIP_SELECT_NUM:
-            processCSNumMenuInput(recv_char);
-            break;
-        case AUTO:
-            switch (recv_char)
-            {
-                case 'm':
-                    menu_state = MAIN;
-                    break;
-            }
-        break;
-    }
-
-}
-
-//-----------------------------------------------------------------------------
-// Process input from the debug menu
-//-----------------------------------------------------------------------------
-void processMainMenuInput(int32_t recv_char)
-{
-    char buf[200];
-
-    switch (recv_char)
-    {
-        case 'm':   // Stay on Main Menu
-            menu_state = MAIN;
-            printMenu();
-            break;
-        case 'c':   // Clear the screen
-            UARTCharPut(UART_DEBUG, 0xC);
-            printMenu();
-            break;
-        case 'q':   // Manually select/enable chip
-            menu_state = CHIP_SELECT_BOARD;
-            printMenu();
-            break;
-        case 'a':   // Enter Auto Mode
-            //menu_state = AUTO;
-            UARTCharPut(UART_DEBUG, 0xC);
-            printMenu();
-            sprintf(buf, "Function Not Implemented.\n\r");              // TODO
-            UARTDebugSend((uint8_t*) buf, strlen(buf));
-            break;
-        case 'h':   // Health Packet
-            UARTCharPut(UART_DEBUG, 0xC);
-            printMenu();
-            sprintf(buf, "Function Not Implemented.\n\r");              // TODO
-            UARTDebugSend((uint8_t*) buf, strlen(buf));
-            break;
-        case 'e':   // Data/ Error Packet
-            UARTCharPut(UART_DEBUG, 0xC);
-            printMenu();
-            sprintf(buf, "Function Not Implemented.\n\r");              // TODO
-            UARTDebugSend((uint8_t*) buf, strlen(buf));
-            break;
-        case 'x':
-            UARTCharPut(UART_DEBUG, 0xC);
-            printMenu();
-            sprintf(buf, "Function Not Implemented.\n\r");              // TODO
-            UARTDebugSend((uint8_t*) buf, strlen(buf));
-            break;
-        }
-
-}
-
-//-----------------------------------------------------------------------------
-// Process Board Selection Menu
-//-----------------------------------------------------------------------------
-void processCSBoardMenuInput(int32_t recv_char)
-{
-
-    IntMasterDisable();
-
-    switch (recv_char)
-    {
-        case '1':   // Select Board 1
-            selectedBoardNumber = BOARD1;
-            menu_state = CHIP_SELECT_TYPE;;
-            break;
-        case '2':   // Select Board 2
-            selectedBoardNumber = BOARD2;
-            menu_state = CHIP_SELECT_TYPE;
-            break;
-        case 'x':   // Return to Main Menu
-            selectedBoardNumber = NO_BOARD;
-            selectedChipType = NO_MEM_TYPE;
-            selectedChipNumber = NO_CHIP;
-            menu_state = MAIN;
-            break;
-    }
-
-    printMenu();
-
-    IntMasterEnable();
-}
-
-//-----------------------------------------------------------------------------
-// Process Memory Type Selection Menu
-//-----------------------------------------------------------------------------
-void processCSTypeMenuInput(int32_t recv_char)
-{
-    IntMasterDisable();
-
-    switch (recv_char)
-    {
-        case 'q': // Flash Memory
-            selectedChipType = FLASH;
-            menu_state = CHIP_SELECT_NUM;
-            break;
-        case 'f': // FRAM
-            selectedChipType = FRAM;
-            menu_state = CHIP_SELECT_NUM;
-            break;
-        case 'm': // MRAM
-            selectedChipType = MRAM;
-            menu_state = CHIP_SELECT_NUM;
-            break;
-        case 's': // SRAM
-            selectedChipType = SRAM;
-            menu_state = CHIP_SELECT_NUM;
-            break;
-        case 'z': // Return to board selection
-            selectedBoardNumber = NO_BOARD;
-            selectedChipType = NO_MEM_TYPE;
-            selectedChipNumber = NO_CHIP;
-            menu_state = CHIP_SELECT_BOARD;
-            break;
-        case 'x': // Return to Main Menu
-            selectedBoardNumber = NO_BOARD;
-            selectedChipType = NO_MEM_TYPE;
-            selectedChipNumber = NO_CHIP;
-            menu_state = MAIN;
-            break;
-    }
-
-    // Re-print menu with updated state
-    printMenu();
-
-    IntMasterEnable();
-
-}
-
-//-----------------------------------------------------------------------------
-// Process Chip Selection Menu
-//-----------------------------------------------------------------------------
-void processCSNumMenuInput(int32_t recv_char)
-{
-    IntMasterDisable();
-
-    switch (recv_char)
-    {
-        case '1':   // chip 1
-            selectedChipNumber = selectedBoardNumber * selectedChipType;
-            break;
-        case '2':   // chip 2
-            selectedChipNumber = 2 * selectedBoardNumber * selectedChipType;
-            break;
-        case '3':
-            selectedChipNumber = 3 * selectedBoardNumber * selectedChipType;
-            break;
-        case '4':
-            selectedChipNumber = 4 * selectedBoardNumber * selectedChipType;
-            break;
-        case 'z': // Return to type selection
-            selectedChipType = NO_MEM_TYPE;
-            selectedChipNumber = NO_CHIP;
-            menu_state = CHIP_SELECT_TYPE;
-            break;
-        case 'x': // Return to Main Menu
-            selectedBoardNumber = NO_BOARD;
-            selectedChipType = NO_MEM_TYPE;
-            selectedChipNumber = NO_CHIP;
-            menu_state = MAIN;
-            break;
-    }
-
-    printMenu();
-    // TODO delete later
-    char buf[200];
-    sprintf(buf, "Chip Number = %d \n\r", selectedChipNumber);
-            UARTDebugSend((uint8_t*) buf, strlen(buf));
-
-    //Enable the Selected Chip
-    setCSOutput(selectedChipNumber);
-
-    IntMasterEnable();
-}
-
-#endif ////////////////////////////////////////////////////////////////////////
+#endif /* ENABLE_UART_DEBUG  */
 
 /*
 *******************************************************************************
@@ -699,11 +294,11 @@ int main(void)
 #ifdef DEBUG
 
     // UART Enable and Configuration
-    EnableDebugUART();
+    DebugUARTEnable();
 
     // Initialize Debug Menu
     menu_state = MAIN;
-    printMenu();
+    printDebugMenu();
 
 #endif
 
@@ -716,7 +311,8 @@ int main(void)
         //BlinkGreenLED();
 
 
-        /*
+        // currently checking to see if logic is working and if all CS port and
+        // pins are active
         uint8_t code;
         int chipNum;
 
@@ -734,7 +330,7 @@ int main(void)
                          code);
 
         }
-        */
+
 
     }
 

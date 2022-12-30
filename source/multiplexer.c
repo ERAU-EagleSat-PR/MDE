@@ -1,10 +1,9 @@
 /*
- * mde_system.c
+ * multiplexer.c
  *
- * Contains the functions and methods that control the system to perform
- * the MDE experiment
+ *  Created on: Dec 29, 2022
+ *      Author: Calvin
  */
-
 
 /*
 *******************************************************************************
@@ -34,12 +33,7 @@
 #include "driverlib/uart.h"
 #include "driverlib/ssi.h"
 
-// Custom files
-#include "source/mde_system.h"
-//#include "MB85RS2MTYPNF.h"
-//#include "MR25H40.h"
-//#include "IS62WVS5128GBLL.h"
-//#include "S25FL256LA.h"
+#include "source/multiplexer.h"
 
 /*
 *******************************************************************************
@@ -50,7 +44,7 @@
 //-----------------------------------------------------------------------------
 // Retrieves the associated port for
 //-----------------------------------------------------------------------------
-uint32_t RetreiveCSPort(uint32_t chip_number){      //TODO Come back to this
+uint32_t RetreiveCSPort(uint32_t chip_number){
 
     uint32_t result = 0;
     if (chip_number < 16)
@@ -132,7 +126,7 @@ uint8_t RetreiveCSCode(uint32_t chipNumber){
   return result;
 }
 
-void setCSOutput(uint32_t chipNumber)
+void setChipSelect(uint32_t chipNumber)
 {
 
     IntMasterDisable();
@@ -158,15 +152,8 @@ void setCSOutput(uint32_t chipNumber)
             pin3 = CS2_PIN_3;
             break;
     }
-    // Set pins to Enable selected chip
+    // write to mux input pins to enable selected chip
     GPIOPinWrite(chipSelectPortBase, pin0 | pin1 | pin2 | pin3, chipSelectInput);
 
     IntMasterEnable();
 }
-
-
-
-
-
-
-
