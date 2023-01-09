@@ -16,7 +16,7 @@
 
 extern uint8_t  RetreiveCSCode(uint32_t chipNumber);
 extern uint32_t RetrieveCSPort(uint32_t chipNumber);
-extern void     setCSOutput(uint32_t chipNumber);
+extern void     SetChipSelect(uint32_t chipNumber);
 
 /*
 *******************************************************************************

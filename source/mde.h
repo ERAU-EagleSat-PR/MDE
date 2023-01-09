@@ -23,6 +23,12 @@
 *******************************************************************************
 */
 
+//#define PART_TM4C123GH6PM
+
+// Clock Speed of the MCU
+#define SYS_CLK_SPEED 16000000
+
+
 // The total number of chips on the board
 #define TOTAL_CHIP_COUNT    32
 

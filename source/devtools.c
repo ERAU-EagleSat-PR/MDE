@@ -233,19 +233,19 @@ void processDebugInput(int32_t recv_char)
     {
         case INIT:
             menu_state = MAIN;
-            printMenu();
+            printDebugMenu();
             break;
         case MAIN:
             processMainMenuInput(recv_char);
             break;
         case CHIP_SELECT_BOARD:
-            processCSBoardMenuInput(recv_char);
+            processChipSelectBoardMenuInput(recv_char);
             break;
         case CHIP_SELECT_TYPE:
-            processCSTypeMenuInput(recv_char);
+            processChipSelectMemTypeMenuInput(recv_char);
             break;
         case CHIP_SELECT_NUM:
-            processCSNumMenuInput(recv_char);
+            processChipSelectChipNumMenuInput(recv_char);
             break;
         case AUTO:
             switch (recv_char)
@@ -422,13 +422,11 @@ void processChipSelectChipNumMenuInput(int32_t recv_char)
 
     printDebugMenu();
 
-    // TODO delete later
-    char buf[200];
-    sprintf(buf, "Chip Number = %d \n\r", selectedChipNumber);
-    UARTDebugSend((uint8_t*) buf, strlen(buf));
-
-    //Enable the Selected Chip
-    setChipSelect(selectedChipNumber);
+    //Enable the Selected Chip if chosen
+    if (selectedChipNumber != NO_CHIP)
+    {
+        SetChipSelect(selectedChipNumber - 1);
+    }
 
     IntMasterEnable();
 }
@@ -437,4 +435,23 @@ void processChipSelectChipNumMenuInput(int32_t recv_char)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
+char getMemTypeString(uint16_t MemTypeEnum);
+{
+    switch (memTypeEnum)
+    {
+        case NO_MEM_TYPE:
+            break;
+        case NO_MEM_TYPE:
+            break;
+        case NO_MEM_TYPE:
+            break;
+        case NO_MEM_TYPE:
+            break;
+        case NO_MEM_TYPE:
+            break;
+
+    }
+}
+
+
 

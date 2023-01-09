@@ -126,8 +126,14 @@ uint8_t RetreiveCSCode(uint32_t chipNumber){
   return result;
 }
 
-void setChipSelect(uint32_t chipNumber)
+void SetChipSelect(uint32_t chipNumber)
 {
+/*
+ * Inputs : chipNumber, valid range is 1 to TOTAL_CHIP_COUNT-1 (31)
+ *
+ * Gets board and multiplexer input dependent on chip number then writes the
+ * chip select lines of the chosen board to select the appropriate chip.
+ */
 
     IntMasterDisable();
 
@@ -137,6 +143,7 @@ void setChipSelect(uint32_t chipNumber)
     uint8_t chipSelectInput = RetreiveCSCode(chipNumber);
     uint32_t chipSelectPortBase = RetreiveCSPort(chipNumber);
 
+    // Get port and pins for selected chip
     switch (chipSelectPortBase)
     {
         case BOARD1_CS_PORT_BASE:
@@ -150,6 +157,8 @@ void setChipSelect(uint32_t chipNumber)
             pin1 = CS2_PIN_1;
             pin2 = CS2_PIN_2;
             pin3 = CS2_PIN_3;
+            // bit shift required for writing to GPIO PAort C pins 4-7
+            chipSelectInput =  chipSelectInput << 4;
             break;
     }
     // write to mux input pins to enable selected chip

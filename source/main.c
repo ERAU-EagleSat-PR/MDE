@@ -59,9 +59,6 @@ uint32_t SysClkSpeed = 16000000;
 
 // State trackers for the menu
 enum MENU_STATES menu_state = INIT;
-uint32_t selectedBoardNumber = 0;
-uint32_t selectedChipType = 0;
-uint32_t selectedChipNumber = 0;
 
 /*
 *******************************************************************************
@@ -143,6 +140,7 @@ void EnableBoard2ChipSelectPins(void)
 {
     IntMasterDisable();
 
+    /*
     // Enable GPIO for Board 2 chip select
     SysCtlPeripheralEnable(BOARD2_CS_PORT_SYSCTL);
 
@@ -154,6 +152,19 @@ void EnableBoard2ChipSelectPins(void)
     // Set pins as output
     GPIOPinTypeGPIOOutput(BOARD2_CS_PORT_BASE,
                           CS2_PIN_0 | CS2_PIN_1 | CS2_PIN_2 | CS2_PIN_3 );
+    */
+        // Enable GPIO for Board 2 chip select
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC);
+
+    // Wait to be ready
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOC))
+    {
+    }
+
+    // Set pins as output
+    GPIOPinTypeGPIOOutput(GPIO_PORTC_BASE,
+                          GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 |GPIO_PIN_7 );
+
 
     IntMasterEnable();
 }
@@ -294,7 +305,7 @@ int main(void)
 #ifdef DEBUG
 
     // UART Enable and Configuration
-    DebugUARTEnable();
+    UARTDebugEnable();
 
     // Initialize Debug Menu
     menu_state = MAIN;
@@ -302,35 +313,42 @@ int main(void)
 
 #endif
 
+    uint8_t code;
+    int chipNum;
 
     while (1)
     {
-        // Idle "heart beat"
+
+#ifdef DEBUG
+        BlinkRedLED();
+#else   /* Idle "heart beat" */
         BlinkBlueLED();
-        //BlinkRedLED();
+#endif
         //BlinkGreenLED();
 
 
         // currently checking to see if logic is working and if all CS port and
         // pins are active
-        uint8_t code;
-        int chipNum;
-
+        /*
         for (chipNum = 0; chipNum <= 15; chipNum++)
         {
-            //setCSOutput(chipNum);
 
+            // get mux code to write to CS pins
             code = RetreiveCSCode(chipNum);
 
+            // Write to Board 1 CS pins
             GPIOPinWrite(BOARD1_CS_PORT_BASE,
                          CS1_PIN_0 | CS1_PIN_1 | CS1_PIN_2 | CS1_PIN_3 ,
                          code);
-            GPIOPinWrite(BOARD2_CS_PORT_BASE,
-                         CS2_PIN_0 | CS2_PIN_1 | CS2_PIN_2 | CS2_PIN_3 ,
+
+            // Write to Board 2 CS pins
+            code = code << 4;
+            GPIOPinWrite(GPIO_PORTC_BASE,
+                         GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7 ,
                          code);
 
         }
-
+        */
 
     }
 
