@@ -32,7 +32,7 @@ void processMainMenuInput(int32_t recv_char);
 void processChipSelectBoardMenuInput(int32_t recv_char);
 void processChipSelectMemTypeMenuInput(int32_t recv_char);
 void processChipSelectChipNumMenuInput(int32_t recv_char);
-char getMemTypeString(uint16_t MemTypeEnum);
+char* getMemTypeString(void);
 
 
 /*
@@ -88,12 +88,7 @@ extern enum BOARDS selectedBoardNumber;
 extern enum MEM_TYPES selectedChipType;
 extern enum CHIP_NUMBERS selectedChipNumber;
 //*/
-/*
-uint32_t menu_state;
-uint32_t selectedBoardNumber;
-uint32_t selectedChipType;
-uint32_t selectedChipNumber;
-//*/
+
 
 //-----------------------------------------------------------------------------
 // Seed Errors

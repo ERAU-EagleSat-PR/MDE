@@ -17,6 +17,8 @@
 extern uint8_t  RetreiveCSCode(uint32_t chipNumber);
 extern uint32_t RetrieveCSPort(uint32_t chipNumber);
 extern void     SetChipSelect(uint32_t chipNumber);
+void            ResetChipSelect1(void);
+void            ResetChipSelect2(void);
 
 /*
 *******************************************************************************
@@ -49,6 +51,7 @@ extern void     SetChipSelect(uint32_t chipNumber);
 
 
 // Multiplexer input for both boards
+#define RESET_MUX           0x00
 #define FLASH1_MUX_CS       0x00
 #define FLASH2_MUX_CS       0x01
 #define FLASH3_MUX_CS       0x02

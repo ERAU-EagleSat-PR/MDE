@@ -34,7 +34,6 @@
 
 // Custom Header Files
 #include "source/mde.h"
-// #include "source/mde_system.h"
 #include "source/multiplexer.h"
 #include "source/obc.h"
 #include "source/devtools.h"
@@ -57,8 +56,14 @@ bool timer_wakeup = false;
 // The current clock speed
 uint32_t SysClkSpeed = 16000000;
 
-// State trackers for the menu
-enum MENU_STATES menu_state = INIT;
+// State tracker initial definitions for the menus
+#ifdef DEBUG
+enum MENU_STATES menu_state          = INIT;
+enum BOARDS selectedBoardNumber      = NO_BOARD;
+enum MEM_TYPES selectedChipType      = NO_MEM_TYPE;
+enum CHIP_NUMBERS selectedChipNumber = NO_CHIP;
+#endif
+
 
 /*
 *******************************************************************************
@@ -140,7 +145,7 @@ void EnableBoard2ChipSelectPins(void)
 {
     IntMasterDisable();
 
-    /*
+    //*
     // Enable GPIO for Board 2 chip select
     SysCtlPeripheralEnable(BOARD2_CS_PORT_SYSCTL);
 
@@ -152,8 +157,10 @@ void EnableBoard2ChipSelectPins(void)
     // Set pins as output
     GPIOPinTypeGPIOOutput(BOARD2_CS_PORT_BASE,
                           CS2_PIN_0 | CS2_PIN_1 | CS2_PIN_2 | CS2_PIN_3 );
-    */
-        // Enable GPIO for Board 2 chip select
+    //*/
+
+    /*
+    // Enable GPIO for Board 2 chip select
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC);
 
     // Wait to be ready
@@ -164,7 +171,7 @@ void EnableBoard2ChipSelectPins(void)
     // Set pins as output
     GPIOPinTypeGPIOOutput(GPIO_PORTC_BASE,
                           GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 |GPIO_PIN_7 );
-
+    //*/
 
     IntMasterEnable();
 }

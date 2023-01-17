@@ -182,7 +182,9 @@ void printDebugMenu(void)
         break;
     case CHIP_SELECT_TYPE:
         UARTCharPut(UART_DEBUG, 0xC);
-        sprintf(buf, "Chip Select Menu (TYPE):\n\r");
+        sprintf(buf, "Chip Select Menu (TYPE)\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "Board: %d \n\r", selectedBoardNumber);
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         sprintf(buf, "Q - Flash \n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
@@ -199,9 +201,13 @@ void printDebugMenu(void)
         break;
     case CHIP_SELECT_NUM:
         UARTCharPut(UART_DEBUG, 0xC);
-        sprintf(buf, "Chip Select Menu (Chip Number):\n\r");
+        sprintf(buf, "Chip Select Menu (Chip Number)\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
-        sprintf(buf, "Selected Chip Type : %d \n\r", selectedChipType);
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "Board: %d \n\r", selectedBoardNumber);
+        sprintf(buf, "Selected Chip Type : %s \n\r", getMemTypeString());
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        sprintf(buf, "Chip Number : %d \n\r", selectedChipNumber);
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         sprintf(buf, "1 - Chip 1 \n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
@@ -333,6 +339,11 @@ void processChipSelectBoardMenuInput(int32_t recv_char)
             selectedChipNumber = NO_CHIP;
             menu_state = MAIN;
             break;
+        default:
+            selectedBoardNumber = NO_BOARD;
+            selectedChipType = NO_MEM_TYPE;
+            selectedChipNumber = NO_CHIP;
+            break;
     }
 
     printDebugMenu();
@@ -377,6 +388,10 @@ void processChipSelectMemTypeMenuInput(int32_t recv_char)
             selectedChipNumber = NO_CHIP;
             menu_state = MAIN;
             break;
+        default:
+            selectedChipType = NO_MEM_TYPE;
+            selectedChipNumber = NO_CHIP;
+            break;
     }
 
     // Re-print menu with updated state
@@ -418,9 +433,17 @@ void processChipSelectChipNumMenuInput(int32_t recv_char)
             selectedChipNumber = NO_CHIP;
             menu_state = MAIN;
             break;
+        default:
+            selectedChipNumber = NO_CHIP;
+            break;
     }
 
+    // reprint the current menu
     printDebugMenu();
+
+    // clear the Chip select
+    ResetChipSelect1();
+    ResetChipSelect2();
 
     //Enable the Selected Chip if chosen
     if (selectedChipNumber != NO_CHIP)
@@ -435,23 +458,48 @@ void processChipSelectChipNumMenuInput(int32_t recv_char)
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-char getMemTypeString(uint16_t MemTypeEnum);
+char* getMemTypeString(void)
 {
-    switch (memTypeEnum)
+/*
+ * Takes in a chip number
+ * Returns a pointer to a char array of the type of memory selected to be
+ * printed in the debug Menu
+ */
+
+
+    char buf[200];
+
+    switch (selectedChipType)
     {
         case NO_MEM_TYPE:
+            sprintf(buf, "None");
             break;
-        case NO_MEM_TYPE:
+        case FLASH:
+            sprintf(buf, "FLASH");
             break;
-        case NO_MEM_TYPE:
+        case FRAM:
+            sprintf(buf, "FRAM");
             break;
-        case NO_MEM_TYPE:
+        case MRAM:
+            sprintf(buf, "MRAM");
             break;
-        case NO_MEM_TYPE:
+        case SRAM:
+            sprintf(buf, "SRAM");
             break;
-
+        default:
+            sprintf(buf, "None - Error Occurred");
+            break;
     }
+
+    return buf;
 }
+
+
+
+
+
+
+
 
 
 

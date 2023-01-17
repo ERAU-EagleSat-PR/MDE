@@ -41,6 +41,7 @@
 *******************************************************************************
 */
 
+
 //-----------------------------------------------------------------------------
 // Retrieves the associated port for
 //-----------------------------------------------------------------------------
@@ -126,6 +127,7 @@ uint8_t RetreiveCSCode(uint32_t chipNumber){
   return result;
 }
 
+
 void SetChipSelect(uint32_t chipNumber)
 {
 /*
@@ -166,3 +168,41 @@ void SetChipSelect(uint32_t chipNumber)
 
     IntMasterEnable();
 }
+
+
+void ResetChipSelect1(void){
+ /*
+  * Reset the De-multiplexer that controls the chip select for board 1 back
+  * original state 0x00 (all line low, first chip active)
+  */
+
+    IntMasterDisable();
+
+    GPIOPinWrite(BOARD1_CS_PORT_BASE,
+                 CS1_PIN_0 | CS1_PIN_1 | CS1_PIN_2 | CS1_PIN_3,
+                 RESET_MUX);
+
+    IntMasterEnable();
+
+}
+
+
+void ResetChipSelect2(void){
+ /*
+  * Reset the De-multiplexer that controls the chip select for board 2 back
+  * original state 0x00 (all line low, first chip active)
+  */
+
+    IntMasterDisable();
+
+    GPIOPinWrite(BOARD2_CS_PORT_BASE,
+                 CS2_PIN_0 | CS2_PIN_1 | CS2_PIN_2 | CS2_PIN_3,
+                 RESET_MUX);
+
+    IntMasterEnable();
+
+}
+
+
+
+
