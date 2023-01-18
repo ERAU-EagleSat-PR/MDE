@@ -336,26 +336,14 @@ int main(void)
 
         // currently checking to see if logic is working and if all CS port and
         // pins are active
-        /*
-        for (chipNum = 0; chipNum <= 15; chipNum++)
+        //*
+        for (chipNum = 1; chipNum <= TOTAL_CHIP_COUNT; chipNum++)
         {
 
-            // get mux code to write to CS pins
-            code = RetreiveCSCode(chipNum);
-
-            // Write to Board 1 CS pins
-            GPIOPinWrite(BOARD1_CS_PORT_BASE,
-                         CS1_PIN_0 | CS1_PIN_1 | CS1_PIN_2 | CS1_PIN_3 ,
-                         code);
-
-            // Write to Board 2 CS pins
-            code = code << 4;
-            GPIOPinWrite(GPIO_PORTC_BASE,
-                         GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7 ,
-                         code);
+            SetChipSelect(chipNum);
 
         }
-        */
+        //*/
 
     }
 

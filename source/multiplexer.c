@@ -33,6 +33,7 @@
 #include "driverlib/uart.h"
 #include "driverlib/ssi.h"
 
+#include "source/mde.h"
 #include "source/multiplexer.h"
 
 /*
@@ -45,20 +46,31 @@
 //-----------------------------------------------------------------------------
 // Retrieves the associated port for
 //-----------------------------------------------------------------------------
-uint32_t RetreiveCSPort(uint32_t chip_number){
+uint32_t RetreiveCSPort(uint32_t chipNumber){
+/*
+ * Gets the board of the desired chip. Chips 1-16 are on Board 1, 17-32 are on
+ * Board 2
+ *
+ * chipNumber: The chip number of desired chip (1-32)
+ *
+ * returns: the uint32_t type value of the board that the selected chip is on.
+ *
+ */
 
-    uint32_t result = 0;
-    if (chip_number < 16)
+    uint32_t result;
+    if (chipNumber <= MDE_BOARD1_CHIP_MAX)                  // Board 1
     {
         result = BOARD1_CS_PORT_BASE;
     }
-    else if ( (chip_number >= 16) && (chip_number < 32) )
+    else if ( (chipNumber > MDE_BOARD1_CHIP_MAX) &&         // Board 2
+              (chipNumber <= MDE_BOARD2_CHIP_MAX ) )
     {
         result = BOARD2_CS_PORT_BASE;
     }
-    else
+    else                                                    // Error
     {
-        result = -1;
+        return -1;
+        // TODO: Error handling message
     }
     return result;
 }
@@ -69,11 +81,12 @@ uint32_t RetreiveCSPort(uint32_t chip_number){
 //-----------------------------------------------------------------------------
 uint8_t RetreiveCSCode(uint32_t chipNumber){
 
+
     uint32_t result = 0;
 
     // uint32_t mulitboardCS = chipNumber % 16;
 
-    switch (chipNumber){
+    switch ( (chipNumber - 1) % 16 ){
         case 0:
             result = FLASH1_MUX_CS;
             break;
@@ -159,11 +172,14 @@ void SetChipSelect(uint32_t chipNumber)
             pin1 = CS2_PIN_1;
             pin2 = CS2_PIN_2;
             pin3 = CS2_PIN_3;
-            // bit shift required for writing to GPIO PAort C pins 4-7
+            // bit shift required for writing to GPIO Port C pins 4-7
             chipSelectInput =  chipSelectInput << 4;
             break;
+        case -1:
+            // TODO: Error Handling
+            return;
     }
-    // write to mux input pins to enable selected chip
+    // write to multiplexer control pins to enable selected chip
     GPIOPinWrite(chipSelectPortBase, pin0 | pin1 | pin2 | pin3, chipSelectInput);
 
     IntMasterEnable();

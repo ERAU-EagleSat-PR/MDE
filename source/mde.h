@@ -29,8 +29,11 @@
 #define SYS_CLK_SPEED 16000000
 
 
-// The total number of chips on the board
+// The total number of chips on the boards
 #define TOTAL_CHIP_COUNT    32
+#define MDE_BOARD1_CHIP_MAX 16
+#define MDE_BOARD2_CHIP_MAX 32
+
 
 // Chip Numbers
 #define CS_FLASH1  0
