@@ -83,12 +83,15 @@ enum CHIP_NUMBERS{  NO_CHIP,
 
 //Track the current menu selection
 //*
-extern enum MENU_STATES menu_state;
+extern enum MENU_STATES menuState;
 extern enum BOARDS selectedBoardNumber;
 extern enum MEM_TYPES selectedChipType;
 extern enum CHIP_NUMBERS selectedChipNumber;
 //*/
-
+enum MENU_STATES *menuStatePtr = &menuState;
+enum MENU_STATES *selectedBoardNumberPtr = &selectedBoardNumber;
+enum MEM_TYPES *selectedChipTypeptr = &selectedChipType;
+enum CHIP_NUMBERS *selectedChipNumPtr = &selectedChipNumber;
 
 //-----------------------------------------------------------------------------
 // Seed Errors

@@ -141,7 +141,7 @@ void printDebugMenu(void)
 
     char buf[200];
 
-    switch (menu_state)
+    switch (menuState)
     {
     case INIT:
         UARTCharPut(UART_DEBUG, 0xC);
@@ -203,8 +203,8 @@ void printDebugMenu(void)
         UARTCharPut(UART_DEBUG, 0xC);
         sprintf(buf, "Chip Select Menu (Chip Number)\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
         sprintf(buf, "Board: %d \n\r", selectedBoardNumber);
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
         sprintf(buf, "Selected Chip Type : %s \n\r", getMemTypeString());
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         sprintf(buf, "Chip Number : %d \n\r", selectedChipNumber);
@@ -235,10 +235,10 @@ void printDebugMenu(void)
 void processDebugInput(int32_t recv_char)
 {
 
-    switch (menu_state)
+    switch (menuState)
     {
         case INIT:
-            menu_state = MAIN;
+            menuState = MAIN;
             printDebugMenu();
             break;
         case MAIN:
@@ -257,7 +257,7 @@ void processDebugInput(int32_t recv_char)
             switch (recv_char)
             {
                 case 'm':
-                    menu_state = MAIN;
+                    menuState = MAIN;
                     break;
             }
         break;
@@ -275,7 +275,7 @@ void processMainMenuInput(int32_t recv_char)
     switch (recv_char)
     {
         case 'm':   // Stay on Main Menu
-            menu_state = MAIN;
+            menuState = MAIN;
             printDebugMenu();
             break;
         case 'c':   // Clear the screen
@@ -283,7 +283,7 @@ void processMainMenuInput(int32_t recv_char)
             printDebugMenu();
             break;
         case 'q':   // Manually select/enable chip
-            menu_state = CHIP_SELECT_BOARD;
+            menuState = CHIP_SELECT_BOARD;
             printDebugMenu();
             break;
         case 'a':   // Enter Auto Mode
@@ -327,17 +327,17 @@ void processChipSelectBoardMenuInput(int32_t recv_char)
     {
         case '1':   // Select Board 1
             selectedBoardNumber = BOARD1;
-            menu_state = CHIP_SELECT_TYPE;;
+            menuState = CHIP_SELECT_TYPE;;
             break;
         case '2':   // Select Board 2
             selectedBoardNumber = BOARD2;
-            menu_state = CHIP_SELECT_TYPE;
+            menuState = CHIP_SELECT_TYPE;
             break;
         case 'x':   // Return to Main Menu
             selectedBoardNumber = NO_BOARD;
             selectedChipType = NO_MEM_TYPE;
             selectedChipNumber = NO_CHIP;
-            menu_state = MAIN;
+            menuState = MAIN;
             break;
         default:
             selectedBoardNumber = NO_BOARD;
@@ -362,31 +362,31 @@ void processChipSelectMemTypeMenuInput(int32_t recv_char)
     {
         case 'q': // Flash Memory
             selectedChipType = FLASH;
-            menu_state = CHIP_SELECT_NUM;
+            menuState = CHIP_SELECT_NUM;
             break;
         case 'f': // FRAM
             selectedChipType = FRAM;
-            menu_state = CHIP_SELECT_NUM;
+            menuState = CHIP_SELECT_NUM;
             break;
         case 'm': // MRAM
             selectedChipType = MRAM;
-            menu_state = CHIP_SELECT_NUM;
+            menuState = CHIP_SELECT_NUM;
             break;
         case 's': // SRAM
             selectedChipType = SRAM;
-            menu_state = CHIP_SELECT_NUM;
+            menuState = CHIP_SELECT_NUM;
             break;
         case 'z': // Return to board selection
             selectedBoardNumber = NO_BOARD;
             selectedChipType = NO_MEM_TYPE;
             selectedChipNumber = NO_CHIP;
-            menu_state = CHIP_SELECT_BOARD;
+            menuState = CHIP_SELECT_BOARD;
             break;
         case 'x': // Return to Main Menu
             selectedBoardNumber = NO_BOARD;
             selectedChipType = NO_MEM_TYPE;
             selectedChipNumber = NO_CHIP;
-            menu_state = MAIN;
+            menuState = MAIN;
             break;
         default:
             selectedChipType = NO_MEM_TYPE;
@@ -407,7 +407,7 @@ void processChipSelectMemTypeMenuInput(int32_t recv_char)
 void processChipSelectChipNumMenuInput(int32_t recv_char)
 {
     IntMasterDisable();
-
+    // NO bitches
     switch (recv_char)
     {
         case '1':   // chip 1
@@ -416,22 +416,22 @@ void processChipSelectChipNumMenuInput(int32_t recv_char)
         case '2':   // chip 2
             selectedChipNumber = 2 * selectedBoardNumber * selectedChipType;
             break;
-        case '3':
+        case '3':   // chip 3
             selectedChipNumber = 3 * selectedBoardNumber * selectedChipType;
             break;
-        case '4':
+        case '4':   // chip 4
             selectedChipNumber = 4 * selectedBoardNumber * selectedChipType;
             break;
         case 'z': // Return to type selection
             selectedChipType = NO_MEM_TYPE;
             selectedChipNumber = NO_CHIP;
-            menu_state = CHIP_SELECT_TYPE;
+            menuState = CHIP_SELECT_TYPE;
             break;
         case 'x': // Return to Main Menu
             selectedBoardNumber = NO_BOARD;
             selectedChipType = NO_MEM_TYPE;
             selectedChipNumber = NO_CHIP;
-            menu_state = MAIN;
+            menuState = MAIN;
             break;
         default:
             selectedChipNumber = NO_CHIP;
@@ -441,14 +441,14 @@ void processChipSelectChipNumMenuInput(int32_t recv_char)
     // reprint the current menu
     printDebugMenu();
 
-    // clear the Chip select
+    // clear the Chip select lines
     ResetChipSelect1();
     ResetChipSelect2();
 
     //Enable the Selected Chip if chosen
     if (selectedChipNumber != NO_CHIP)
     {
-        SetChipSelect(selectedChipNumber - 1);
+        SetChipSelect(selectedChipNumber);
     }
 
     IntMasterEnable();

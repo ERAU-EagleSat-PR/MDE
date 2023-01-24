@@ -336,7 +336,7 @@ int main(void)
 
         // currently checking to see if logic is working and if all CS port and
         // pins are active
-        //*
+        /*
         for (chipNum = 1; chipNum <= TOTAL_CHIP_COUNT; chipNum++)
         {
 
