@@ -330,30 +330,6 @@ void Timer0IntHandler(void)
   
 }
 
-//*****************************************************************************
-// Enables the RGB LED
-//*****************************************************************************
-void EnableLED(void){
-  
-  // Enable LED GPIO PIN
-  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
-
-  // Check for peripheral to be Enabled
-  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF))
-  {  
-  }
-
-  // Enable the GPIO pin for the RED LED (PF1).  Set the direction as output
-  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
-
-  // Enable the GPIO pin for the GREEN LED (PF3).  Set the direction as output
-  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_3);
-
-  // Enable the GPIO pin for the BLUE LED (PF2).  Set the direction as output
-  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
-
-}
-
 
 //*****************************************************************************
 //
@@ -362,42 +338,5 @@ void EnableLED(void){
 //*****************************************************************************
 int main(void){
   
-  //*****************************************************************************
-  // Normal CEC322 stuff (Enabling peripherals and pins and stuff)
-  //****************************************************************************
-
-  // Enable lazy stacking for interrupt handlers.  This allows floating-point
-  // instructions to be used within interrupt handlers, but at the expense of
-  // extra stack usage.
-  FPUEnable();
-  FPULazyStackingEnable();
-
-  //
-  // Set the clock speed.
-  //
-  SysClkSpeed = SysCtlClockFreqSet(SYSCTL_OSC_INT | SYSCTL_USE_PLL | SYSCTL_CFG_VCO_320, SYS_CLK_SPEED);
-
-  // Enable processor interrupts.
-  IntMasterEnable();
-
-  ////////////////////////
-  // LED enable and config
-  ////////////////////////
-  EnableLED();
-
-  ///////////////////////////////
-  // Debug UART enable and config
-  ///////////////////////////////
-
-  // UART DEBUG
-
-  ////////////////////////
-  // Begin While Loop   //
-  ////////////////////////
-  while(1){
-
-      // Idle "heart beat"
-      BlinkBlueLED();
-  }
-
 }
+

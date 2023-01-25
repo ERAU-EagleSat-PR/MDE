@@ -1,10 +1,9 @@
 /*
- * mde_system.c
+ * multiplexer.c
  *
- * Contains the functions and methods that control the system to perform
- * the MDE experiment
+ *  Created on: Dec 29, 2022
+ *      Author: Calvin
  */
-
 
 /*
 *******************************************************************************
@@ -34,12 +33,8 @@
 #include "driverlib/uart.h"
 #include "driverlib/ssi.h"
 
-// Custom files
-#include "source/mde_system.h"
-//#include "MB85RS2MTYPNF.h"
-//#include "MR25H40.h"
-//#include "IS62WVS5128GBLL.h"
-//#include "S25FL256LA.h"
+#include "source/mde.h"
+#include "source/multiplexer.h"
 
 /*
 *******************************************************************************
@@ -47,23 +42,35 @@
 *******************************************************************************
 */
 
+
 //-----------------------------------------------------------------------------
 // Retrieves the associated port for
 //-----------------------------------------------------------------------------
-uint32_t RetreiveCSPort(uint32_t chip_number){      //TODO Come back to this
+uint32_t RetreiveCSPort(uint32_t chipNumber){
+/*
+ * Gets the board of the desired chip. Chips 1-16 are on Board 1, 17-32 are on
+ * Board 2
+ *
+ * chipNumber: The chip number of desired chip (1-32)
+ *
+ * returns: the uint32_t type value of the board that the selected chip is on.
+ *
+ */
 
-    uint32_t result = 0;
-    if (chip_number < 16)
+    uint32_t result;
+    if (chipNumber <= MDE_BOARD1_CHIP_MAX)                  // Board 1
     {
         result = BOARD1_CS_PORT_BASE;
     }
-    else if ( (chip_number >= 16) && (chip_number < 32) )
+    else if ( (chipNumber > MDE_BOARD1_CHIP_MAX) &&         // Board 2
+              (chipNumber <= MDE_BOARD2_CHIP_MAX ) )
     {
         result = BOARD2_CS_PORT_BASE;
     }
-    else
+    else                                                    // Error
     {
-        result = -1;
+        return -1;
+        // TODO: Error handling message
     }
     return result;
 }
@@ -74,11 +81,12 @@ uint32_t RetreiveCSPort(uint32_t chip_number){      //TODO Come back to this
 //-----------------------------------------------------------------------------
 uint8_t RetreiveCSCode(uint32_t chipNumber){
 
+
     uint32_t result = 0;
 
     // uint32_t mulitboardCS = chipNumber % 16;
 
-    switch (chipNumber){
+    switch ( (chipNumber - 1) % 16 ){
         case 0:
             result = FLASH1_MUX_CS;
             break;
@@ -132,8 +140,15 @@ uint8_t RetreiveCSCode(uint32_t chipNumber){
   return result;
 }
 
-void setCSOutput(uint32_t chipNumber)
+
+void SetChipSelect(uint32_t chipNumber)
 {
+/*
+ * Inputs : chipNumber, valid range is 1 to TOTAL_CHIP_COUNT-1 (31)
+ *
+ * Gets board and multiplexer input dependent on chip number then writes the
+ * chip select lines of the chosen board to select the appropriate chip.
+ */
 
     IntMasterDisable();
 
@@ -143,6 +158,7 @@ void setCSOutput(uint32_t chipNumber)
     uint8_t chipSelectInput = RetreiveCSCode(chipNumber);
     uint32_t chipSelectPortBase = RetreiveCSPort(chipNumber);
 
+    // Get port and pins for selected chip
     switch (chipSelectPortBase)
     {
         case BOARD1_CS_PORT_BASE:
@@ -156,16 +172,52 @@ void setCSOutput(uint32_t chipNumber)
             pin1 = CS2_PIN_1;
             pin2 = CS2_PIN_2;
             pin3 = CS2_PIN_3;
+            // bit shift required for writing to GPIO Port C pins 4-7
+            chipSelectInput =  chipSelectInput << 4;
             break;
+        case -1:
+            // TODO: Error Handling
+            return;
     }
-    // Set pins to Enable selected chip
+    // write to multiplexer control pins to enable selected chip
     GPIOPinWrite(chipSelectPortBase, pin0 | pin1 | pin2 | pin3, chipSelectInput);
 
     IntMasterEnable();
 }
 
 
+void ResetChipSelect1(void){
+ /*
+  * Reset the De-multiplexer that controls the chip select for board 1 back
+  * original state 0x00 (all line low, first chip active)
+  */
 
+    IntMasterDisable();
+
+    GPIOPinWrite(BOARD1_CS_PORT_BASE,
+                 CS1_PIN_0 | CS1_PIN_1 | CS1_PIN_2 | CS1_PIN_3,
+                 RESET_MUX);
+
+    IntMasterEnable();
+
+}
+
+
+void ResetChipSelect2(void){
+ /*
+  * Reset the De-multiplexer that controls the chip select for board 2 back
+  * original state 0x00 (all line low, first chip active)
+  */
+
+    IntMasterDisable();
+
+    GPIOPinWrite(BOARD2_CS_PORT_BASE,
+                 CS2_PIN_0 | CS2_PIN_1 | CS2_PIN_2 | CS2_PIN_3,
+                 RESET_MUX);
+
+    IntMasterEnable();
+
+}
 
 
 
