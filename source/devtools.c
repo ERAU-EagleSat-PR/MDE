@@ -287,7 +287,7 @@ void processMainMenuInput(int32_t recv_char)
             printDebugMenu();
             break;
         case 'a':   // Enter Auto Mode
-            //menu_state = AUTO;
+            // = AUTO;
             UARTCharPut(UART_DEBUG, 0xC);
             printDebugMenu();
             sprintf(buf, "Function Not Implemented.\n\r");              // TODO
@@ -407,20 +407,23 @@ void processChipSelectMemTypeMenuInput(int32_t recv_char)
 void processChipSelectChipNumMenuInput(int32_t recv_char)
 {
     IntMasterDisable();
-    // NO bitches
+
+    int chipShift;
+
     switch (recv_char)
     {
+        /* Constants added to step to next chip from the multiplication of Board and  */
         case '1':   // chip 1
-            selectedChipNumber = selectedBoardNumber * selectedChipType;
+            chipShift = 3;
             break;
         case '2':   // chip 2
-            selectedChipNumber = 2 * selectedBoardNumber * selectedChipType;
+            chipShift = 2;
             break;
         case '3':   // chip 3
-            selectedChipNumber = 3 * selectedBoardNumber * selectedChipType;
+            chipShift = 1;
             break;
         case '4':   // chip 4
-            selectedChipNumber = 4 * selectedBoardNumber * selectedChipType;
+            chipShift = 0;
             break;
         case 'z': // Return to type selection
             selectedChipType = NO_MEM_TYPE;
@@ -438,18 +441,22 @@ void processChipSelectChipNumMenuInput(int32_t recv_char)
             break;
     }
 
-    // reprint the current menu
-    printDebugMenu();
-
     // clear the Chip select lines
     ResetChipSelect1();
     ResetChipSelect2();
+
+    // Algorithm to calculate the integer value of each chip, only used for
+    // on demand selects
+    selectedChipNumber = (4*selectedChipType - chipShift) + (16*(selectedBoardNumber - 1));
 
     //Enable the Selected Chip if chosen
     if (selectedChipNumber != NO_CHIP)
     {
         SetChipSelect(selectedChipNumber);
     }
+
+    // reprint the current menu
+    printDebugMenu();
 
     IntMasterEnable();
 }

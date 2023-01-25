@@ -50,31 +50,24 @@ void            ResetChipSelect2(void);
 #define CS2_PIN_3           GPIO_PIN_7
 
 
-// Multiplexer input for both boards
-#define RESET_MUX           0x00
-#define FLASH1_MUX_CS       0x00
-#define FLASH2_MUX_CS       0x01
-#define FLASH3_MUX_CS       0x02
-#define FLASH4_MUX_CS       0x03
-#define FRAM1_MUX_CS        0x04
-#define FRAM2_MUX_CS        0x05
-#define FRAM3_MUX_CS        0x06
-#define FRAM4_MUX_CS        0x07
-#define MRAM1_MUX_CS        0x08
-#define MRAM2_MUX_CS        0x09
-#define MRAM3_MUX_CS        0x0A
-#define MRAM4_MUX_CS        0x0B
-#define SRAM1_MUX_CS        0x0C
-#define SRAM2_MUX_CS        0x0D
-#define SRAM3_MUX_CS        0x0E
-#define SRAM4_MUX_CS        0x0F
+// Multiplexer input for both boards    chip Number: Board 1     Board 2
+#define RESET_MUX           0x00        //              0           0
+#define FLASH1_MUX_CS       0x00        //              1           17
+#define FLASH2_MUX_CS       0x01        //              2           18
+#define FLASH3_MUX_CS       0x02        //              3           19
+#define FLASH4_MUX_CS       0x03        //              4           20
+#define FRAM1_MUX_CS        0x04        //              5           21
+#define FRAM2_MUX_CS        0x05        //              6           22
+#define FRAM3_MUX_CS        0x06        //              7           23
+#define FRAM4_MUX_CS        0x07        //              8           24
+#define MRAM1_MUX_CS        0x08        //              9           25
+#define MRAM2_MUX_CS        0x09        //              10          26
+#define MRAM3_MUX_CS        0x0A        //              11          27
+#define MRAM4_MUX_CS        0x0B        //              12          28
+#define SRAM1_MUX_CS        0x0C        //              13          29
+#define SRAM2_MUX_CS        0x0D        //              14          30
+#define SRAM3_MUX_CS        0x0E        //              15          31
+#define SRAM4_MUX_CS        0x0F        //              16          32
 
-// alternative method for
-/*
-uint8_t CHIP_SELECT_MUX_PINS[16] = { 0x00, 0x01, 0x02, 0x03,
-                                     0x04, 0x05, 0x06, 0x07,
-                                     0x08, 0x09, 0x0A, 0x0B,
-                                     0x0C, 0x0D, 0x0E, 0x0F };
-*/
 
 #endif /* SOURCE_MULTIPLEXER_H_ */

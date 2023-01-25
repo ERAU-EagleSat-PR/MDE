@@ -88,10 +88,7 @@ extern enum BOARDS selectedBoardNumber;
 extern enum MEM_TYPES selectedChipType;
 extern enum CHIP_NUMBERS selectedChipNumber;
 //*/
-enum MENU_STATES *menuStatePtr = &menuState;
-enum MENU_STATES *selectedBoardNumberPtr = &selectedBoardNumber;
-enum MEM_TYPES *selectedChipTypeptr = &selectedChipType;
-enum CHIP_NUMBERS *selectedChipNumPtr = &selectedChipNumber;
+
 
 //-----------------------------------------------------------------------------
 // Seed Errors

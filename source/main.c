@@ -58,7 +58,7 @@ uint32_t SysClkSpeed = 16000000;
 
 // State tracker initial definitions for the menus
 #ifdef DEBUG
-enum MENU_STATES menu_state          = INIT;
+enum MENU_STATES menuState          = INIT;
 enum BOARDS selectedBoardNumber      = NO_BOARD;
 enum MEM_TYPES selectedChipType      = NO_MEM_TYPE;
 enum CHIP_NUMBERS selectedChipNumber = NO_CHIP;
@@ -315,13 +315,13 @@ int main(void)
     UARTDebugEnable();
 
     // Initialize Debug Menu
-    menu_state = MAIN;
+    menuState = MAIN;
     printDebugMenu();
 
 #endif
 
-    uint8_t code;
-    int chipNum;
+    //uint8_t code;
+    //int chipNum;
 
     while (1)
     {
@@ -343,7 +343,7 @@ int main(void)
             SetChipSelect(chipNum);
 
         }
-        //*/
+        // */
 
     }
 
