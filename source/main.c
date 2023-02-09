@@ -35,7 +35,7 @@
 // Custom Header Files
 #include "source/mde.h"
 #include "source/multiplexer.h"
-#include "source/obc.h"
+#include "source/obc_uart.h"
 #include "source/devtools.h"
 #include "source/chips.h"
 //#include "source/mde_timer.h"
@@ -318,19 +318,23 @@ int main(void)
     menuState = MAIN;
     printDebugMenu();
 
-#endif
+#endif /* DEBUG */
 
     //uint8_t code;
     //int chipNum;
 
+    //*****************************
+    // Main Loop
+    //*****************************
     while (1)
     {
 
-#ifdef DEBUG
-        BlinkRedLED();
-#else   /* Idle "heart beat" */
-        BlinkBlueLED();
-#endif
+        #ifdef DEBUG
+            BlinkRedLED();
+        #else   /* Idle "heart beat" */
+            BlinkBlueLED();
+        #endif /* DEBUG */
+
         //BlinkGreenLED();
 
 
