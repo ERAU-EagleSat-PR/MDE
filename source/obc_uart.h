@@ -21,6 +21,11 @@ void FormatHealthDataPacket(void);
 void TransmitErrors(void);
 void TramsmitHealth(void);
 
+// TODO - These functions are not yet implemented
+// void UARTOBCRecvMsgHandler(void);
+// void UARTOBCResponseHandler(void);
+
+
 /*
 *******************************************************************************
 *                             UART Hardware Defines                           *
@@ -40,6 +45,8 @@ void TramsmitHealth(void);
 #define UART_OBC_SYSCTL     SYSCTL_PERIPH_GPIOB
 #define UART_OBC_RX_PIN     GPIO_PIN_0
 #define UART_OBC_TX_PIN     GPIO_PIN_1
+#define UART_OBC_RX_PIN_CFG GPIO_PB0_U1RX
+#define UART_OBC_TX_PIN_CFG GPIO_PB1_U1TX
 
 #define BAUD_RATE_OBC   115200
 
@@ -93,12 +100,6 @@ void OBCUARTEnable(void);
 #define ERROR_DATA_DIRECTION_MASK   0x1
 #define ERROR_DATA_BIT_SHIFT        0
 #define ERROR_DATA_BIT_MASK         0x7
-
-// Error Packet Formater
-    
-
-// Error Packet Sender
-    /* Funtion here */
 
 /*
 *******************************************************************************

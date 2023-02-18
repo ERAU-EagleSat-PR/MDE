@@ -28,6 +28,7 @@
 
 // local project files
 #include "source/obc_uart.h"
+#include "source/devtools.h"
 
 #ifdef ENABLE_UART_OBC
 
@@ -82,9 +83,11 @@ void UARTOBCIntHandler(void)
         local_char = UARTCharGet(UART_OBC_BASE);
         if(local_char != -1)
         {
-            processDebugInput(local_char);
+            // TODO - Add incoming data to buffer
         }
     }
+
+	// TODO - set the flag to indicate that data is ready to be processed
 
 }
 
@@ -109,8 +112,8 @@ void UARTOBCEnable(void)
 
     // Configure the UART pins for OBC coms
     GPIOPinTypeUART(UART_OBC_BASE, UART_OBC_RX_PIN |  UART_OBC_TX_PIN);
-    GPIOPinConfigure(GPIO_PB0_U1RX);
-    GPIOPinConfigure(GPIO_PB1_U1TX);
+    GPIOPinConfigure(UART_OBC_RX_PIN_CFG);
+    GPIOPinConfigure(UART_OBC_TX_PIN_CFG);
 
     // Configure the UART for 115,200, 8-N-1 operation.
     UARTConfigSetExpClk(UART_OBC_BASE, SysCtlClockGet(), BAUD_RATE_OBC,
@@ -255,5 +258,29 @@ void TransmitHealth(){
 
 	//*/
 }
+
+
+//-----------------------------------------------------------------------------
+// Break the incoming UART data into packets for processing/ response
+//-----------------------------------------------------------------------------
+
+/*
+void UARTOBCRecvMsgHandler(void)
+{
+
+}
+//*/ 
+
+
+//-----------------------------------------------------------------------------
+// Reponse to UART commands from OBC
+//-----------------------------------------------------------------------------
+
+/*
+void UARTOBCResponseHandler(void)
+{
+
+}
+//*/
 
 #endif /* ENABLE_UART_ENABLE */
