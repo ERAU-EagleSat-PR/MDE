@@ -64,6 +64,12 @@ void UARTOBCIntHandler(void)
 {
     uint32_t ui32Status;
 
+	// Buffer of the incoming message
+	uint32_t uart_obc_msg_chars[UART_OBC_MAX_MSG_SIZE];
+	
+	//intiialze buffer index to 0
+	int uart_obc_msg_index = 0;
+
     //
     // Get the interrupt status.
     //
@@ -83,11 +89,19 @@ void UARTOBCIntHandler(void)
         local_char = UARTCharGet(UART_OBC_BASE);
         if(local_char != -1)
         {
-            // TODO - Add incoming data to buffer
+            // Add each incoming character to buffer in hex format
+			uart_obc_msg_chars[uart_obc_msg_index] = local_char;
+			// Increment the buffer index
+			uart_obc_msg_index += 1;
         }
+
     }
 
-	// TODO - set the flag to indicate that data is ready to be processed
+	// Cast the buffer to uint8_t
+	uint8_t *uart_obc_msg_uint8_ptr = (uint8_t *)uart_obc_msg_chars;
+
+	// Call the UARTOBCRecvMsgHandler() function to process the buffer
+	UARTOBCRecvMsgHandler(uart_obc_msg_uint8_ptr);
 
 }
 
@@ -116,7 +130,7 @@ void UARTOBCEnable(void)
     GPIOPinConfigure(UART_OBC_TX_PIN_CFG);
 
     // Configure the UART for 115,200, 8-N-1 operation.
-    UARTConfigSetExpClk(UART_OBC_BASE, SysCtlClockGet(), BAUD_RATE_OBC,
+    UARTConfigSetExpClk(UART_OBC_BASE, SysCtlClockGet(), UART_OBC_BAUD_RATE,
                        (UART_CONFIG_WLEN_8 |
                         UART_CONFIG_STOP_ONE |
                         UART_CONFIG_PAR_NONE));
@@ -208,7 +222,8 @@ void FormatHealthDataPacket() /* Probably wont return a void*/
 // Create the health data integer and transmit it over UART to OBC
 //-----------------------------------------------------------------------------
 //TODO
-void TransmitHealth(){
+void TransmitHealth()
+{
 	/*
 	uint64_t health_data;
 
@@ -264,11 +279,36 @@ void TransmitHealth(){
 // Break the incoming UART data into packets for processing/ response
 //-----------------------------------------------------------------------------
 
-/*
-void UARTOBCRecvMsgHandler(void)
+//*
+void UARTOBCRecvMsgHandler(uint8_t* incoming_msg_ptr )
 {
+	/* 
+		This function is called when a UART message is received from the OBC
+		It will break the message into packets
+	*/
 
-}
+	// recover the message length
+	int msg_length = sizeof(*incoming_msg_ptr) / sizeof(uint8_t);
+
+	// Iiterate through the buffer
+	for (int i = 0; i < msg_length; i++)
+
+		// Check for ESC character
+			// signifies start and of message data frame
+			// create temp buffer (cmd_msg or something) for data frame
+	
+			// Check buffer SOM character
+				// use SOM to calibrate? check if fist data frame is SOM,
+				// if not, send error message to OBC that request was not
+				// understood 
+
+			// Check buffer for EOM character
+				// break
+
+			// Else, Buffer is command data
+				// process command data
+				// UARTOBCResponseHandler(cmd_msg);
+
 //*/ 
 
 
@@ -276,7 +316,7 @@ void UARTOBCRecvMsgHandler(void)
 // Reponse to UART commands from OBC
 //-----------------------------------------------------------------------------
 
-/*
+//*
 void UARTOBCResponseHandler(void)
 {
 

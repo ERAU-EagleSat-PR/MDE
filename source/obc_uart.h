@@ -22,8 +22,40 @@ void TransmitErrors(void);
 void TramsmitHealth(void);
 
 // TODO - These functions are not yet implemented
-// void UARTOBCRecvMsgHandler(void);
-// void UARTOBCResponseHandler(void);
+//void UARTOBCRecvMsgHandler(void);
+//void UARTOBCResponseHandler(void);
+
+/*
+*******************************************************************************
+*                  MDE-OBC UART Protocol and Message Handling                 *
+*******************************************************************************
+*/
+
+//These varibales will be used to structure the transmission of health and
+// error data. The data will be sent in packets, each packet will have a packet
+// type ID to denote what type of data is being sent. 
+
+/* Start and End of Message Identifiers*/
+#define UART_OBC_SOM    0x7F // Start of Message
+#define UART_OBC_EOM    0xFF // End of Message
+#define UART_OBC_ESCAPE 0x1F // Escape Character (splits packets)
+
+/* Packet Type Identifiers */
+#define UART_OBC_HEALTH_PACKET 0x01 // Health Packet Type
+#define UART_OBC_ERROR_PACKET  0x10 // Error Packet Type
+
+/* Max Incoming UART message size from OBC */
+#define UART_OBC_MAX_MSG_SIZE  64   // 64 characters (32 bits each)
+
+/* Flag to indicate an incoming message form the OBC (NOT USED) */
+extern bool uart_obc_msg_flag;
+extern bool* uart_obc_msg_flag_ptr;
+
+// variable and pointer for incoming message
+/*
+extern uint8_t uart_obc_msg;
+extern uint8_t* uart_obc_msg_ptr;
+//*/
 
 
 /*
@@ -48,33 +80,8 @@ void TramsmitHealth(void);
 #define UART_OBC_RX_PIN_CFG GPIO_PB0_U1RX
 #define UART_OBC_TX_PIN_CFG GPIO_PB1_U1TX
 
-#define BAUD_RATE_OBC   115200
+#define UART_OBC_BAUD_RATE  115200
 
-// Enable the UART to OBC
-void OBCUARTEnable(void);
-
-/*
-*******************************************************************************
-*                         Health Data Paket Defines                           *
-*******************************************************************************
-*/
-
-//-----------------------------------------------------------------------------
-// Packet Variables
-//-----------------------------------------------------------------------------
-
-//These varibales will be used to structure the transmission of health and
-// error data. The data will be sent in packets, each packet will have a packet
-// type ID to denote what type of data is being sent. 
-
-/* Start and End of Message Identifiers*/
-#define OBC_UART_SOM    0x7F // Start of Message
-#define OBC_UART_EOM    0xFF // End of Message
-#define OBC_UART_ESCAPE 0x1F // Escape Character (splits packets)
-
-/* Packet Type Identifiers */
-#define OBC_UART_HEALTH_PACKET 0x01 // Health Packet Type
-#define OBC_UART_ERROR_PACKET  0x10 // Error Packet Type
 
 /*
 *******************************************************************************
