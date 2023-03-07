@@ -6,12 +6,11 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "MDE_Payload_Prototype.h"
+#include "MDE_MUX_Prototype.h"
+#include "Access_Tools.h"
 #include "MR25H40.h"
 #include "inc/hw_memmap.h"
-#include "inc/hw_gpio.h"
 #include "inc/hw_types.h"
-#include "driverlib/gpio.h"
 #include "driverlib/pin_map.h"
 #include "driverlib/ssi.h"
 
@@ -28,11 +27,10 @@ MRAMSequenceTransmit(unsigned char sequence_start, unsigned char sequence_offset
     //
     uint8_t chip_number_alt;
     uint32_t SPI_base;
-
-    // Chip port
     uint32_t chip_port = RetrieveChipPort(chip_number);
+
     // SPI port
-    if(chip_port = CS0_PORT) {
+    if(chip_port == CS0_PORT) {
         SPI_base = SPI0_NUM_BASE;
     } else {
         SPI_base = SPI1_NUM_BASE;
@@ -59,9 +57,9 @@ MRAMSequenceTransmit(unsigned char sequence_start, unsigned char sequence_offset
     }
 
     // CS high to latch
-    MuxAddressSelect(chip_number_alt);
+    MUXAddressSelect(chip_number_alt);
     // CS low to write
-    MuxAddressSelect(chip_number);
+    MUXAddressSelect(chip_number);
 
     // Transmit the write instruction
     SSIDataPut(SPI_base, MRAM_WRITE);
@@ -140,7 +138,7 @@ MRAMSequenceRetrieve(unsigned char sequence_start, unsigned char sequence_offset
     uint32_t chip_port = RetrieveChipPort(chip_number);
 
     // SPI port
-    if(chip_port = CS0_PORT) {
+    if(chip_port == CS0_PORT) {
         SPI_base = SPI0_NUM_BASE;
     } else {
         SPI_base = SPI1_NUM_BASE;
@@ -176,7 +174,7 @@ MRAMSequenceRetrieve(unsigned char sequence_start, unsigned char sequence_offset
     SSIDataPut(SPI_base, 0x0);
   
     // Wait for the transaction to complete
-    while(SSIBusy(SPI_NUM_BASE))
+    while(SSIBusy(SPI_base))
     {
     }
   
@@ -191,10 +189,7 @@ MRAMSequenceRetrieve(unsigned char sequence_start, unsigned char sequence_offset
     uint32_t data = 0;
     uint32_t blank_byte_count = 0;
   
-    // Universal parts of the error data
-    uint64_t data_error_header = (uint64_t)(ERROR_DATA_HEADER_VALUE && ERROR_DATA_HEADER_MASK) << ERROR_DATA_HEADER_SHIFT;
-    uint64_t data_chip_num = (uint64_t)(chip_number && ERROR_DATA_CHIP_MASK) << ERROR_DATA_CHIP_SHIFT;
-  
+    // Loop through all data
     uint64_t byte_num = 0;
     for(byte_num = 0; byte_num < MRAM_SIZE_BYTES; byte_num++){
     
@@ -207,8 +202,8 @@ MRAMSequenceRetrieve(unsigned char sequence_start, unsigned char sequence_offset
         }
 
         // Read in the data
-        SSIDataGet(SPI_NUM_BASE, &data);
-	
+        SSIDataGet(SPI_base, &data);
+
         // Check if the byte is blank for determining unresponsiveness or reset it
         // if we did get data out
         if(data == 0x00){
@@ -225,50 +220,20 @@ MRAMSequenceRetrieve(unsigned char sequence_start, unsigned char sequence_offset
             chip_unresponsive |= 1 << chip_number;
             break;
         }
-    
-        // Compare the recieved data to the sequence and create the error codes
-        unsigned char wrong_bits = data ^ sequence;
-        if(wrong_bits != 0){
+        // Send data to be checked and prepared
+        CheckErrors(data, sequence, byte_num, chip_number);
 
-            // Prepare the data message bytes
-            uint64_t data_address = ((uint64_t)byte_num & ERROR_DATA_BYTE_MASK) << ERROR_DATA_BYTE_SHIFT;
-      
-            // Loop through and find the errored bits
-            unsigned char bit_num;
-            unsigned char data_bit = 0;
-            unsigned char data_direction = 0;
-            for(bit_num = 0; bit_num < 8; bit_num++) {
-                    if((wrong_bits >> bit_num) & 1) {
-                        // Prepare the bit data
-                        data_bit = ((uint64_t)bit_num & ERROR_DATA_BIT_MASK) << ERROR_DATA_BIT_SHIFT;
-          
-                        // Get the direction of the bit error
-                        data_direction = ((uint64_t)((data >> bit_num) & 1) & ERROR_DATA_DIRECTION_MASK) << ERROR_DATA_DIRECTION_SHIFT;
-          
-                        // Write the error code to the buffer
-                        error_buffer[current_error] = data_error_header | data_chip_num | data_address | data_direction | data_bit;
-                        current_error++;
-          
-                        // Reset error counter in case of overflow
-                        if(current_error >= ERROR_BUFFER_MAX_SIZE){
-                        current_error = 0;
-                    }
-              }
-         }
+        // Increment the data to the next number in the sequence
+        sequence += sequence_offset;
     }
-    
-    // Increment the data to the next number in the sequence
-    sequence += sequence_offset;
-    
-  }
   
     // Bring CS high again, terminating read
-    MuxAddressSelect(chip_number_alt);
+    MUXAddressSelect(chip_number_alt);
 
     // Update old current error for the next retrieve if the chip wasn't
     // unresponsive, and set its unresponsive flag low in case it fixed itself
     if(blank_byte_count < BLANK_BYTE_UNRESPONSIVE_COUNT){
-        old_current_error = current_error;
+        //old_current_error = current_error;
         chip_unresponsive &= ~(1 << chip_number);
     }
 
