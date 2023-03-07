@@ -161,6 +161,10 @@ void FormatErrorDataPacket() /* Probably wont return a void*/
 void TransmitErrors()
 {
 	/*
+
+    Dont forget to use a free(*pointerInBuffer) on every iteration
+    so that malloc can continue adding errors -Tyler
+
 	uint32_t error_iter;
 	unsigned char data1;
 	unsigned char data2;
@@ -185,10 +189,11 @@ void TransmitErrors()
 		UARTCharPut(UART_PRIMARY, data2);
 		UARTCharPut(UART_PRIMARY, data1);
 
-  	current_error = 0;
+  	current_error = 0; keep, used for iterating through error buf
 	}
 	
 	//*/
+
 
 }
 
