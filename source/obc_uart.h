@@ -16,49 +16,64 @@
 void UARTOBCIntHandler(void);
 void UARTOBCEnable(void);
 void UARTOBCSend(const uint8_t *pui8Buffer, uint32_t ui32Count);
+void FormatErrorDataPacket(void);
+void FormatHealthDataPacket(void);
 void TransmitErrors(void);
 void TramsmitHealth(void);
 
 /*
 *******************************************************************************
-*                              Hardware Constants                             *
+*                             UART Hardware Defines                           *
 *******************************************************************************
 */
 
-
-//-----------------------------------------------------------------------------
-// UART Variables
-//-----------------------------------------------------------------------------
-
 // The primary UART base to read and write to (OBC Communication)
-//#define ENABLE_UART_PRIMARY
+#define ENABLE_UART_OBC
+
+// Register base for OBC UART
 #define UART_OBC        UART1_BASE
 #define UART_OBC_BASE   UART1_BASE
 #define UART_OBC_SYSCTL SYSCTL_PERIPH_UART1
 
+// GPIO for OBC UART
+#define UART_OBC_PORT_BASE  GPIO_PORTB_BASE
+#define UART_OBC_SYSCTL     SYSCTL_PERIPH_GPIOB
+#define UART_OBC_RX_PIN     GPIO_PIN_0
+#define UART_OBC_TX_PIN     GPIO_PIN_1
+
 #define BAUD_RATE_OBC   115200
 
-// TODO
-#define UART_OBC_PORT_BASE
-#define UART_OBC_RX_PIN
-#define UART_OBC_TX_PIN
+// Enable the UART to OBC
+void OBCUARTEnable(void);
 
-// GPIO for OBC UART
-
+/*
+*******************************************************************************
+*                         Health Data Paket Defines                           *
+*******************************************************************************
+*/
 
 //-----------------------------------------------------------------------------
-// TransmitErrors() Error Buffer Variables //TODO
+// Packet Variables
 //-----------------------------------------------------------------------------
 
-// The maximum amount of errors that can be stored
-// If this is exceeded then the system loops back around, though the looping is
-// sort of broken as when transmitting the system will forget about the previous
-// set of errors.
-#define ERROR_BUFFER_MAX_SIZE 1000
-// The buffer variables
-extern uint64_t error_buffer[ERROR_BUFFER_MAX_SIZE];
-extern uint32_t current_error;
-extern uint32_t old_current_error;
+//These varibales will be used to structure the transmission of health and
+// error data. The data will be sent in packets, each packet will have a packet
+// type ID to denote what type of data is being sent. 
+
+/* Start and End of Message Identifiers*/
+#define OBC_UART_SOM    0x7F // Start of Message
+#define OBC_UART_EOM    0xFF // End of Message
+#define OBC_UART_ESCAPE 0x1F // Escape Character (splits packets)
+
+/* Packet Type Identifiers */
+#define OBC_UART_HEALTH_PACKET 0x01 // Health Packet Type
+#define OBC_UART_ERROR_PACKET  0x10 // Error Packet Type
+
+/*
+*******************************************************************************
+*                          Error Data Packet Defines                          *
+*******************************************************************************
+*/
 
 // NOTE: In the next two sections, defining shifts and masks for the messages
 // masks are applied before shifts!
@@ -79,6 +94,17 @@ extern uint32_t old_current_error;
 #define ERROR_DATA_BIT_SHIFT        0
 #define ERROR_DATA_BIT_MASK         0x7
 
+// Error Packet Formater
+    
+
+// Error Packet Sender
+    /* Funtion here */
+
+/*
+*******************************************************************************
+*                               Health Data Packets                           *
+*******************************************************************************
+*/
 
 //-----------------------------------------------------------------------------
 // TransmitHealth() Health & Responsiveness Variables //TODO
@@ -89,7 +115,7 @@ extern uint32_t old_current_error;
 // The shifts and masks for the health data, in case the health data formatting
 // needs to be redefined. Adding data needs changes in main .c file.
 #define HEALTH_DATA_HEADER_SHIFT    56                     //while byte header
-#define HEALTH_DATA_HEADER_MASK     0xF                     // 11111111h
+#define HEALTH_DATA_HEADER_MASK     0xF                    //1111h
 #define HEALTH_DATA_CYCLE_SHIFT     48
 #define HEALTH_DATA_CYCLE_MASK      0x3FFF // Only 14 bits allocated for the count
 #define HEALTH_DATA_START_SHIFT     4
@@ -108,6 +134,12 @@ extern uint64_t chip_unresponsive;
 
 // The number of bytes to check before declaring a chip unresponsive
 #define BLANK_BYTE_UNRESPONSIVE_COUNT 8
+
+//health Packet fromatter
+    /* Funtion prototype here */
+
+//health Packet Sender
+    /* Funtion prototype here */
 
 #endif /* SOURCE_OBC_H_ */
 

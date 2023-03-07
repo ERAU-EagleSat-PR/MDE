@@ -9,6 +9,8 @@ Debug/
 Release/
 *.config
 *.launches
+MDE_UART_CCS.map
+MDE_MART_CCS_linkinfo.xml
 
 # shit picked up from VS Code
 .vscode/				# .vscode folder
