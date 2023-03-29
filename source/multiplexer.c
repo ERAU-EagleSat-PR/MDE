@@ -140,7 +140,6 @@ uint8_t RetreiveCSCode(uint32_t chipNumber){
   return result;
 }
 
-
 void SetChipSelect(uint32_t chipNumber)
 {
 /*

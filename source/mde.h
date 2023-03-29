@@ -15,7 +15,7 @@
 *                             Function Prototypes                             *
 *******************************************************************************
 */
-
+void EnableSPI(void);
 
 /*
 *******************************************************************************
@@ -65,5 +65,40 @@ extern const unsigned char sequence_offset_values[SEQUENCE_OFFSET_VALUES_LENGTH]
 extern uint32_t current_sequence_offset;
 extern unsigned short cycle_count;
 
+//**************************************************************//
+//                                                              //
+// Information to enable and configure the SSI communication    //
+//                                                              //
+//**************************************************************//
+
+// SSI pins and ports Board 1
+#define SPI0_NUM_BASE       SSI0_BASE
+#define SPI0_SYS_PERIPH     SYSCTL_PERIPH_SSI0
+#define SPI0_SYS_PORT       SYSCTL_PERIPH_GPIOA
+#define SPI0_PORT           GPIO_PORTA_BASE
+#define SPI0_CLK            GPIO_PA2_SSI0CLK
+#define SPI0_CLK_NUM        GPIO_PIN_2
+#define SPI0_MISO           GPIO_PA4_SSI0RX
+#define SPI0_MOSI           GPIO_PA5_SSI0TX
+#define SPI0_MOSI_NUM       GPIO_PIN_5
+#define SPI0_MISO_NUM       GPIO_PIN_4
+
+// SSI pins and ports Board 2
+#define SPI1_NUM_BASE       SSI1_BASE
+#define SPI1_SYS_PERIPH     SYSCTL_PERIPH_SSI1
+#define SPI1_SYS_PORT       SYSCTL_PERIPH_GPIOF
+#define SPI1_PORT           GPIO_PORTF_BASE
+#define SPI1_CLK            GPIO_PF2_SSI1CLK
+#define SPI1_CLK_NUM        GPIO_PIN_2
+#define SPI1_MOSI           GPIO_PF1_SSI1TX
+#define SPI1_MISO           GPIO_PF0_SSI1RX
+#define SPI1_MOSI_NUM       GPIO_PIN_1
+#define SPI1_MISO_NUM       GPIO_PIN_0
+
+// Clock information needed for SPI timing/rate
+// The target clock speed for the system clock, 16 MHz
+#define SYS_CLK_SPEED 16000000
+// SPI clock speed. Cannot exceed masterclock, defined above, or any of the maximum chip speeds
+#define SPI_CLK_SPEED 4000000
 
 #endif /* MDE_H_ */

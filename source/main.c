@@ -136,6 +136,8 @@ void EnableBoard1ChipSelectPins(void)
                           CS1_PIN_0 | CS1_PIN_1 | CS1_PIN_2 | CS1_PIN_3 );
 
     IntMasterEnable();
+    // Reset pins
+    ResetChipSelect1();
 }
 
 //-----------------------------------------------------------------------------
@@ -174,6 +176,8 @@ void EnableBoard2ChipSelectPins(void)
     //*/
 
     IntMasterEnable();
+    // Reset pins
+    ResetChipSelect2();
 }
 
 /*
@@ -303,6 +307,8 @@ int main(void)
     //*****************************
 
     EnableLED();
+
+    EnableSPI();
 
     EnableBoard1ChipSelectPins();
 

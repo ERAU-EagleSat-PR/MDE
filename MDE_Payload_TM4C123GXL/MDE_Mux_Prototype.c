@@ -48,54 +48,9 @@ uint32_t selected_chip_number = 0;
 // Function Definitions
 //
 //*****************************************************************************
-//
-// Enable chip select port/pins
-//
-//*****************************************************************************
 
-void
-EnableChipSelects(){
 
-  // Chip Select Port
-  SysCtlPeripheralEnable(CS_SYSCTL_PORT);
 
-  //
-  // Wait for peripheral to be enabled
-  //
-  while(!SysCtlPeripheralReady(CS0_SYSCTL_PORT) && !SysCtlPeripheralReady(CS1_SYSCTL_PORT))
-  {
-  }
-    //
-    // Configure the pins
-    //
-    // Board 1
-    GPIOPinTypeGPIOOutput(CS0_SYSCTL_PORT, CS0_SYSCTL_PIN_0);
-    GPIOPinTypeGPIOOutput(CS0_SYSCTL_PORT, CS0_SYSCTL_PIN_1);
-    GPIOPinTypeGPIOOutput(CS0_SYSCTL_PORT, CS0_SYSCTL_PIN_2);
-    GPIOPinTypeGPIOOutput(CS0_SYSCTL_PORT, CS0_SYSCTL_PIN_3);
-
-    //Board 2
-    GPIOPinTypeGPIOOutput(CS1_SYSCTL_PORT, CS1_SYSCTL_PIN_0);
-    GPIOPinTypeGPIOOutput(CS1_SYSCTL_PORT, CS1_SYSCTL_PIN_1);
-    GPIOPinTypeGPIOOutput(CS1_SYSCTL_PORT, CS1_SYSCTL_PIN_2);
-    GPIOPinTypeGPIOOutput(CS1_SYSCTL_PORT, CS1_SYSCTL_PIN_3);
-
-    //
-    // Set chip select lines low for now
-    //
-    // Board 1
-    GPIOPinWrite(CS0_SYSCTL_PORT, CS0_SYSCTL_PIN_0, 0x0);
-    GPIOPinWrite(CS0_SYSCTL_PORT, CS0_SYSCTL_PIN_1, 0x0);
-    GPIOPinWrite(CS0_SYSCTL_PORT, CS0_SYSCTL_PIN_2, 0x0);
-    GPIOPinWrite(CS0_SYSCTL_PORT, CS0_SYSCTL_PIN_3, 0x0);
-
-    //Board 2
-    GPIOPinWrite(CS1_SYSCTL_PORT, CS1_SYSCTL_PIN_0, 0x0);
-    GPIOPinWrite(CS1_SYSCTL_PORT, CS1_SYSCTL_PIN_1, 0x0);
-    GPIOPinWrite(CS1_SYSCTL_PORT, CS1_SYSCTL_PIN_2, 0x0);
-    GPIOPinWrite(CS1_SYSCTL_PORT, CS1_SYSCTL_PIN_3, 0x0);
-  }
-}
 //*****************************************************************************
 //
 // Select the proper chip select lines, board 1 and 2
@@ -380,42 +335,7 @@ int main(void)
     // Begin IO Pin Config //
     /////////////////////////
 
-    // This is where SPI config goes
-    SysCtlPeripheralEnable(SPI0_SYS_PORT)
-    SysCtlPeripheralEnable(SPI1_SYS_PORT)
-
-    while(!SysCtlPeripheralReady(SPI0_SYS_PORT) ||
-          !SysCtlPeripheralEnable(SPI1_SYS_PORT))
-    {
-    }
-    // Board 1 SPI
-    GPIOPinConfigure(SPI0_CLK);
-    GPIOPinConfigure(SPI0_MOSI);
-    GPIOPinConfigure(SPI0_MISO);
-    GPIOPinTypeSSI(SPI0_PORT, SPI0_CLK_NUM | SPI0_MOSI_NUM | SPI0_MISO_NUM);
-
-    SSIDisable(SPI0_NUM_BASE);
-    SSIConfigSetExpClk(SPI0_NUM_BASE, SysClkSpeed, SSI_FRF_MOTO_MODE_0, SSI_MODE_MASTER, SPI_CLK_SPEED, 8);
-    SSIEnable(SPI0_NUM_BASE);
-
-    // Board 2 SPI
-    GPIOPinConfigure(SPI1_CLK);
-    GPIOPinConfigure(SPI1_MOSI);
-    GPIOPinConfigure(SPI1_MISO);
-    GPIOPinTypeSSI(SPI1_PORT, SPI1_CLK_NUM | SPI1_MOSI_NUM | SPI1_MISO_NUM);
-
-    SSIDisable(SPI1_NUM_BASE);
-    SSIConfigSetExpClk(SPI1_NUM_BASE, SysClkSpeed, SSI_FRF_MOTO_MODE_0, SSI_MODE_MASTER, SPI_CLK_SPEED, 8);
-    SSIEnable(SPI1_NUM_BASE);
-
-    //
-    // Clear out the FIFOs
-    //
-    uint32_t temp;
-    while(SSIDataGetNonBlocking(SPI0_NUM_BASE, &temp) &&
-          SSIDataGetNonBlocking(SPI1_NUM_BASE, &temp))
-    {
-    }
+    EnableSSI();
 
     // Enable the chip select lines to the MUX, defaults to 0000
     EnableChipSelects();
