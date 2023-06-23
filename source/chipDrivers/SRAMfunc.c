@@ -148,15 +148,6 @@ SRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number)
     //    SPI_base = SPI1_NUM_BASE;
     //}
 
-
-    //
-    // Clear out the FIFO recieve buffer
-    //
-    uint32_t temp;
-    while(SSIDataGetNonBlocking(SPI_base, &temp))
-    {
-    }
-
     //
     // Read from the SRAM
     //
@@ -177,11 +168,12 @@ SRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number)
     {
     }
 
-    // Clear out the empty recieved data from the instruction transmission
-    SSIDataGet(SPI_base, &temp);
-    SSIDataGet(SPI_base, &temp);
-    SSIDataGet(SPI_base, &temp);
-    SSIDataGet(SPI_base, &temp);
+    // Clear out the FIFO receive buffer
+    //
+    uint32_t temp;
+    while(SSIDataGetNonBlocking(SPI_base, &temp))
+    {
+    }
 
     // Declare variables for the loop
     uint32_t byte_num = 0;
