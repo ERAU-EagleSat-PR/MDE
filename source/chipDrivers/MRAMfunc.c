@@ -20,22 +20,150 @@
 
 // Additional Includes
 #include "MRAMfunc.h"
-#include "AccessTools.h"
+#include "source/multiplexer.h"
+#include "source/mde.h"
 
+#ifdef DEBUG
+#include "source/devtools.h"
+#endif
 
-void
+uint8_t
 MRAMStatusRead(uint8_t chip_number)
 {
-    // TODO: Unlike the other chip types, the MRAM chip does not have an RDID OP-code
-    // This function will compare certain bits in the status register byte to a pre-set value. certain bits are used in the operation of the chip and will be ignored here.
-}
-void MRAMStatusPrepare(void)
-{
-    // TODO: This function will set certain bits in the MRAM status register to 1 for the purposes of device reliability checking. It must first read the register to use its value as a base
-    // to apply our custom bits to, in case any of the bits are already set (they should not be but it is a safety feature)
-    // This function should apply to all MRAM chips at the start of the program, on any restarts or interruptions, and probably before a full write cycle has been completed. it should not get stuck if a chip is dead, obviously
-}
+    // Retrieve and return the contents of the MRAM status register
+    //
+    // Chip number value 8-11 for MRAM
 
+    // Variables and necessary ports
+    //
+    uint8_t chip_number_alt;
+    uint32_t SPI_base;
+    uint32_t data;
+
+    // SPI port
+    //if(chip_port == CS0_PORT) {
+    SPI_base = SPI0_NUM_BASE;
+    //} else {
+    //    SPI_base = SPI1_NUM_BASE;
+    //}
+
+    // Random chip selection for setting CS high
+    // MRAM is always 8 to 11, so subtracting 7 is fine.
+    chip_number_alt = chip_number - 7;
+
+    // CS Low for RDSR
+    SetChipSelect(chip_number);
+
+    // Transmit RDSR command
+    SSIDataPut(SPI_base, MRAM_RDSR);
+    while(SSIBusy(SPI_base))
+    {
+    }
+
+    // Clear out the empty received data from the instruction transmission
+    uint32_t temp;
+    while(SSIDataGetNonBlocking(SPI_base, &temp))
+    {
+    }
+
+    // Send a clock pulse and retrieve the status register
+    SSIDataPut(SPI_base, 0x00);
+    SSIDataGet(SPI_base, &data);
+
+    // CS high to end read
+    SetChipSelect(chip_number_alt);
+
+    // Output correct format
+    uint8_t data8 = data;
+    return data8;
+}
+void MRAMStatusPrepare(uint8_t chip_number)
+{
+    // Update the MRAM status register to have 1 values in the 0, 4, 5, 6 bits for status checking
+    //
+    // Chip value 8-11 for MRAM
+
+    // Variables and necessary ports
+    uint8_t chip_number_alt;
+    uint32_t SPI_base;
+
+    // SPI port
+    //if(chip_port == CS0_PORT) {
+    SPI_base = SPI0_NUM_BASE;
+    //} else {
+    //    SPI_base = SPI1_NUM_BASE;
+    //}
+
+    // Random chip selection for setting CS high
+    // MRAM is always 8 to 11, so subtracting 7 is fine.
+    chip_number_alt = chip_number - 7;
+
+    //
+    // WREN latch
+    //
+
+    // CS low
+    SetChipSelect(chip_number);
+
+    // Transmit WREN command
+    SSIDataPut(SPI_base, MRAM_WRITE_ENABLE);
+    while(SSIBusy(SPI_base))
+    {
+    }
+    // CS high to latch
+    SetChipSelect(chip_number_alt);
+
+    // Get the current contents of the SR to ensure we don't overwrite anything important
+    uint32_t currentSR = MRAMStatusRead(chip_number);
+
+    // OR whatever is read with desired values
+    uint32_t desiredSR = MRAM_EXPECTED_REG | currentSR ;
+
+    //
+    // Write new values to register
+    //
+
+    // CS low
+    SetChipSelect(chip_number);
+
+    // Transmit WRSR command
+    SSIDataPut(SPI_base, MRAM_WRSR);
+    while(SSIBusy(SPI_base))
+    {
+    }
+
+    //Transmit register data
+    SSIDataPut(SPI_base, desiredSR);
+    while(SSIBusy(SPI_base))
+    {
+    }
+
+    // CS high to latch
+    SetChipSelect(chip_number_alt);
+
+    //
+    // WRDI
+    //
+
+    // CS low
+    SetChipSelect(chip_number);
+
+    // Transmit WREN command
+    SSIDataPut(SPI_base, MRAM_WRITE_DISABLE);
+    while(SSIBusy(SPI_base))
+    {
+    }
+    // CS high to latch
+    SetChipSelect(chip_number_alt);
+}
+uint8_t MRAMStatusCompare(uint8_t chip_number)
+{
+    // TODO: This function will AND the expected MRAM output to one which is read in, and return a value
+    //       of 0 if the chip is fine and 1 if there is an issue. A separate function will used to put the
+    //       offending chip into a tracking array if an issue is returned.
+
+    return 0;
+}
 
 //*****************************************************************************
 //
@@ -43,7 +171,7 @@ void MRAMStatusPrepare(void)
 //
 //*****************************************************************************
 void
-MRAMSequenceTransmit(uint8_t currentCycle, uint32_t chip_number)
+MRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
 {
     // Transmit the selected sequence to MRAM based on current cycle
     //
@@ -68,7 +196,7 @@ MRAMSequenceTransmit(uint8_t currentCycle, uint32_t chip_number)
 
     // Set data depending on the cycle
     uint32_t data;
-    if(currentCycle == 1) {
+    if(current_cycle == 1) {
          data = 255;
     } else {
         data = 0;
@@ -130,10 +258,10 @@ MRAMSequenceTransmit(uint8_t currentCycle, uint32_t chip_number)
     }
 
     // CS High to end write
-    SetChipSelect(chip_number);
+    SetChipSelect(chip_number_alt);
 
     // CS Low for WRDI
-    SetChipSelect(chip_number_alt);
+    SetChipSelect(chip_number);
 
     // Disable writing to the chip
     SSIDataPut(SPI_base, MRAM_WRITE_DISABLE);
@@ -152,7 +280,7 @@ MRAMSequenceTransmit(uint8_t currentCycle, uint32_t chip_number)
 //
 //*****************************************************************************
 void
-MRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number)
+MRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
 {
     // Retrieve the selected sequence from MRAM based on current cycle and check for bit flips
     //
@@ -163,7 +291,6 @@ MRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number)
     //
     uint8_t chip_number_alt;
     uint32_t SPI_base;
-    char str[12];
 
     // Chip port
     //uint32_t chip_port = RetrieveChipPort(chip_number);
@@ -230,15 +357,19 @@ MRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number)
 
         // Read in the data
         SSIDataGet(SPI_base, &data);
-
+#ifdef DEBUG
+        char str[12];
         sprintf(str, "%d ", data);
         UARTDebugSend((uint8_t*) str, strlen(str));
+#endif
+
     }
 
     // Bring CS high again, terminating read
     SetChipSelect(chip_number_alt);
-    sprintf(str, "\n");
+#ifdef DEBUG
+    sprintf(str, "\r\n");
     UARTDebugSend((uint8_t*) str, strlen(str));
-
+#endif
 
 }

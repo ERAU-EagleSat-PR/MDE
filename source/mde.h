@@ -30,9 +30,9 @@ void EnableSPI(void);
 
 
 // The total number of chips on the boards
-#define TOTAL_CHIP_COUNT    32
-#define MDE_BOARD1_CHIP_MAX 16
-#define MDE_BOARD2_CHIP_MAX 32
+#define TOTAL_CHIP_COUNT    31  //(32, but starts at 0 for programming reasons)
+#define MDE_BOARD1_CHIP_MAX 15  //  0 - 15
+#define MDE_BOARD2_CHIP_MAX 31  // 16 - 31
 
 
 // Chip Numbers
@@ -53,15 +53,7 @@ void EnableSPI(void);
 #define CS_SRAM3   14
 #define CS_SRAM4   15
 
-
-// Sequence variables, which control what is written to the chips
-// Start and offset values are declared in the main c file, not here
-// It's best if the offset is prime
-#define SEQUENCE_START_VALUES_LENGTH 10
-extern const unsigned char sequence_start_values[SEQUENCE_START_VALUES_LENGTH];
-extern uint32_t current_sequence_start;
-#define SEQUENCE_OFFSET_VALUES_LENGTH 8
-extern const unsigned char sequence_offset_values[SEQUENCE_OFFSET_VALUES_LENGTH];
+// Tracking variables for writing and reading from chips
 extern uint32_t current_sequence_offset;
 extern unsigned short cycle_count;
 
@@ -71,7 +63,7 @@ extern unsigned short cycle_count;
 //                                                              //
 //**************************************************************//
 
-// SSI pins and ports Board 1
+// SSI pins and ports
 #define SPI0_NUM_BASE       SSI0_BASE
 #define SPI0_SYS_PERIPH     SYSCTL_PERIPH_SSI0
 #define SPI0_SYS_PORT       SYSCTL_PERIPH_GPIOA

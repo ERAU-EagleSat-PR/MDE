@@ -29,6 +29,7 @@ typedef struct {
     uint8_t retrieved_sequence;
 } MDE_Error_Data_Struct;
 
+/*
 void
 CheckErrors(uint32_t byte_data, uint32_t current_sequence, uint32_t byte_num, uint8_t chip_number)
 {
@@ -53,5 +54,5 @@ CheckErrors(uint32_t byte_data, uint32_t current_sequence, uint32_t byte_num, ui
         // Removed bit-wise error checking as the struct does not hold that, can be found in breadboarding branch if necessary
     }
 }
-
+*/
 

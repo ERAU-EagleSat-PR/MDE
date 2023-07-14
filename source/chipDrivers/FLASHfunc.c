@@ -20,20 +20,25 @@
 
 // Additional Includes
 #include "FLASHfunc.h"
-#include "AccessTools.h"
+#include "source/multiplexer.h"
+#include "source/mde.h"
+
+#ifdef DEBUG
+#include "source/devtools.h"
+#endif
 
 //*****************************************************************************
 //
 // Retrieve and check identification information from FLASH (no check yet)
 //
 //*****************************************************************************
-void
+struct FLASHID
 FlashStatusRead(uint8_t chip_number)
 {
-    char buf[30];
     uint32_t data_buffer;
     uint8_t chip_number_alt = chip_number + 7;
     uint32_t SPI_base = SPI0_NUM_BASE;
+    struct FLASHID infoFlash;
     SetChipSelect(chip_number_alt); //CS high
     SetChipSelect(chip_number); //CS low
 
@@ -53,24 +58,21 @@ FlashStatusRead(uint8_t chip_number)
     {
     }
     SSIDataGetNonBlocking(SPI_base, &data_buffer);
-    sprintf(buf,"cypress id: %d \n\r",data_buffer); //Print to console
-    UARTDebugSend((uint8_t*) buf,strlen(buf));
+    infoFlash.cypID = data_buffer;
 
     SSIDataPut(SPI_base,0x00);
     while(SSIBusy(SPI_base)) //Wait to complete clock pulses
     {
     }
     SSIDataGetNonBlocking(SPI_base, &data_buffer);
-    sprintf(buf,"device id1: %d \n\r",data_buffer); //Print to console
-    UARTDebugSend((uint8_t*) buf,strlen(buf));
+    infoFlash.prodID1 = data_buffer;
 
     SSIDataPut(SPI_base,0x00);
     while(SSIBusy(SPI_base)) //Wait to complete clock pulses
     {
     }
     SSIDataGetNonBlocking(SPI_base, &data_buffer);
-    sprintf(buf,"device id2: %d \n\r",data_buffer); //Print to console
-    UARTDebugSend((uint8_t*) buf,strlen(buf));
+    infoFlash.prodID2 = data_buffer;
 
     // CS high
     SetChipSelect(chip_number_alt);
@@ -92,10 +94,12 @@ FlashStatusRead(uint8_t chip_number)
     {
     }
     SSIDataGetNonBlocking(SPI_base, &data_buffer);
-    sprintf(buf,"RDSR: %d \n\r",data_buffer); //Print to console
-    UARTDebugSend((uint8_t*) buf,strlen(buf));
+    infoFlash.RDSR = data_buffer;
     // CS low
     SetChipSelect(chip_number_alt);
+
+    // Return struct
+    return infoFlash;
 }
 
 //*****************************************************************************
@@ -203,7 +207,7 @@ void FlashErase(uint8_t chip_number)
 //*****************************************************************************
 
 void
-FlashSequenceTransmit(uint8_t currentCycle, uint32_t chip_number)
+FlashSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
 {
     // Write to entire flash memory array
     // Chip number 0-3 for Flash
@@ -230,12 +234,12 @@ FlashSequenceTransmit(uint8_t currentCycle, uint32_t chip_number)
     //
 
     // We only need to erase the chip if we are writing all 1s, and we only need to perform a Page Program if we are writing all 0s. This will save significant time waiting and doing nothing.
-    if (currentCycle == 1)
+    if (current_cycle == 1)
     {
         // This erase function counts as writing all 1s to memory
         FlashErase(chip_number);
     }
-    else if (currentCycle == 0)
+    else if (current_cycle == 0)
     {
       //
       // Enable writing and perform a write cycle of all 0s.
@@ -363,7 +367,7 @@ FlashSequenceTransmit(uint8_t currentCycle, uint32_t chip_number)
 //
 //*****************************************************************************
 void
-FlashSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number)
+FlashSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
 {
     // retrieve from entire flash memory, send each byte to be error checked
     // currently has uart printing for observing integrated
@@ -374,7 +378,6 @@ FlashSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number)
     // Necessary Variables
     uint8_t chip_number_alt;
     uint32_t SPI_base;
-    char buf[30];
     //uint32_t chip_port = RetrieveChipPort(chip_number);
     // Random chip selection for setting CS high
     // TODO: remove these checks they are redundant since all chips have guaranteed range to be in
@@ -440,14 +443,17 @@ FlashSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number)
 
         //Send data to be checked and prepared
         //CheckErrors(data, sequence, byte_num, chip_number);
-
+#ifdef DEBUG
+        char buf[10];
         sprintf(buf, "%d ", data);
         UARTDebugSend((uint8_t*) buf, strlen(buf));
+#endif
     }
 
     // Bring CS high again, ending read
     SetChipSelect(chip_number_alt);
-
+#ifdef DEBUG
     sprintf(buf, "\r\n");
     UARTDebugSend((uint8_t*) buf, strlen(buf));
+#endif
 }

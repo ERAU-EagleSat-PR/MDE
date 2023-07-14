@@ -53,15 +53,13 @@ volatile uint32_t ui32Loop;
 uint32_t timer_current_cycle = 0;
 bool timer_wakeup = false;
 
-// The current clock speed
-uint32_t SysClkSpeed = 16000000;
-
-// State tracker initial definitions for the menus
+// State tracker
 #ifdef DEBUG
 enum MENU_STATES menuState          = INIT;
-enum BOARDS selectedBoardNumber      = NO_BOARD;
-enum MEM_TYPES selectedChipType      = NO_MEM_TYPE;
-enum CHIP_NUMBERS selectedChipNumber = NO_CHIP;
+uint8_t selectedChip = 5;   // Value 0-15
+uint8_t selectedBoard = 1;  // Value 0 or 1, will be changed to work as an offset when a second board is necessary in testing
+uint8_t currentCycle = 1;   // Value 0 or 1 for writing 0s or 1s
+uint8_t chipSelectStep = 1; // Used for chip type -> chip number step tracking
 #endif
 
 
@@ -147,7 +145,7 @@ void EnableBoard2ChipSelectPins(void)
 {
     IntMasterDisable();
 
-    //*
+
     // Enable GPIO for Board 2 chip select
     SysCtlPeripheralEnable(BOARD2_CS_PORT_SYSCTL);
 
@@ -157,9 +155,8 @@ void EnableBoard2ChipSelectPins(void)
     }
 
     // Set pins as output
-    GPIOPinTypeGPIOOutput(BOARD2_CS_PORT_BASE,
-                          CS2_PIN_0 | CS2_PIN_1 | CS2_PIN_2 | CS2_PIN_3 );
-    //*/
+    GPIOPinTypeGPIOOutput(BOARD2_CS_PORT_BASE, CS2_PIN_0 | CS2_PIN_1 | CS2_PIN_2 | CS2_PIN_3 );
+
 
     /*
     // Enable GPIO for Board 2 chip select
@@ -173,17 +170,17 @@ void EnableBoard2ChipSelectPins(void)
     // Set pins as output
     GPIOPinTypeGPIOOutput(GPIO_PORTC_BASE,
                           GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 |GPIO_PIN_7 );
-    //*/
+
 
     IntMasterEnable();
     // Reset pins
-    ResetChipSelect2();
+    ResetChipSelect2();*/
 }
 
 /*
-*******************************************************************************
-*                                LED FUNCTIONS                                *
-*******************************************************************************
+******************************************************************************
+*                                LED FUNCTIONS                               *
+******************************************************************************
 */
 
 //-----------------------------------------------------------------------------
@@ -296,8 +293,8 @@ int main(void)
     FPULazyStackingEnable();
 
     // Set the clock speed.
-    SysCtlClockFreqSet(SYSCTL_OSC_INT | SYSCTL_USE_PLL | SYSCTL_CFG_VCO_320,
-                       SYS_CLK_SPEED);
+    SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN |
+                           SYSCTL_XTAL_16MHZ);
 
     // Enable processor interrupts.
     IntMasterEnable();
@@ -312,7 +309,7 @@ int main(void)
 
     EnableBoard1ChipSelectPins();
 
-    EnableBoard2ChipSelectPins();
+    //EnableBoard2ChipSelectPins();
 
 
 #ifdef DEBUG
@@ -357,7 +354,6 @@ int main(void)
 
     }
 
-    return 0;
 }
 
 //*****************************************************************************

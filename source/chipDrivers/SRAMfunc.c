@@ -22,16 +22,63 @@
 
 // Additional Includes
 #include "SRAMfunc.h"
-#include "AccessTools.h"
+#include "source/multiplexer.h"
+#include "source/mde.h"
 
+#ifdef DEBUG
+#include "source/devtools.h"
+#endif
 
-void
+uint8_t
 SRAMStatusRead(uint32_t chip_number)
 {
-    // The SRAM also does not have a device ID opcode, nor does it have a convenient status register to use like the MRAM does.
-    // there is one register which has 2 bits we are allowed to control. in our current operating mode, these bits must be set to 00.
-    // potentially we could read in page mode and set these bits to 10 instead. the other 5 bits of this register are reserved to 0.
-    // Perhaps another method will be needed to check SRAM health.
+    // Read and return the contents of the SRAM status register
+    // SHOULD BE ALL ZEROES.
+    //
+    // Chip numbers 12-15 for SRAM
+
+    // Variables and necessary ports
+    //
+    uint8_t chip_number_alt;
+    uint32_t SPI_base;
+    uint32_t data;
+
+    // SPI port
+    //if(chip_port == CS0_PORT) {
+    SPI_base = SPI0_NUM_BASE;
+    //} else {
+    //    SPI_base = SPI1_NUM_BASE;
+    //}
+
+    // Random chip selection for setting CS high
+    // MRAM is always 8 to 11, so subtracting 7 is fine.
+    chip_number_alt = chip_number - 7;
+
+    // CS Low for RDMR
+    SetChipSelect(chip_number);
+
+    // Transmit RDMR command
+    SSIDataPut(SPI_base, SRAM_RDMR);
+    while(SSIBusy(SPI_base))
+    {
+    }
+
+    // Clear out the empty received data from the instruction transmission
+    uint32_t temp;
+    while(SSIDataGetNonBlocking(SPI_base, &temp))
+    {
+    }
+
+    // Send a clock pulse and retrieve the status register
+    SSIDataPut(SPI_base, 0x00);
+    SSIDataGet(SPI_base, &data);
+
+    // CS high to end read
+    SetChipSelect(chip_number_alt);
+
+    //Output
+    uint8_t data8 = data;
+    return data8;
 }
 
 //*****************************************************************************
@@ -46,7 +93,7 @@ SRAMStatusRead(uint32_t chip_number)
 // The SRAM is split into two dies. To write across them we would need to end and restart the write at that point (40000h). Same for the read.
 
 void
-SRAMSequenceTransmit(uint8_t currentCycle, uint32_t chip_number)
+SRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
 {
     // Transmit a sequence to the SRAM depending on current cycle.
     //
@@ -71,7 +118,7 @@ SRAMSequenceTransmit(uint8_t currentCycle, uint32_t chip_number)
 
     // Set data depending on the cycle
     uint32_t data;
-    if(currentCycle == 1) {
+    if(current_cycle == 1) {
         data = 255;
     } else {
         data = 0;
@@ -123,7 +170,7 @@ SRAMSequenceTransmit(uint8_t currentCycle, uint32_t chip_number)
 //
 //*****************************************************************************
 void
-SRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number)
+SRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
 {
     // Transmit a sequence to the SRAM depending on current cycle.
     //
@@ -134,7 +181,6 @@ SRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number)
     // Necessary Variables
     uint8_t chip_number_alt;
     uint32_t SPI_base;
-    char str[12];
     //uint32_t chip_port = RetrieveChipPort(chip_number);
 
     // Random chip selection for setting CS high
@@ -193,13 +239,19 @@ SRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number)
 
         // Read in the data
         SSIDataGet(SPI_base, &data);
+#ifdef DEBUG
+        char str[12];
         sprintf(str, "%d ", data);
         UARTDebugSend((uint8_t*) str, strlen(str));
+#endif
         // Send data to be compared and prepared
         //CheckErrors(data, sequence, byte_num, chip_number);
     }
 
     // Set CS high, ending read
     SetChipSelect(chip_number_alt);
-
+#ifdef DEBUG
+        sprintf(str, "\r\n", data);
+        UARTDebugSend((uint8_t*) str, strlen(str));
+#endif
 }

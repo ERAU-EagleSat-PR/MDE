@@ -48,10 +48,10 @@
 //-----------------------------------------------------------------------------
 uint32_t RetreiveCSPort(uint32_t chipNumber){
 /*
- * Gets the board of the desired chip. Chips 1-16 are on Board 1, 17-32 are on
+ * Gets the board of the desired chip. Chips 0-15 are on Board 1, 16-31 are on
  * Board 2
  *
- * chipNumber: The chip number of desired chip (1-32)
+ * chipNumber: The chip number of desired chip (0-31)
  *
  * returns: the uint32_t type value of the board that the selected chip is on.
  *
@@ -69,7 +69,7 @@ uint32_t RetreiveCSPort(uint32_t chipNumber){
     }
     else                                                    // Error
     {
-        return -1;
+        return 0;
         // TODO: Error handling message
     }
     return result;
@@ -80,13 +80,14 @@ uint32_t RetreiveCSPort(uint32_t chipNumber){
 // Retrieves the associated Hex value for the CS Multiplexer
 //-----------------------------------------------------------------------------
 uint8_t RetreiveCSCode(uint32_t chipNumber){
-
+    // Retrieve the Chip select code for a given chip
+    // chip number 0 - 31 for both boards.
 
     uint32_t result = 0;
 
     // uint32_t mulitboardCS = chipNumber % 16;
 
-    switch ( (chipNumber - 1) % 16 ){
+    switch ( (chipNumber) % 16 ){
         case 0:
             result = FLASH1_MUX_CS;
             break;
@@ -174,7 +175,7 @@ void SetChipSelect(uint32_t chipNumber)
             // bit shift required for writing to GPIO Port C pins 4-7
             chipSelectInput =  chipSelectInput << 4;
             break;
-        case -1:
+        case 0:
             // TODO: Error Handling
             return;
     }

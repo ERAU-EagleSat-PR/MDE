@@ -20,7 +20,12 @@
 
 // Additional Includes
 #include "FRAMfunc.h"
-#include "AccessTools.h"
+#include "source/multiplexer.h"
+#include "source/mde.h"
+
+#ifdef DEBUG
+#include "source/devtools.h"
+#endif
 
 //*****************************************************************************
 //
@@ -28,13 +33,16 @@
 //
 //*****************************************************************************
 
-void
+struct FRAMID
 FRAMStatusRead(uint8_t chip_number)
 {
-    char buf[30];
     uint32_t data_buffer;
     uint8_t chip_number_alt = chip_number + 7;
     uint32_t SPI_base = SPI0_NUM_BASE;
+
+    struct FRAMID infoFRAM;
+
+
     SetChipSelect(chip_number_alt); // CS high
     SetChipSelect(chip_number); //CS low
 
@@ -53,32 +61,30 @@ FRAMStatusRead(uint8_t chip_number)
     while(SSIBusy(SPI_base)) //Wait to complete clock cycle
     {}
     SSIDataGetNonBlocking(SPI_base, &data_buffer);
-    sprintf(buf,"fujitsi id: %d \n\r",data_buffer); //Print to console
-    UARTDebugSend((uint8_t*) buf,strlen(buf));
+    infoFRAM.fujID = data_buffer;
 
     SSIDataPut(SPI_base,0x0);
     while(SSIBusy(SPI_base)) //Wait to complete clock cycle
     {}
     SSIDataGetNonBlocking(SPI_base, &data_buffer);
-    sprintf(buf,"cont code: %d \n\r",data_buffer); //Print to console
-    UARTDebugSend((uint8_t*) buf,strlen(buf));
+    infoFRAM.contCode = data_buffer;
 
     SSIDataPut(SPI_base,0x0);
     while(SSIBusy(SPI_base)) //Wait to complete clock cycle
     {}
     SSIDataGetNonBlocking(SPI_base, &data_buffer);
-    sprintf(buf,"prod ID1: %d \n\r",data_buffer); //Print to console
-    UARTDebugSend((uint8_t*) buf,strlen(buf));
+    infoFRAM.prodID1 = data_buffer;
 
     SSIDataPut(SPI_base,0x0);
     while(SSIBusy(SPI_base)) //Wait to complete clock cycle
     {}
     SSIDataGetNonBlocking(SPI_base, &data_buffer);
-    sprintf(buf,"prod ID2: %d \n\r",data_buffer); //Print to console
-    UARTDebugSend((uint8_t*) buf,strlen(buf));
+    infoFRAM.prodID2 = data_buffer;
 
     // CS high
     SetChipSelect(chip_number_alt);
+
+    return infoFRAM;
 }
 
 
@@ -89,7 +95,7 @@ FRAMStatusRead(uint8_t chip_number)
 //
 //*****************************************************************************
 void
-FRAMSequenceTransmit(uint8_t currentCycle, uint32_t chip_number)
+FRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
 {
     // transmit data to fram depending on current cycle
 
@@ -106,7 +112,7 @@ FRAMSequenceTransmit(uint8_t currentCycle, uint32_t chip_number)
 
     // Set data to write depending on current cycle of all 1s or all 0s
     uint32_t data;
-    if(currentCycle == 1){
+    if(current_cycle == 1){
         data = 0b11111111; //255 in binary
     } else {
         data = 0; // == 0b00000000
@@ -186,7 +192,7 @@ FRAMSequenceTransmit(uint8_t currentCycle, uint32_t chip_number)
 //
 //*****************************************************************************
 void
-FRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number)
+FRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
 {
     // Retrieve data to FRAM depending on current cycle and send it for error checking
 
@@ -237,7 +243,6 @@ FRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number)
 
     // Declare variables for the loop
     uint32_t data = 0;
-    char str[12];
     // Loop through all data
     uint32_t byte_num = 0;
     for(byte_num = 0; byte_num < FRAM_SIZE_BYTES; byte_num++){
@@ -255,10 +260,17 @@ FRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number)
 
         // Send data to be compared and prepared
         //CheckErrors(data, sequence, byte_num, chip_number);
+#ifdef DEBUG
+        char str[12];
         sprintf(str, "%d ", data);
         UARTDebugSend((uint8_t*) str, strlen(str));
+#endif
     }
 
     // Bring CS high, ending read
     SetChipSelect(chip_number_alt);
+#ifdef DEBUG
+        sprintf(str, "\r\n", data);
+        UARTDebugSend((uint8_t*) str, strlen(str));
+#endif
 }

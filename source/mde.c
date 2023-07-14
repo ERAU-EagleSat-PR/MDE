@@ -65,7 +65,7 @@ EnableSPI(void)
         GPIOPinTypeSSI(SPI0_PORT, SPI0_CLK_NUM | SPI0_MOSI_NUM | SPI0_MISO_NUM);
 
         // Configure SPI communication parameters
-        SSIConfigSetExpClk(SPI0_NUM_BASE, SysClkSpeed, SSI_FRF_MOTO_MODE_0, SSI_MODE_MASTER, SPI_CLK_SPEED, 8);
+        SSIConfigSetExpClk(SPI0_NUM_BASE, SYS_CLK_SPEED, SSI_FRF_MOTO_MODE_0, SSI_MODE_MASTER, SPI_CLK_SPEED, 8);
         SSIEnable(SPI0_NUM_BASE);
 
         // Board 2 SPI
@@ -76,7 +76,7 @@ EnableSPI(void)
         GPIOPinTypeSSI(SPI1_PORT, SPI1_CLK_NUM | SPI1_MOSI_NUM | SPI1_MISO_NUM);
 
         // Configure SPI communication parameters
-        SSIConfigSetExpClk(SPI1_NUM_BASE, SysClkSpeed, SSI_FRF_MOTO_MODE_0, SSI_MODE_MASTER, SPI_CLK_SPEED, 8);
+        SSIConfigSetExpClk(SPI1_NUM_BASE, SYS_CLK_SPEED, SSI_FRF_MOTO_MODE_0, SSI_MODE_MASTER, SPI_CLK_SPEED, 8);
         SSIEnable(SPI1_NUM_BASE);
 
         //
@@ -93,10 +93,10 @@ EnableSPI(void)
 //                            Main                                  //
 //******************************************************************//
 
-
+/*
 void main(){
 
-
+ Not sure if your intention was to eventually move main here but just gonna leave a comment for now
 }
-
+*/
 

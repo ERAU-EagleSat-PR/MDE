@@ -8,11 +8,18 @@
 #ifndef FLASHFUNC_H_
 #define FLASHFUNC_H_
 
+struct FLASHID {
+    uint8_t cypID;
+    uint8_t prodID1;
+    uint8_t prodID2;
+    uint8_t RDSR;
+};
+
 // Function Prototypes
 void FlashErase(uint8_t chip_number);
 void FlashSequenceTransmit(uint8_t currentCycle, uint32_t chip_number);
 void FlashSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number);
-void FlashStatusRead(uint8_t chip_number);
+struct FLASHID FlashStatusRead(uint8_t chip_number);
 
 // Flash Commands
 #define FLASH_WRITE_ENABLE 0x06
@@ -23,7 +30,7 @@ void FlashStatusRead(uint8_t chip_number);
 #define FLASH_RDSR 0x05
 #define FLASH_IDENT 0x9F
 
-// Device ID information
+// Flash Expected Device ID information
 #define FLASH_MANUFACTURER 0x01
 #define FLASH_DEVICEID_1 0x60
 #define FLASH_DEVICEID_2 0x19

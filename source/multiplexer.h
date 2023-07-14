@@ -51,23 +51,23 @@ void            ResetChipSelect2(void);
 
 
 // Multiplexer input for both boards    chip Number: Board 1     Board 2
-#define RESET_MUX           0x00        //              0           0
-#define FLASH1_MUX_CS       0x00        //              1           17
-#define FLASH2_MUX_CS       0x01        //              2           18
-#define FLASH3_MUX_CS       0x02        //              3           19
-#define FLASH4_MUX_CS       0x03        //              4           20
-#define FRAM1_MUX_CS        0x04        //              5           21
-#define FRAM2_MUX_CS        0x05        //              6           22
-#define FRAM3_MUX_CS        0x06        //              7           23
-#define FRAM4_MUX_CS        0x07        //              8           24
-#define MRAM1_MUX_CS        0x08        //              9           25
-#define MRAM2_MUX_CS        0x09        //              10          26
-#define MRAM3_MUX_CS        0x0A        //              11          27
-#define MRAM4_MUX_CS        0x0B        //              12          28
-#define SRAM1_MUX_CS        0x0C        //              13          29
-#define SRAM2_MUX_CS        0x0D        //              14          30
-#define SRAM3_MUX_CS        0x0E        //              15          31
-#define SRAM4_MUX_CS        0x0F        //              16          32
+#define RESET_MUX           0x00        //              //          //
+#define FLASH1_MUX_CS       0x00        //              0           16
+#define FLASH2_MUX_CS       0x01        //              1           17
+#define FLASH3_MUX_CS       0x02        //              2           18
+#define FLASH4_MUX_CS       0x03        //              3           19
+#define FRAM1_MUX_CS        0x04        //              4           20
+#define FRAM2_MUX_CS        0x05        //              5           21
+#define FRAM3_MUX_CS        0x06        //              6           22
+#define FRAM4_MUX_CS        0x07        //              7           23
+#define MRAM1_MUX_CS        0x08        //              8           24
+#define MRAM2_MUX_CS        0x09        //              9           25
+#define MRAM3_MUX_CS        0x0A        //              10          26
+#define MRAM4_MUX_CS        0x0B        //              11          27
+#define SRAM1_MUX_CS        0x0C        //              12          28
+#define SRAM2_MUX_CS        0x0D        //              13          29
+#define SRAM3_MUX_CS        0x0E        //              14          30
+#define SRAM4_MUX_CS        0x0F        //              15          31
 
 
 #endif /* SOURCE_MULTIPLEXER_H_ */

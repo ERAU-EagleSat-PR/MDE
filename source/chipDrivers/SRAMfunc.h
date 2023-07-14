@@ -11,7 +11,7 @@
 // Function Prototypes
 void SRAMSequenceTransmit(uint8_t currentCycle, uint32_t chip_number);
 void SRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number);
-void SRAMStatusRead(uint32_t chip_number);
+uint8_t SRAMStatusRead(uint32_t chip_number);
 
 // SRAM Command Codes
 #define SRAM_READ 0x03
@@ -19,6 +19,10 @@ void SRAMStatusRead(uint32_t chip_number);
 #define SRAM_RDMR 0x05
 #define SRAM_WRMR 0x01
 #define SRAM_SEQUENTIAL_CODE 0x40
+
+// Expected value from SR.
+#define SRAM_EXPECTED 0b01000000
+// First two bytes are 01 for sequential mode, rest are reserved 0.
 
 // SRAM maximum Size
 //#define SRAM_SIZE_BYTES 512000
