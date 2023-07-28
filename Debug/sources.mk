@@ -115,4 +115,5 @@ SUBDIRS := \
 driverlib \
 driverlib/ewarm/Exe \
 source \
+source/chipDrivers \
 

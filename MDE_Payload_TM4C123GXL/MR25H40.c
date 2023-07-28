@@ -30,7 +30,7 @@ MRAMSequenceTransmit(unsigned char sequence_start, unsigned char sequence_offset
     uint32_t chip_port = RetrieveChipPort(chip_number);
 
     // SPI port
-    if(chip_port == CS0_PORT) {
+    if(BOARD1_CS_PORT_BASE == CS0_PORT) {
         SPI_base = SPI0_NUM_BASE;
     } else {
         SPI_base = SPI1_NUM_BASE;
@@ -104,10 +104,10 @@ MRAMSequenceTransmit(unsigned char sequence_start, unsigned char sequence_offset
     }
   
     // CS High to end write
-    MUXAddressSelect(chip_number);
+    MUXAddressSelect(chip_number_alt);
 
     // CS Low for WRDI
-    MUXAddressSelect(chip_number_alt);
+    MUXAddressSelect(chip_number);
   
     // Disable writing to the chip
     SSIDataPut(SPI_base, MRAM_WRITE_DISABLE);
@@ -138,7 +138,7 @@ MRAMSequenceRetrieve(unsigned char sequence_start, unsigned char sequence_offset
     uint32_t chip_port = RetrieveChipPort(chip_number);
 
     // SPI port
-    if(chip_port == CS0_PORT) {
+    if(chip_port == BOARD1_CS_PORT_BASE) {
         SPI_base = SPI0_NUM_BASE;
     } else {
         SPI_base = SPI1_NUM_BASE;

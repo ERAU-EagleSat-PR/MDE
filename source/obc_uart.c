@@ -82,7 +82,7 @@ void UARTOBCIntHandler(void)
         local_char = UARTCharGet(UART_OBC_BASE);
         if(local_char != -1)
         {
-            processDebugInput(local_char);
+            processOBCInput(local_char);
         }
     }
 
@@ -192,13 +192,13 @@ void TransmitErrors()
   	current_error = 0; keep, used for iterating through error buf
 	}
 	
-	//*/
+    */
 
 
 }
 
 //-----------------------------------------------------------------------------
-// Format Health data to be trasmitted over UART
+// Format Health data to be transmitted over UART
 //-----------------------------------------------------------------------------
 //TODO
 void FormatHealthDataPacket() /* Probably wont return a void*/
@@ -258,7 +258,7 @@ void TransmitHealth(){
 	UARTCharPut(UART_PRIMARY, data1);
 	UARTCharPut(UART_PRIMARY, data0);
 
-	//*/
+	*/
 }
 
 #endif /* ENABLE_UART_ENABLE */

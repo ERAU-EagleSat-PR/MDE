@@ -54,7 +54,7 @@ void WriteToChips(uint32_t chip_number, unsigned char sequence_start, unsigned c
 //*****************************************************************************
 // TODO
 /*
-void ReadFromChips(uint32_t chip_number, unsigned char sequence_start, unsigned char sequence_offset)
+void ReadFromChips(uint32_t chip_number, uint32_t current_sequence)
 {
 
   if(chip_number > MAX_CHIP_NUMBER){
@@ -80,3 +80,11 @@ void ReadFromChips(uint32_t chip_number, unsigned char sequence_start, unsigned 
   }
 }
 */
+
+uint8_t CheckChipHealth(uint32_t chip_number)
+{
+    //TODO: check the health of the chip. Return a 1 if the read values match expected returns as given in the chips .h files.
+    //      return a 0 if the chip is determined to be unhealthy.
+    //      The controlling function should be the one to track the chips in the buffer given in the .h file.
+
+}

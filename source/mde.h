@@ -15,7 +15,7 @@
 *                             Function Prototypes                             *
 *******************************************************************************
 */
-
+void EnableSPI(void);
 
 /*
 *******************************************************************************
@@ -30,9 +30,9 @@
 
 
 // The total number of chips on the boards
-#define TOTAL_CHIP_COUNT    32
-#define MDE_BOARD1_CHIP_MAX 16
-#define MDE_BOARD2_CHIP_MAX 32
+#define TOTAL_CHIP_COUNT    31  //(32, but starts at 0 for programming reasons)
+#define MDE_BOARD1_CHIP_MAX 15  //  0 - 15
+#define MDE_BOARD2_CHIP_MAX 31  // 16 - 31
 
 
 // Chip Numbers
@@ -53,17 +53,44 @@
 #define CS_SRAM3   14
 #define CS_SRAM4   15
 
-
-// Sequence variables, which control what is written to the chips
-// Start and offset values are declared in the main c file, not here
-// It's best if the offset is prime
-#define SEQUENCE_START_VALUES_LENGTH 10
-extern const unsigned char sequence_start_values[SEQUENCE_START_VALUES_LENGTH];
-extern uint32_t current_sequence_start;
-#define SEQUENCE_OFFSET_VALUES_LENGTH 8
-extern const unsigned char sequence_offset_values[SEQUENCE_OFFSET_VALUES_LENGTH];
+// Tracking variables for writing and reading from chips
 extern uint32_t current_sequence_offset;
 extern unsigned short cycle_count;
 
+//**************************************************************//
+//                                                              //
+// Information to enable and configure the SSI communication    //
+//                                                              //
+//**************************************************************//
+
+// SSI pins and ports
+#define SPI0_NUM_BASE       SSI0_BASE
+#define SPI0_SYS_PERIPH     SYSCTL_PERIPH_SSI0
+#define SPI0_SYS_PORT       SYSCTL_PERIPH_GPIOA
+#define SPI0_PORT           GPIO_PORTA_BASE
+#define SPI0_CLK            GPIO_PA2_SSI0CLK
+#define SPI0_CLK_NUM        GPIO_PIN_2
+#define SPI0_MISO           GPIO_PA4_SSI0RX
+#define SPI0_MOSI           GPIO_PA5_SSI0TX
+#define SPI0_MOSI_NUM       GPIO_PIN_5
+#define SPI0_MISO_NUM       GPIO_PIN_4
+
+// SSI pins and ports Board 2
+#define SPI1_NUM_BASE       SSI1_BASE
+#define SPI1_SYS_PERIPH     SYSCTL_PERIPH_SSI1
+#define SPI1_SYS_PORT       SYSCTL_PERIPH_GPIOF
+#define SPI1_PORT           GPIO_PORTF_BASE
+#define SPI1_CLK            GPIO_PF2_SSI1CLK
+#define SPI1_CLK_NUM        GPIO_PIN_2
+#define SPI1_MOSI           GPIO_PF1_SSI1TX
+#define SPI1_MISO           GPIO_PF0_SSI1RX
+#define SPI1_MOSI_NUM       GPIO_PIN_1
+#define SPI1_MISO_NUM       GPIO_PIN_0
+
+// Clock information needed for SPI timing/rate
+// The target clock speed for the system clock, 16 MHz
+#define SYS_CLK_SPEED 16000000
+// SPI clock speed. Cannot exceed masterclock, defined above, or any of the maximum chip speeds
+#define SPI_CLK_SPEED 4000000
 
 #endif /* MDE_H_ */
