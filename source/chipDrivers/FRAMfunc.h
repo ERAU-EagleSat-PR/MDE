@@ -7,16 +7,16 @@
 #ifndef FRAMFUNC_H
 #define FRAMFUNC_H
 
-struct FRAMID {
+typedef struct {
     uint8_t fujID;
     uint8_t contCode;
     uint8_t prodID1;
     uint8_t prodID2;
-};
+} FRAMID;
 
 void FRAMSequenceTransmit(uint8_t currentCycle, uint32_t chip_number);
 void FRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number);
-struct FRAMID FRAMStatusRead(uint8_t chip_number);
+FRAMID FRAMStatusRead(uint8_t chip_number);
 
 // FRAM Command Codes
 #define FRAM_READ 0x03

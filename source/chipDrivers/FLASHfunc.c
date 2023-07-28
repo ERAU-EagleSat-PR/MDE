@@ -29,16 +29,23 @@
 
 //*****************************************************************************
 //
-// Retrieve and check identification information from FLASH (no check yet)
+// Retrieve and check identification information from FLASH
 //
 //*****************************************************************************
-struct FLASHID
+FLASHID
 FlashStatusRead(uint8_t chip_number)
 {
     uint32_t data_buffer;
     uint8_t chip_number_alt = chip_number + 7;
-    uint32_t SPI_base = SPI0_NUM_BASE;
-    struct FLASHID infoFlash;
+    uint32_t SPI_base;
+    FLASHID infoFlash;
+    // SPI port
+    if(chip_number < 16) {
+        SPI_base = SPI0_NUM_BASE;
+    } else {
+        SPI_base = SPI1_NUM_BASE;
+    }
+
     SetChipSelect(chip_number_alt); //CS high
     SetChipSelect(chip_number); //CS low
 
@@ -117,8 +124,15 @@ void FlashErase(uint8_t chip_number)
     // Function Variables
     uint8_t chip_number_alt = chip_number + 7;
     uint32_t status_register;
-    uint32_t SPI_base = SPI0_NUM_BASE;
+    uint32_t SPI_base;
     uint32_t temp;
+
+    // SPI port
+    if(chip_number < 16) {
+        SPI_base = SPI0_NUM_BASE;
+    } else {
+        SPI_base = SPI1_NUM_BASE;
+    }
 
     // CS high, just in case
     SetChipSelect(chip_number_alt);
@@ -224,11 +238,11 @@ FlashSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
     chip_number_alt = chip_number + 7;
 
     // SPI port
-    //if(chip_port == CS0_PORT) {
+    if(chip_number < 16) {
         SPI_base = SPI0_NUM_BASE;
-    //} else {
-    //    SPI_base = SPI1_NUM_BASE;
-    //}
+    } else {
+        SPI_base = SPI1_NUM_BASE;
+    }
     //
     //  Write to the Flash
     //
@@ -387,11 +401,11 @@ FlashSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
         chip_number_alt = chip_number - 7;
     }
     // SPI port
-    //if(chip_port == CS0_PORT) {
+    if(chip_number < 16) {
         SPI_base = SPI0_NUM_BASE;
-    //} else {
-    //    SPI_base = SPI1_NUM_BASE;
-    //}
+    } else {
+        SPI_base = SPI1_NUM_BASE;
+    }
     //
     // Clear out the FIFO recieve buffer
     //

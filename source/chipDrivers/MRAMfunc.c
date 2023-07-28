@@ -41,11 +41,11 @@ MRAMStatusRead(uint8_t chip_number)
     uint32_t data;
 
     // SPI port
-    //if(chip_port == CS0_PORT) {
-    SPI_base = SPI0_NUM_BASE;
-    //} else {
-    //    SPI_base = SPI1_NUM_BASE;
-    //}
+    if(chip_number < 16) { // board 1
+        SPI_base = SPI0_NUM_BASE;
+    } else { // board 2
+        SPI_base = SPI1_NUM_BASE;
+    }
 
     // Random chip selection for setting CS high
     // MRAM is always 8 to 11, so subtracting 7 is fine.
@@ -88,11 +88,11 @@ void MRAMStatusPrepare(uint8_t chip_number)
     uint32_t SPI_base;
 
     // SPI port
-    //if(chip_port == CS0_PORT) {
-    SPI_base = SPI0_NUM_BASE;
-    //} else {
-    //    SPI_base = SPI1_NUM_BASE;
-    //}
+    if(chip_number < 16) {
+        SPI_base = SPI0_NUM_BASE;
+    } else {
+        SPI_base = SPI1_NUM_BASE;
+    }
 
     // Random chip selection for setting CS high
     // MRAM is always 8 to 11, so subtracting 7 is fine.
@@ -156,14 +156,6 @@ void MRAMStatusPrepare(uint8_t chip_number)
     // CS high to latch
     SetChipSelect(chip_number_alt);
 }
-uint8_t MRAMStatusCompare(uint8_t chip_number)
-{
-    // TODO: This function will AND the expected MRAM output to one which is read in, and return a value
-    //       of 0 if the chip is fine and 1 if there is an issue. A separate function will used to put the
-    //       offending chip into a tracking array if an issue is returned.
-
-    return 0;
-}
 
 //*****************************************************************************
 //
@@ -184,11 +176,11 @@ MRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
     //uint32_t chip_port = RetrieveChipPort(chip_number);
 
     // SPI port
-    //if(chip_port == CS0_PORT) {
-    SPI_base = SPI0_NUM_BASE;
-    //} else {
-    //    SPI_base = SPI1_NUM_BASE;
-    //}
+    if(chip_number < 16) {
+        SPI_base = SPI0_NUM_BASE;
+    } else {
+        SPI_base = SPI1_NUM_BASE;
+    }
 
     // Random chip selection for setting CS high
     // MRAM is always 8 to 11, so subtracting 7 is fine.
@@ -296,12 +288,11 @@ MRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
     //uint32_t chip_port = RetrieveChipPort(chip_number);
 
     // SPI port
-    //if(chip_port == CS0_PORT) {
-    SPI_base = SPI0_NUM_BASE;
-    //} else {
-    //    SPI_base = SPI1_NUM_BASE;
-    //}
-
+    if(chip_number < 16) {
+        SPI_base = SPI0_NUM_BASE;
+    } else {
+        SPI_base = SPI1_NUM_BASE;
+    }
     // Random chip selection for setting CS high
     // MRAM is always 8 to 11, so subtracting 7 is fine.
     chip_number_alt = chip_number - 7;

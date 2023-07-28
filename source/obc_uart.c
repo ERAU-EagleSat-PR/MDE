@@ -198,7 +198,7 @@ void TransmitErrors()
 }
 
 //-----------------------------------------------------------------------------
-// Format Health data to be trasmitted over UART
+// Format Health data to be transmitted over UART
 //-----------------------------------------------------------------------------
 //TODO
 void FormatHealthDataPacket() /* Probably wont return a void*/

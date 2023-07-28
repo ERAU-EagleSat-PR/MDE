@@ -33,15 +33,19 @@
 //
 //*****************************************************************************
 
-struct FRAMID
+FRAMID
 FRAMStatusRead(uint8_t chip_number)
 {
     uint32_t data_buffer;
     uint8_t chip_number_alt = chip_number + 7;
-    uint32_t SPI_base = SPI0_NUM_BASE;
-
-    struct FRAMID infoFRAM;
-
+    uint32_t SPI_base;
+    FRAMID infoFRAM;
+    // SPI port
+    if(chip_number < 16) {
+        SPI_base = SPI0_NUM_BASE;
+    } else {
+        SPI_base = SPI1_NUM_BASE;
+    }
 
     SetChipSelect(chip_number_alt); // CS high
     SetChipSelect(chip_number); //CS low
@@ -87,8 +91,6 @@ FRAMStatusRead(uint8_t chip_number)
     return infoFRAM;
 }
 
-
-
 //*****************************************************************************
 //
 // Transmit the current sequence to the FRAM.
@@ -119,11 +121,11 @@ FRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
     }
 
     // SPI port
-    //if(chip_port == CS0_PORT) {
+    if(chip_number < 16) {
         SPI_base = SPI0_NUM_BASE;
-    //} else {
-    //    SPI_base = SPI1_NUM_BASE;
-    //}
+    } else {
+        SPI_base = SPI1_NUM_BASE;
+    }
 
     //
     // Write to the FRAM.
@@ -209,11 +211,12 @@ FRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
     // FRAM is always 3-7, so always adding 7 is fine.
     chip_number_alt = chip_number + 7;
 
-    //if(chip_port == CS0_PORT) {
+    // SPI port
+    if(chip_number < 16) {
         SPI_base = SPI0_NUM_BASE;
-    //} else {
-    //    SPI_base = SPI1_NUM_BASE;
-    //}
+    } else {
+        SPI_base = SPI1_NUM_BASE;
+    }
 
 
     //

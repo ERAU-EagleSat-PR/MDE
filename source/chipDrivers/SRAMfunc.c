@@ -44,14 +44,14 @@ SRAMStatusRead(uint32_t chip_number)
     uint32_t data;
 
     // SPI port
-    //if(chip_port == CS0_PORT) {
-    SPI_base = SPI0_NUM_BASE;
-    //} else {
-    //    SPI_base = SPI1_NUM_BASE;
-    //}
+    if(chip_number < 16) {
+        SPI_base = SPI0_NUM_BASE;
+    } else {
+        SPI_base = SPI1_NUM_BASE;
+    }
 
     // Random chip selection for setting CS high
-    // MRAM is always 8 to 11, so subtracting 7 is fine.
+    // SRAM is always 12 to 15, so subtracting 7 is fine.
     chip_number_alt = chip_number - 7;
 
     // CS Low for RDMR
@@ -110,11 +110,11 @@ SRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
     chip_number_alt = chip_number - 7;
 
     // SPI port
-    //if(chip_port == CS0_PORT) {
+    if(chip_number < 16) {
         SPI_base = SPI0_NUM_BASE;
-    //} else {
-    //    SPI_base = SPI1_NUM_BASE;
-    //}
+    } else {
+        SPI_base = SPI1_NUM_BASE;
+    }
 
     // Set data depending on the cycle
     uint32_t data;
@@ -188,11 +188,11 @@ SRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
     chip_number_alt = chip_number - 7;
 
     // SPI port
-    //if(chip_port == CS0_PORT) {
+    if(chip_number < 16) {
         SPI_base = SPI0_NUM_BASE;
-    //} else {
-    //    SPI_base = SPI1_NUM_BASE;
-    //}
+    } else {
+        SPI_base = SPI1_NUM_BASE;
+    }
 
     //
     // Read from the SRAM

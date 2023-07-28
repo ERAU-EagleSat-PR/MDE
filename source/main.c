@@ -53,6 +53,9 @@ volatile uint32_t ui32Loop;
 uint32_t timer_current_cycle = 0;
 bool timer_wakeup = false;
 
+// Error Variables
+uint32_t current_error = 0;
+
 // State tracker
 #ifdef DEBUG
 enum MENU_STATES menuState          = INIT;
@@ -323,8 +326,18 @@ int main(void)
 
 #endif /* DEBUG */
 
-    //uint8_t code;
-    //int chipNum;
+    //*****************************
+    // Chip Configurations
+    //*****************************
+    for(uint8_t chip = 0; chip < MAX_CHIP_COUNT; chip++)
+    {
+        if ((chip % 16) >= 8 && (chip % 16) < 12) // If the chip is MRAM, prepare its status register
+        {
+            MRAMStatusPrepare(chip);
+        }
+        CheckChipHealth(chip); // Check health of all chips. This will also initialize chip health array to 1s assuming they are all working.
+    }
+
 
     //*****************************
     // Main Loop

@@ -12,7 +12,6 @@ void MRAMSequenceTransmit(uint8_t currentCycle, uint32_t chip_number);
 void MRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number);
 uint8_t MRAMStatusRead(uint8_t chip_number);
 void MRAMStatusPrepare(uint8_t chip_number);
-uint8_t MRAMStatusCompare(uint8_t chip_number);
 
 // MRAM Command Codes
 #define MRAM_READ 0x03
@@ -25,7 +24,7 @@ uint8_t MRAMStatusCompare(uint8_t chip_number);
 // MRAM expected register
 // bits 0, 4, 5, 6 are don't care
 // therefore they have been set to 1.
-#define MRAM_EXPECTED_REG 0b01110001
+#define MRAM_EXPECTED 0b01110001
 
 // MRAM Size
 //#define MRAM_SIZE_BYTES 524288

@@ -9,9 +9,6 @@
 #ifndef SOURCE_CHIPS_H_
 #define SOURCE_CHIPS_H_
 
-// Global chip health tracker
-// Should be initialized to 1, set to 0 if chip is unhealthy.
-extern uint8_t chipHealth[32];
 
 /*
 *******************************************************************************
@@ -29,6 +26,7 @@ uint8_t CheckChipHealth(uint32_t chip_number);
 *                                  Constants                                  *
 *******************************************************************************
 */
+#define MAX_CHIP_NUMBER 32 // 32 chips across 2 boards.
 
 //-----------------------------------------------------------------------------
 // SPI port and pin defines

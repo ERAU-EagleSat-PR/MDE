@@ -37,10 +37,10 @@
 // Additional Includes
 #include "source/devtools.h"
 #include "source/multiplexer.h"
-#include "chipDrivers/FLASHFunc.h"
-#include "chipDrivers/FRAMFunc.h"
-#include "chipDrivers/MRAMFunc.h"
-#include "chipDrivers/SRAMFunc.h"
+#include "chipDrivers/FLASHfunc.h"
+#include "chipDrivers/FRAMfunc.h"
+#include "chipDrivers/MRAMfunc.h"
+#include "chipDrivers/SRAMfunc.h"
 #include "source/chips.h"
 
 /*
@@ -446,7 +446,7 @@ void processChipFunctionsInput(int32_t recv_char)
 
     case 'p':
         // Write SR from correct chip type
-        if(workingChip <=7) { // FRAM
+        if(workingChip <=7) { // FRAMFLASH
             snprintf(buf,bufSize, "Nothing to prepare for this chip type.\n\r");
             UARTDebugSend((uint8_t*) buf, strlen(buf));
 

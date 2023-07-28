@@ -8,18 +8,18 @@
 #ifndef FLASHFUNC_H_
 #define FLASHFUNC_H_
 
-struct FLASHID {
+typedef struct {
     uint8_t cypID;
     uint8_t prodID1;
     uint8_t prodID2;
     uint8_t RDSR;
-};
+} FLASHID;
 
 // Function Prototypes
 void FlashErase(uint8_t chip_number);
 void FlashSequenceTransmit(uint8_t currentCycle, uint32_t chip_number);
 void FlashSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number);
-struct FLASHID FlashStatusRead(uint8_t chip_number);
+FLASHID FlashStatusRead(uint8_t chip_number);
 
 // Flash Commands
 #define FLASH_WRITE_ENABLE 0x06
