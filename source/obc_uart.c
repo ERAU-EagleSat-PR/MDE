@@ -82,9 +82,11 @@ void UARTOBCIntHandler(void)
         local_char = UARTCharGet(UART_OBC_BASE);
         if(local_char != -1)
         {
-            processDebugInput(local_char);
+            // TODO : Store the character in the receive buffer
         }
     }
+
+	//TODO: Pass the received data to the OBC request translator
 
 }
 

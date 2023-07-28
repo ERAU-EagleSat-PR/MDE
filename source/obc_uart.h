@@ -43,8 +43,6 @@ void TramsmitHealth(void);
 
 #define BAUD_RATE_OBC   115200
 
-// Enable the UART to OBC
-void OBCUARTEnable(void);
 
 /*
 *******************************************************************************
