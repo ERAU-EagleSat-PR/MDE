@@ -16,6 +16,7 @@
 void UARTOBCIntHandler(void);
 void UARTOBCEnable(void);
 void UARTOBCSend(const uint8_t *pui8Buffer, uint32_t ui32Count);
+void processOBCInput(int32_t recv_char);
 void FormatErrorDataPacket(void);
 void FormatHealthDataPacket(void);
 void TransmitErrors(void);
@@ -74,7 +75,7 @@ extern uint8_t* uart_obc_msg_ptr;
 
 // GPIO for OBC UART
 #define UART_OBC_PORT_BASE  GPIO_PORTB_BASE
-#define UART_OBC_SYSCTL     SYSCTL_PERIPH_GPIOB
+#define UART_OBC_SYSCTL_2     SYSCTL_PERIPH_GPIOB // TODO: Take a look at why this is declared twice
 #define UART_OBC_RX_PIN     GPIO_PIN_0
 #define UART_OBC_TX_PIN     GPIO_PIN_1
 #define UART_OBC_RX_PIN_CFG GPIO_PB0_U1RX

@@ -29,11 +29,8 @@ void UARTDebugSend(const uint8_t *pui8Buffer, uint32_t ui32Count);
 void printDebugMenu(void);
 void processDebugInput(int32_t recv_char);
 void processMainMenuInput(int32_t recv_char);
-void processChipSelectBoardMenuInput(int32_t recv_char);
-void processChipSelectMemTypeMenuInput(int32_t recv_char);
-void processChipSelectChipNumMenuInput(int32_t recv_char);
-char* getMemTypeString(void);
-
+void processChipFunctionsInput(int32_t recv_char);
+void processChipSelectInput(int32_t recv_char);
 
 /*
 *******************************************************************************
@@ -61,9 +58,8 @@ char* getMemTypeString(void);
 enum MENU_STATES {  INIT,
                     MAIN,
                     AUTO,
-                    CHIP_SELECT_BOARD,
-                    CHIP_SELECT_TYPE,
-                    CHIP_SELECT_NUM};
+                    CHIP_SELECT,
+                    CHIP_FUNCTIONS};
 
 enum BOARDS      {  NO_BOARD,
                     BOARD1,
@@ -89,12 +85,17 @@ extern enum MEM_TYPES selectedChipType;
 extern enum CHIP_NUMBERS selectedChipNumber;
 //*/
 
+// Global variables for devtools
+extern uint8_t selectedChip;   // Value 0-15
+extern uint8_t selectedBoard;  // Value 0 or 1, will be changed to work as an offset when a second board is necessary in testing
+extern uint8_t currentCycle;   // Value 0 or 1 for writing 0s or 1s
+extern uint8_t chipSelectStep; // Used for chip type -> chip number step tracking
 
 //-----------------------------------------------------------------------------
 // Seed Errors
 //-----------------------------------------------------------------------------
 
-#define SEEDERRORS
+//#define SEEDERRORS
 
 // Whether to seed errors in the chips, and where and what to seed.
 // Inserting errors at addresses that are multiples of 256 are easiest to verify
@@ -103,8 +104,21 @@ extern enum CHIP_NUMBERS selectedChipNumber;
 // there should be by comparing the seeded error value and sequence start value.
 // To enable or disable seeded errors, comment or un-comment the following lines.
 
-#define SEEDERRORS_ADDRESS  65536
-#define SEEDERRORS_VALUE    0xFF
+//#define SEEDERRORS_ADDRESS  65536
+//#define SEEDERRORS_VALUE    0xFF
+
+// Byte pattern for printing in binary
+#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
+#define BYTE_TO_BINARY(byte)  \
+  ((byte) & 0x80 ? '1' : '0'), \
+  ((byte) & 0x40 ? '1' : '0'), \
+  ((byte) & 0x20 ? '1' : '0'), \
+  ((byte) & 0x10 ? '1' : '0'), \
+  ((byte) & 0x08 ? '1' : '0'), \
+  ((byte) & 0x04 ? '1' : '0'), \
+  ((byte) & 0x02 ? '1' : '0'), \
+  ((byte) & 0x01 ? '1' : '0')
+
 
 #endif /* DEBUG */
 

@@ -89,27 +89,24 @@ void UARTOBCIntHandler(void)
         local_char = UARTCharGet(UART_OBC_BASE);
         if(local_char != -1)
         {
-<<<<<<< HEAD
             // TODO : Store the character in the receive buffer
-=======
+
             // Add each incoming character to buffer in hex format
 			uart_obc_msg_chars[uart_obc_msg_index] = local_char;
 			// Increment the buffer index
 			uart_obc_msg_index += 1;
->>>>>>> branch '12-obc-uart-integrations' of https://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@github.com/ERAU-EagleSat-PR/MDE.git
+            processOBCInput(local_char);
         }
 
     }
 
-<<<<<<< HEAD
-	//TODO: Pass the received data to the OBC request translator
-=======
+
 	// Cast the buffer to uint8_t
 	uint8_t *uart_obc_msg_uint8_ptr = (uint8_t *)uart_obc_msg_chars;
 
 	// Call the UARTOBCRecvMsgHandler() function to process the buffer
 	UARTOBCRecvMsgHandler(uart_obc_msg_uint8_ptr);
->>>>>>> branch '12-obc-uart-integrations' of https://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@github.com/ERAU-EagleSat-PR/MDE.git
+
 
 }
 
@@ -217,13 +214,13 @@ void TransmitErrors()
   	current_error = 0; keep, used for iterating through error buf
 	}
 	
-	//*/
+    */
 
 
 }
 
 //-----------------------------------------------------------------------------
-// Format Health data to be trasmitted over UART
+// Format Health data to be transmitted over UART
 //-----------------------------------------------------------------------------
 //TODO
 void FormatHealthDataPacket() /* Probably wont return a void*/
@@ -284,12 +281,8 @@ void TransmitHealth()
 	UARTCharPut(UART_PRIMARY, data1);
 	UARTCharPut(UART_PRIMARY, data0);
 
-	//*/
+	*/
 }
-
-<<<<<<< HEAD
-#endif /* ENABLE_UART_ENABLE */
-=======
 
 //-----------------------------------------------------------------------------
 // Break the incoming UART data into packets for processing/ response
@@ -340,4 +333,3 @@ void UARTOBCResponseHandler(void)
 //*/
 
 #endif /* ENABLE_UART_ENABLE */
->>>>>>> branch '12-obc-uart-integrations' of https://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@github.com/ERAU-EagleSat-PR/MDE.git

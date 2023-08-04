@@ -4,7 +4,7 @@
 
 SHELL = cmd.exe
 
-CG_TOOL_ROOT := C:/ti/ccs1210/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS
+CG_TOOL_ROOT := C:/ti/ccs1120/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS
 
 GEN_OPTS__FLAG := 
 GEN_CMDS__FLAG := 
@@ -17,11 +17,9 @@ ORDERED_OBJS += \
 "./driverlib/cpu.obj" \
 "./driverlib/crc.obj" \
 "./driverlib/des.obj" \
-"./driverlib/eeprom.obj" \
 "./driverlib/emac.obj" \
 "./driverlib/epi.obj" \
 "./driverlib/epi_workaround_ccs.obj" \
-"./driverlib/flash.obj" \
 "./driverlib/fpu.obj" \
 "./driverlib/gpio.obj" \
 "./driverlib/hibernate.obj" \
@@ -43,10 +41,20 @@ ORDERED_OBJS += \
 "./driverlib/udma.obj" \
 "./driverlib/usb.obj" \
 "./driverlib/watchdog.obj" \
+"./source/bit_errors.obj" \
+"./source/chip_health.obj" \
+"./source/chips.obj" \
+"./source/devtools.obj" \
 "./source/main.obj" \
 "./source/mde.obj" \
-"./source/mde_system.obj" \
+"./source/mde_timer.obj" \
+"./source/multiplexer.obj" \
+"./source/obc_uart.obj" \
 "./source/tm4c123gh6pm_startup_ccs.obj" \
+"./source/chipDrivers/FLASHfunc.obj" \
+"./source/chipDrivers/FRAMfunc.obj" \
+"./source/chipDrivers/MRAMfunc.obj" \
+"./source/chipDrivers/SRAMfunc.obj" \
 "../tm4c123gh6pm.cmd" \
 $(GEN_CMDS__FLAG) \
 -llibc.a \
@@ -62,10 +70,12 @@ RMDIR := RMDIR /S/Q
 -include driverlib/subdir_vars.mk
 -include driverlib/ewarm/Exe/subdir_vars.mk
 -include source/subdir_vars.mk
+-include source/chipDrivers/subdir_vars.mk
 -include subdir_rules.mk
 -include driverlib/subdir_rules.mk
 -include driverlib/ewarm/Exe/subdir_rules.mk
 -include source/subdir_rules.mk
+-include source/chipDrivers/subdir_rules.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -182,22 +192,23 @@ all: $(OBJS) $(CMD_SRCS) $(A_SRCS) $(GEN_CMDS)
 MDE_UART_CCS.out: $(OBJS) $(CMD_SRCS) $(A_SRCS) $(GEN_CMDS)
 	@echo 'Building target: "$@"'
 	@echo 'Invoking: Arm Linker'
-	"C:/ti/ccs1210/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me -O2 --define=ccs="ccs" --define=PART_TM4C123GH6PM --gcc --diag_warning=225 --diag_wrap=off --display_error_number --abi=eabi -z -m"MDE_UART_CCS.map" --heap_size=0 --stack_size=512 -i"C:/ti/ccs1210/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/lib" -i"C:/ti/ccs1210/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="MDE_UART_CCS_linkInfo.xml" --rom_model -o "MDE_UART_CCS.out" $(ORDERED_OBJS) $(A_SRCS)
+	"C:/ti/ccs1120/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me -O2 --define=ccs="ccs" --define=PART_TM4C123GH6PM --gcc --diag_warning=225 --diag_wrap=off --display_error_number --abi=eabi -z -m"MDE_UART_CCS.map" --heap_size=0 --stack_size=512 -i"C:/ti/ccs1120/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/lib" -i"C:/ti/ccs1120/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="MDE_UART_CCS_linkInfo.xml" --rom_model -o "MDE_UART_CCS.out" $(ORDERED_OBJS) $(A_SRCS)
 	@echo 'Finished building target: "$@"'
 	@echo ' '
 
 MDE_UART_CCS.hex: $(EXE_OUTPUTS)
 	@echo 'Building secondary target: "$@"'
 	@echo 'Invoking: Arm Hex Utility'
-	"C:/ti/ccs1210/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/bin/armhex" --diag_wrap=off -o "MDE_UART_CCS.hex" $(EXE_OUTPUTS__QUOTED)
+	"C:/ti/ccs1120/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/bin/armhex" --diag_wrap=off -o "MDE_UART_CCS.hex" $(EXE_OUTPUTS__QUOTED)
 	@echo 'Finished building secondary target: "$@"'
 	@echo ' '
 
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "driverlib\adc.obj" "driverlib\aes.obj" "driverlib\can.obj" "driverlib\comp.obj" "driverlib\cpu.obj" "driverlib\crc.obj" "driverlib\des.obj" "driverlib\eeprom.obj" "driverlib\emac.obj" "driverlib\epi.obj" "driverlib\epi_workaround_ccs.obj" "driverlib\flash.obj" "driverlib\fpu.obj" "driverlib\gpio.obj" "driverlib\hibernate.obj" "driverlib\i2c.obj" "driverlib\interrupt.obj" "driverlib\lcd.obj" "driverlib\mpu.obj" "driverlib\onewire.obj" "driverlib\pwm.obj" "driverlib\qei.obj" "driverlib\shamd5.obj" "driverlib\ssi.obj" "driverlib\sw_crc.obj" "driverlib\sysctl.obj" "driverlib\sysexc.obj" "driverlib\systick.obj" "driverlib\timer.obj" "driverlib\uart.obj" "driverlib\udma.obj" "driverlib\usb.obj" "driverlib\watchdog.obj" "source\main.obj" "source\mde.obj" "source\mde_system.obj" "source\tm4c123gh6pm_startup_ccs.obj" 
-	-$(RM) "driverlib\adc.d" "driverlib\aes.d" "driverlib\can.d" "driverlib\comp.d" "driverlib\cpu.d" "driverlib\crc.d" "driverlib\des.d" "driverlib\eeprom.d" "driverlib\emac.d" "driverlib\epi.d" "driverlib\flash.d" "driverlib\fpu.d" "driverlib\gpio.d" "driverlib\hibernate.d" "driverlib\i2c.d" "driverlib\interrupt.d" "driverlib\lcd.d" "driverlib\mpu.d" "driverlib\onewire.d" "driverlib\pwm.d" "driverlib\qei.d" "driverlib\shamd5.d" "driverlib\ssi.d" "driverlib\sw_crc.d" "driverlib\sysctl.d" "driverlib\sysexc.d" "driverlib\systick.d" "driverlib\timer.d" "driverlib\uart.d" "driverlib\udma.d" "driverlib\usb.d" "driverlib\watchdog.d" "source\main.d" "source\mde.d" "source\mde_system.d" "source\tm4c123gh6pm_startup_ccs.d" 
+	-$(RM) "driverlib\adc.obj" "driverlib\aes.obj" "driverlib\can.obj" "driverlib\comp.obj" "driverlib\cpu.obj" "driverlib\crc.obj" "driverlib\des.obj" "driverlib\emac.obj" "driverlib\epi.obj" "driverlib\epi_workaround_ccs.obj" "driverlib\fpu.obj" "driverlib\gpio.obj" "driverlib\hibernate.obj" "driverlib\i2c.obj" "driverlib\interrupt.obj" "driverlib\lcd.obj" "driverlib\mpu.obj" "driverlib\onewire.obj" "driverlib\pwm.obj" "driverlib\qei.obj" "driverlib\shamd5.obj" "driverlib\ssi.obj" "driverlib\sw_crc.obj" "driverlib\sysctl.obj" "driverlib\sysexc.obj" "driverlib\systick.obj" "driverlib\timer.obj" "driverlib\uart.obj" "driverlib\udma.obj" "driverlib\usb.obj" "driverlib\watchdog.obj" "source\bit_errors.obj" "source\chip_health.obj" "source\chips.obj" "source\devtools.obj" "source\main.obj" "source\mde.obj" "source\mde_timer.obj" "source\multiplexer.obj" "source\obc_uart.obj" "source\tm4c123gh6pm_startup_ccs.obj" "source\chipDrivers\FLASHfunc.obj" "source\chipDrivers\FRAMfunc.obj" "source\chipDrivers\MRAMfunc.obj" 
+	-$(RM) "source\chipDrivers\SRAMfunc.obj" 
+	-$(RM) "driverlib\adc.d" "driverlib\aes.d" "driverlib\can.d" "driverlib\comp.d" "driverlib\cpu.d" "driverlib\crc.d" "driverlib\des.d" "driverlib\emac.d" "driverlib\epi.d" "driverlib\fpu.d" "driverlib\gpio.d" "driverlib\hibernate.d" "driverlib\i2c.d" "driverlib\interrupt.d" "driverlib\lcd.d" "driverlib\mpu.d" "driverlib\onewire.d" "driverlib\pwm.d" "driverlib\qei.d" "driverlib\shamd5.d" "driverlib\ssi.d" "driverlib\sw_crc.d" "driverlib\sysctl.d" "driverlib\sysexc.d" "driverlib\systick.d" "driverlib\timer.d" "driverlib\uart.d" "driverlib\udma.d" "driverlib\usb.d" "driverlib\watchdog.d" "source\bit_errors.d" "source\chip_health.d" "source\chips.d" "source\devtools.d" "source\main.d" "source\mde.d" "source\mde_timer.d" "source\multiplexer.d" "source\obc_uart.d" "source\tm4c123gh6pm_startup_ccs.d" "source\chipDrivers\FLASHfunc.d" "source\chipDrivers\FRAMfunc.d" "source\chipDrivers\MRAMfunc.d" "source\chipDrivers\SRAMfunc.d" 
 	-$(RM) "driverlib\epi_workaround_ccs.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
