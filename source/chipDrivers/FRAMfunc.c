@@ -29,7 +29,7 @@
 
 //*****************************************************************************
 //
-// Retrieve and check identification information from FRAM (no check yet)
+// Retrieve and return the FRAM identification information.
 //
 //*****************************************************************************
 

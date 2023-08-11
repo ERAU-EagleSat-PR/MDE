@@ -28,6 +28,7 @@
 #include "chipDrivers/SRAMfunc.h"
 
 // Local Project files
+#include "source/chips.h"
 #include "source/chip_health.h"
 
 
@@ -54,7 +55,7 @@ CheckChipHealth(uint8_t chip_number)
         if(FLASH_register.cypID != FLASH_CYP_ID // || FLASH_register.RDSR != 0b00000001                  Option here to check if the WIP bit of the register is a 1 or not.
                 || FLASH_register.prodID1 != FLASH_PROD1 || FLASH_register.prodID2 != FLASH_PROD2)    // I believe it may be stuck 1 if the chip dies, but could also be a 1 even if chip is not dead.
         {
-            chip_health = chip_health_array[chip_number] + 1; // Increment value in array by 1 if failed
+            chip_health = chip_health_array[chip_number].HealthCount + 1; // Increment value in array by 1 if failed
         }
     }
     else if (chip_number_norm < 8)  // FRAM
@@ -66,7 +67,7 @@ CheckChipHealth(uint8_t chip_number)
         if(FRAM_register.fujID != FRAM_FUJ_ID || FRAM_register.contCode != FRAM_CONT_CODE
                 || FRAM_register.prodID1 != FRAM_PROD1 || FRAM_register.prodID2 != FRAM_PROD2)
         {
-            chip_health = chip_health_array[chip_number] + 1; // Increment value in array by 1 if failed
+            chip_health = chip_health_array[chip_number].HealthCount + 1; // Increment value in array by 1 if failed
         }
     }
     else if (chip_number_norm < 12) // MRAM
@@ -79,7 +80,7 @@ CheckChipHealth(uint8_t chip_number)
         // Check for an incorrect return
         if (MRAM_register != MRAM_EXPECTED)
         {
-            chip_health = chip_health_array[chip_number] + 1; // Increment value in array by 1 if failed
+            chip_health = chip_health_array[chip_number].HealthCount + 1; // Increment value in array by 1 if failed
         }
     }
     else                            // SRAM
@@ -92,11 +93,30 @@ CheckChipHealth(uint8_t chip_number)
         // Check for an incorrect return
         if (SRAM_register != SRAM_EXPECTED)
         {
-            chip_health = chip_health_array[chip_number] + 1; // Increment value in array by 1 if failed
+            chip_health = chip_health_array[chip_number].HealthCount + 1; // Increment value in array by 1 if failed
         }
     }
 
     // Finally, update the health array with the result
-    chip_health_array[chip_number] = chip_health;
+    chip_health_array[chip_number].HealthCount = chip_health;
+    if(chip_health > CHIP_HEALTH_MAX)
+    {
+        // If the chip has failed this check enough times, mark it as dead.
+        chip_death_array[chip_number] = 1;
+    }
     return chip_health;
+}
+
+void
+InitializeChipHealth(void)
+{
+    // Sets all values in the chip health array to be 0.
+
+    uint8_t i;
+    for(i = 0; i < MAX_CHIP_NUMBER; i++)
+    {
+        chip_health_array[i].HealthCount = 0;
+        chip_health_array[i].WatchdogCount = 0;
+        chip_death_array[i] = 0;
+    }
 }

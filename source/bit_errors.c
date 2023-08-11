@@ -1,3 +1,5 @@
+// Standard Includes
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -35,13 +37,15 @@ CheckErrors(uint8_t chip_number, uint32_t byte_num, uint8_t byte_data, uint8_t w
         // Check to not exceed error limit for memory concerns
         if(current_error <= ERROR_BUFFER_MAX_SIZE){
 
+            // Error Data
             MDE_Error_Data *found_error = malloc(sizeof(MDE_Error_Data)); // To be free'd in OBC transmission
             found_error->chip_id = chip_number;
             found_error->cell_address = byte_num;
             found_error->written_sequence = written_data;
             found_error->retrieved_sequence = byte_data;
 
-            error_buffer[current_error] = &found_error;
+            // Add error data pointer to the array and increment error count
+            error_buffer[current_error] = found_error;
             current_error++;
         }
     }

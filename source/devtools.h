@@ -86,7 +86,6 @@ extern enum CHIP_NUMBERS selectedChipNumber;
 //*/
 
 // Global variables for devtools
-extern uint8_t selectedChip;   // Value 0-15
 extern uint8_t selectedBoard;  // Value 0 or 1, will be changed to work as an offset when a second board is necessary in testing
 extern uint8_t currentCycle;   // Value 0 or 1 for writing 0s or 1s
 extern uint8_t chipSelectStep; // Used for chip type -> chip number step tracking

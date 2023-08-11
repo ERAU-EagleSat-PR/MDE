@@ -2,7 +2,7 @@
 //
 // hibernate.c - Driver for the Hibernation module
 //
-// Copyright (c) 2007-2017 Texas Instruments Incorporated.  All rights reserved.
+// Copyright (c) 2007-2020 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
 //   Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-// This is part of revision 2.1.4.178 of the Tiva Peripheral Driver Library.
+// This is part of revision 2.2.0.295 of the Tiva Peripheral Driver Library.
 //
 //*****************************************************************************
 
@@ -272,8 +272,7 @@ HibernateClockConfig(uint32_t ui32Config)
     //
     if(HIBERNATE_CLOCK_OUTPUT)
     {
-        HWREG(HIB_CC) = ui32Config & (HIBERNATE_OUT_SYSCLK |
-                                      HIBERNATE_OUT_ALT1CLK);
+            HWREG(HIB_CC) = ui32Config & (HIBERNATE_OUT_SYSCLK);
     }
 }
 
@@ -1614,6 +1613,12 @@ _HibernateCalendarSet(uint32_t ui32Reg, struct tm *psTime)
 //! 24-hour representation of the time.  This function can only be called when
 //! the hibernate counter is configured in calendar mode using the
 //! HibernateCounterMode() function with one of the calendar modes.
+//! 
+//! The hibernate module contains a 7-bit register field to store the year with
+//! valid values ranges from 0 to 99. In order to maximize the calendar 
+//! year up to 2099, the HibernateCalendarSet() will accept calendar year 
+//! after the year 2000 only. Calendar years before 2000 (i.e. 1987) will 
+//! produce unexpected results.
 //!
 //! \note The hibernate calendar mode is not available on all Tiva
 //! devices.  Please consult the data sheet to determine if the device you are

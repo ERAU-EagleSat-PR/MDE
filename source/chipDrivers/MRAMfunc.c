@@ -27,6 +27,12 @@
 #include "source/devtools.h"
 #endif
 
+//*****************************************************************************
+//
+// Read and return the MRAM status register.
+//
+//*****************************************************************************
+
 uint8_t
 MRAMStatusRead(uint8_t chip_number)
 {
@@ -77,7 +83,14 @@ MRAMStatusRead(uint8_t chip_number)
     uint8_t data8 = data;
     return data8;
 }
-void MRAMStatusPrepare(uint8_t chip_number)
+
+//*****************************************************************************
+//
+// Prepare the MRAM registers to be checked later.
+//
+//*****************************************************************************
+void
+MRAMStatusPrepare(uint8_t chip_number)
 {
     // Update the MRAM status register to have 1 values in the 0, 4, 5, 6 bits for status checking
     //
@@ -117,7 +130,7 @@ void MRAMStatusPrepare(uint8_t chip_number)
     uint32_t currentSR = MRAMStatusRead(chip_number);
 
     // OR whatever is read with desired values
-    uint32_t desiredSR = MRAM_EXPECTED_REG | currentSR ;
+    uint32_t desiredSR = MRAM_EXPECTED | currentSR ;
 
     //
     // Write new values to register

@@ -111,11 +111,12 @@ FlashStatusRead(uint8_t chip_number)
 
 //*****************************************************************************
 //
-// Erase the flash (reset to all 1s)
+// Erase the flash (resetting it to all 1s)
 //
 //*****************************************************************************
 
-void FlashErase(uint8_t chip_number)
+void
+FlashErase(uint8_t chip_number)
 {
     // Erases all currently stored data from flash, resetting it to it's default state (all 1s in memory)
     // Chip number is a value 0 - 3 for which flash chip you wish to erase
@@ -195,6 +196,8 @@ void FlashErase(uint8_t chip_number)
      }
      SSIDataGetNonBlocking(SPI_base, &status_register);
 
+     //ChipWatchdogPoke(); // Poke the chip watchdog before waiting for the flash erase to complete.
+
      // Loop until wipe cycle is completed.
      while(status_register & 0x01)
      {
@@ -211,7 +214,7 @@ void FlashErase(uint8_t chip_number)
 
      // CS high
      SetChipSelect(chip_number_alt);
-
+     //ChipWatchdogPoke(); // Erase success; poke watchdog a final time.
 }
 
 //*****************************************************************************
@@ -372,7 +375,7 @@ FlashSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
 
 
     // Chip write may not be complete at this point; could add a check of the status register to find that out here, but it will be finished long before the next read cycle so I see no point in waiting
-    // on each chip to completely finish its flash.
+    // on each chip to completely finish its flash. However could be a good point for the watchdog to wait.
 }
 
 //*****************************************************************************

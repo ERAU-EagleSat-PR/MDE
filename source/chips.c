@@ -5,7 +5,39 @@
  *      Author: Calvin
  */
 
+// Standard Includes
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 
+// Hardware Files
+#include <inc/hw_gpio.h>
+#include <inc/hw_ints.h>
+#include <inc/hw_memmap.h>
+#include <inc/hw_types.h>
+
+// Driver Files
+#include <driverlib/debug.h>
+#include <driverlib/fpu.h>
+#include <driverlib/gpio.h>
+#include <driverlib/interrupt.h>
+#include <driverlib/pin_map.h>
+#include <driverlib/rom.h>
+#include <driverlib/ssi.h>
+#include <driverlib/sysctl.h>
+#include <driverlib/timer.h>
+#include <driverlib/uart.h>
+
+// Additional Includes
+#include "source/chips.h"
+#include "chipDrivers/FLASHfunc.h"
+#include "chipDrivers/FRAMfunc.h"
+#include "chipDrivers/MRAMfunc.h"
+#include "chipDrivers/SRAMfunc.h"
+#ifdef DEBUG
+#include "source/devtools.h"
+#endif
 
 //*****************************************************************************
 //
@@ -13,37 +45,32 @@
 //
 //*****************************************************************************
 // TODO
-/*
-void WriteToChips(uint32_t chip_number, unsigned char sequence_start, unsigned char sequence_offset)
+
+void
+WriteToChips(uint32_t current_cycle, uint32_t chip_number)
 {
+    // Given a chip number 0 - 31, this function calls the correct chip function
+    // and writes the selected cycle to it.
+    if(chip_number > MAX_CHIP_NUMBER){
+#ifdef DEBUG
+        char buf[80];
+        sprintf(buf,"Tried to write to chip %i but no such chip exists!\n\r", chip_number);
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+#endif
+        return;
+    }
 
-  if(chip_number > MAX_CHIP_NUMBER){
-    #ifdef DEBUG
-      char buf[80];
-      sprintf(buf,"Tried to write to chip %i but no such chip exists!\n\r", chip_number);
-      UARTSend((uint8_t*) buf, strlen(buf));
-    #endif
-      return;
-  }
-
-  uint32_t chip_port = RetrieveChipPort(chip_number);
-  uint8_t chip_mux = RetriveChipMuxCode(chip_number % 16);
-
-  //drip chip select here (look at the chip select sequence in each of the sequence tranits)
-
-  // TODO  Change the transmit function for multiplexer (TYLER)
-  // for each board the chip numbering is the same
-  if( (chip_number % 16) < 4){
-    FlashSequenceTransmit(sequence_start, sequence_offset, chip_port, chip_pin);
-  }else if( (chip_number % 16) < 8){
-    FRAMSequenceTransmit(sequence_start, sequence_offset, chip_port, chip_pin);
-  }else if( (chip_number % 16) < 12){
-    MRAMSequenceTransmit(sequence_start, sequence_offset, chip_port, chip_pin);
-  }else if( (chip_number % 16) < 16){
-    SRAMSequenceTransmit(sequence_start, sequence_offset, chip_port, chip_pin);
-  }
+    // Write to chips board 1 or 2
+    if( (chip_number % 16) < 4){
+        FlashSequenceTransmit(current_cycle, chip_number);
+    }else if( (chip_number % 16) < 8){
+        FRAMSequenceTransmit(current_cycle, chip_number);
+    }else if( (chip_number % 16) < 12){
+        MRAMSequenceTransmit(current_cycle, chip_number);
+    }else {
+        SRAMSequenceTransmit(current_cycle, chip_number);
+    }
 }
-*/
 
 
 //*****************************************************************************
@@ -53,38 +80,28 @@ void WriteToChips(uint32_t chip_number, unsigned char sequence_start, unsigned c
 //
 //*****************************************************************************
 // TODO
-/*
-void ReadFromChips(uint32_t chip_number, uint32_t current_sequence)
-{
 
+void
+ReadFromChips(uint32_t current_cycle, uint32_t chip_number)
+{
+    // Given a chip number 0 - 31, this function calls the correct chip function
+    // and reads the data, comparing it to to the selected cycle.
   if(chip_number > MAX_CHIP_NUMBER){
 #ifdef DEBUG
     char buf[80];
     sprintf(buf,"Tried to read from chip %i but no such chip exists!\n\r", chip_number);
-    UARTSend((uint8_t*) buf, strlen(buf));
+    UARTDebugSend((uint8_t*) buf, strlen(buf));
 #endif
     return;
   }
 
-  uint32_t chip_port = RetrieveChipPort(chip_number);
-  uint32_t chip_pin = RetrieveChipPin(chip_number);
-
-  if (chipNumber < 4) {
-      FlashSequenceRetrieve(sequence_start, sequence_offset, chip_number);
-  } else if (chipNumber < 8) {
-      FRAMSequenceRetrieve(sequence_start, sequence_offset, chip_number)
-  } else if (chipNumber < 12) {
-      MRAMSequenceRetrieve(sequence_start, sequence_offset, chip_number)
+  if ( (chip_number % 16) < 4) {
+      FlashSequenceRetrieve(current_cycle, chip_number);
+  } else if ( (chip_number % 16) < 8) {
+      FRAMSequenceRetrieve(current_cycle, chip_number);
+  } else if ( (chip_number % 16) < 12) {
+      MRAMSequenceRetrieve(current_cycle, chip_number);
   } else {
-      SRAMSequenceRetrieve(sequence_start, sequence_offset, chip_number)
+      SRAMSequenceRetrieve(current_cycle, chip_number);
   }
-}
-*/
-
-uint8_t CheckChipHealth(uint32_t chip_number)
-{
-    //TODO: check the health of the chip. Return a 1 if the read values match expected returns as given in the chips .h files.
-    //      return a 0 if the chip is determined to be unhealthy.
-    //      The controlling function should be the one to track the chips in the buffer given in the .h file.
-
 }

@@ -29,6 +29,12 @@
 #include "source/devtools.h"
 #endif
 
+//*****************************************************************************
+//
+// Read and return the SRAM status register.
+//
+//*****************************************************************************
+
 uint8_t
 SRAMStatusRead(uint32_t chip_number)
 {

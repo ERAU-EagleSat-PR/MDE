@@ -52,7 +52,8 @@
 //-----------------------------------------------------------------------------
 // The UART0 interrupt handler. Debugging UART
 //-----------------------------------------------------------------------------
-void UARTDebugIntHandler(void)
+void
+UARTDebugIntHandler(void)
 {
     uint32_t ui32Status;
 
@@ -84,7 +85,8 @@ void UARTDebugIntHandler(void)
 //-----------------------------------------------------------------------------
 // Enable and configure UART0 for debugging
 //-----------------------------------------------------------------------------
-void UARTDebugEnable(void)
+void
+UARTDebugEnable(void)
 {
     // Enable Debug UART0
     SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
@@ -124,7 +126,8 @@ void UARTDebugEnable(void)
 //-----------------------------------------------------------------------------
 // Send a string to the Debug UART.
 //-----------------------------------------------------------------------------
-void UARTDebugSend(const uint8_t *pui8Buffer, uint32_t ui32Count)
+void
+UARTDebugSend(const uint8_t *pui8Buffer, uint32_t ui32Count)
 {
     //
     // Loop while there are more characters to send.
@@ -142,7 +145,8 @@ void UARTDebugSend(const uint8_t *pui8Buffer, uint32_t ui32Count)
 //-----------------------------------------------------------------------------
 // Print the debug/ development menu to the console
 //-----------------------------------------------------------------------------
-void printDebugMenu(void)
+void
+printDebugMenu(void)
 {
     // Prints the debug menu depending on current state
 
@@ -150,7 +154,7 @@ void printDebugMenu(void)
     char buf[60];
     uint8_t bufSize = 60;
     // Create local variable from global chip tracker to prevent overwrite
-    uint8_t workingChip = selectedChip % 16;
+    uint8_t workingChip = current_chip % 16;
     uint8_t displayChip = workingChip + 1; //Chip Variable offset by 1 for better human understanding
     uint8_t workingBoard = selectedBoard;
 
@@ -275,7 +279,8 @@ void printDebugMenu(void)
 //-----------------------------------------------------------------------------
 // Direct input to proper handler
 //-----------------------------------------------------------------------------
-void processDebugInput(int32_t recv_char)
+void
+processDebugInput(int32_t recv_char)
 {
 
     switch (menuState)
@@ -308,7 +313,8 @@ void processDebugInput(int32_t recv_char)
 //-----------------------------------------------------------------------------
 // Process input from the debug menu
 //-----------------------------------------------------------------------------
-void processMainMenuInput(int32_t recv_char)
+void
+processMainMenuInput(int32_t recv_char)
 {
     IntMasterDisable();
     char buf[50];
@@ -364,12 +370,13 @@ void processMainMenuInput(int32_t recv_char)
 //-----------------------------------------------------------------------------
 // Process Chip Functions Menu
 //-----------------------------------------------------------------------------
-void processChipFunctionsInput(int32_t recv_char)
+void
+processChipFunctionsInput(int32_t recv_char)
 {
     IntMasterDisable();
     char buf[50];
     uint8_t bufSize = 50;
-    uint8_t workingChip = selectedChip % 16;
+    uint8_t workingChip = current_chip % 16;
     uint8_t displayChip = workingChip + 1;
     //uint8_t workingBoard = selectedBoard; // unused currently
 
@@ -463,7 +470,7 @@ void processChipFunctionsInput(int32_t recv_char)
         // Read SR from correct chip type
 
         if (workingChip <= 3){ // FLASH
-            struct FLASHID idFlash; // struct for ID parts
+            FLASHID idFlash; // struct for ID parts
             idFlash = FlashStatusRead(workingChip);
             //Print struct to console
             sprintf(buf,"cypress id: %d \n\r",idFlash.cypID);
@@ -476,7 +483,7 @@ void processChipFunctionsInput(int32_t recv_char)
             UARTDebugSend((uint8_t*) buf,strlen(buf));
 
         } else if(workingChip <=7) { // FRAM
-            struct FRAMID idFRAM; // struct for ID parts
+            FRAMID idFRAM; // struct for ID parts
             idFRAM = FRAMStatusRead(workingChip);
             // Print struct to console
             sprintf(buf,"fujitsi id: %d \n\r",idFRAM.fujID);
@@ -529,7 +536,8 @@ void processChipFunctionsInput(int32_t recv_char)
 //-----------------------------------------------------------------------------
 // Process Chip Selection Menu
 //-----------------------------------------------------------------------------
-void processChipSelectInput(int32_t recv_char)
+void
+processChipSelectInput(int32_t recv_char)
 {
 
     IntMasterDisable();
@@ -540,16 +548,16 @@ void processChipSelectInput(int32_t recv_char)
         {
         // Set chip type base value
         case 'f': // Flash
-            selectedChip = 0;
+            current_chip = 0;
             break;
         case 'r': // FRAM
-            selectedChip = 4;
+            current_chip = 4;
             break;
         case 'm': // MRAM
-            selectedChip = 8;
+            current_chip = 8;
             break;
         case 's': // SRAM
-            selectedChip = 12;
+            current_chip = 12;
             break;
         }
         chipSelectStep = 2;
@@ -562,13 +570,13 @@ void processChipSelectInput(int32_t recv_char)
         case '1':
             break;
         case '2':
-            selectedChip = selectedChip + 1;
+            current_chip = current_chip + 1;
             break;
         case '3':
-            selectedChip = selectedChip + 2;
+            current_chip = current_chip + 2;
             break;
         case '4':
-            selectedChip = selectedChip + 3;
+            current_chip = current_chip + 3;
             break;
         case 'b':
             chipSelectStep = 1;
@@ -588,7 +596,8 @@ void processChipSelectInput(int32_t recv_char)
 //
 //-----------------------------------------------------------------------------
 /*
-char* getMemTypeString(void)
+char*
+getMemTypeString(void)
 {
 
  * Takes in a chip number
