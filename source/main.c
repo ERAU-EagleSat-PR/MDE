@@ -56,7 +56,7 @@ bool timer_wakeup = false;
 // Error Variables
 uint32_t current_error = 0;
 
-// State tracker
+// Debug Menu State tracker
 #ifdef DEBUG
 enum MENU_STATES menuState          = INIT;
 uint8_t selectedChip = 5;   // Value 0-15
@@ -105,11 +105,6 @@ void EnablePrimaryUART(void)
 }
 */
 
-
-#ifdef ENABLE_UART_DEBUG
-
-
-#endif /* ENABLE_UART_DEBUG  */
 
 /*
 *******************************************************************************
@@ -325,6 +320,14 @@ int main(void)
     printDebugMenu();
 
 #endif /* DEBUG */
+
+    //*****************************
+    // Enable the UART for OBC 
+    // which is UART1. UART0 is
+    // used for debug. So, if debugging, 
+    // UART output will be on both UARTs
+    //*****************************
+    UARTOBCEnable();
 
     //*****************************
     // Chip Configurations
