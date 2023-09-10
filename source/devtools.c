@@ -197,6 +197,11 @@ void printDebugMenu(void)
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "A - Enter Auto Mode (not implemented)\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
+        // OBC Debug Options
+        snprintf(buf, bufSize,  "O - Send OBC Command to get health data\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf, bufSize,  "P - Send OBC Command to clear health data\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "H - Send Health Packet (TransmitHealth) \n\r");   // TODO
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "E - Send Data Packet (TransmitErrors) \n\r");     // TODO
@@ -339,6 +344,18 @@ void processMainMenuInput(int32_t recv_char)
         snprintf(buf, bufSize,  "Function Not Implemented.\n\r");              // TODO
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
+
+    case 'o':   // Send OBC health get request
+        UARTCharPut(UART_DEBUG, 0xC);
+        printDebugMenu();
+        snprintf(buf, bufSize,  "Function Not Implemented.\n\r");              // TODO
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        break;
+    case 'p':   // Send OBC health clear request
+        UARTCharPut(UART_DEBUG, 0xC);
+        printDebugMenu();
+        snprintf(buf, bufSize,  "Function Not Implemented.\n\r");              // TODO
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
     case 'h':   // Health Packet
         UARTCharPut(UART_DEBUG, 0xC);
         printDebugMenu();
