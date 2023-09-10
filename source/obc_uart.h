@@ -16,7 +16,7 @@
 void UARTOBCIntHandler(void);
 void UARTOBCEnable(void);
 void UARTOBCSend(const uint8_t *pui8Buffer, uint32_t ui32Count);
-void processOBCInput(int32_t recv_char);
+void UARTOBCRecvMsgHandler();
 void FormatErrorDataPacket(void);
 void FormatHealthDataPacket(void);
 void TransmitErrors(void);
@@ -75,7 +75,7 @@ extern uint8_t* uart_obc_msg_ptr;
 
 // GPIO for OBC UART
 #define UART_OBC_PORT_BASE  GPIO_PORTB_BASE
-#define UART_OBC_SYSCTL_2     SYSCTL_PERIPH_GPIOB // TODO: Take a look at why this is declared twice
+#define UART_OBC_SYSCTL_2   SYSCTL_PERIPH_GPIOB // TODO: Take a look at why this is declared twice
 #define UART_OBC_RX_PIN     GPIO_PIN_0
 #define UART_OBC_TX_PIN     GPIO_PIN_1
 #define UART_OBC_RX_PIN_CFG GPIO_PB0_U1RX
@@ -83,32 +83,6 @@ extern uint8_t* uart_obc_msg_ptr;
 
 #define UART_OBC_BAUD_RATE  115200
 
-<<<<<<< HEAD
-
-/*
-*******************************************************************************
-*                         Health Data Paket Defines                           *
-*******************************************************************************
-*/
-
-//-----------------------------------------------------------------------------
-// Packet Variables
-//-----------------------------------------------------------------------------
-
-//These varibales will be used to structure the transmission of health and
-// error data. The data will be sent in packets, each packet will have a packet
-// type ID to denote what type of data is being sent. 
-
-/* Start and End of Message Identifiers*/
-#define OBC_UART_SOM    0x7F // Start of Message
-#define OBC_UART_EOM    0xFF // End of Message
-#define OBC_UART_ESCAPE 0x1F // Escape Character (splits packets)
-
-/* Packet Type Identifiers */
-#define OBC_UART_HEALTH_PACKET 0x01 // Health Packet Type
-#define OBC_UART_ERROR_PACKET  0x10 // Error Packet Type
-=======
->>>>>>> branch '12-obc-uart-integrations' of https://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@github.com/ERAU-EagleSat-PR/MDE.git
 
 /*
 *******************************************************************************

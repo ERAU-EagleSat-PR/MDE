@@ -51,6 +51,11 @@ typedef struct {
     uint8_t retrieved_sequence;
 } MDE_Error_Packet_struct;
 
+// UART OBC message buffer - filled by the interrupt handler, and 
+// processed by UARTOBCRecvMsgHandler
+// Scope is local to this file, so only functions in here can access it
+static uint32_t uart_obc_msg_chars[UART_OBC_MAX_MSG_SIZE];
+
 /*
 *******************************************************************************
 *                              OBC UART Functions                             *
@@ -65,7 +70,6 @@ void UARTOBCIntHandler(void)
     uint32_t ui32Status;
 
 	// Buffer of the incoming message
-	uint32_t uart_obc_msg_chars[UART_OBC_MAX_MSG_SIZE];
 	
 	//intiialze buffer index to 0
 	int uart_obc_msg_index = 0;
@@ -87,7 +91,9 @@ void UARTOBCIntHandler(void)
     {
         int32_t local_char;
         local_char = UARTCharGet(UART_OBC_BASE);
-        if(local_char != -1)
+
+		// Ensure we don't buffer overflow like an idiot
+        if(local_char != -1 && uart_obc_msg_index < 64)
         {
             // TODO : Store the character in the receive buffer
 
@@ -95,19 +101,8 @@ void UARTOBCIntHandler(void)
 			uart_obc_msg_chars[uart_obc_msg_index] = local_char;
 			// Increment the buffer index
 			uart_obc_msg_index += 1;
-            processOBCInput(local_char);
         }
-
     }
-
-
-	// Cast the buffer to uint8_t
-	uint8_t *uart_obc_msg_uint8_ptr = (uint8_t *)uart_obc_msg_chars;
-
-	// Call the UARTOBCRecvMsgHandler() function to process the buffer
-	UARTOBCRecvMsgHandler(uart_obc_msg_uint8_ptr);
-
-
 }
 
 //-----------------------------------------------------------------------------
@@ -289,19 +284,21 @@ void TransmitHealth()
 //-----------------------------------------------------------------------------
 
 //*
-void UARTOBCRecvMsgHandler(uint8_t* incoming_msg_ptr )
+void UARTOBCRecvMsgHandler()
 {
-	/* 
-		This function is called when a UART message is received from the OBC
-		It will break the message into packets
-	*/
+	/** 
+	 * Call this function 
+	 */
 
+	/**
+	 * Yeah this does nothing
+	 */
 	// recover the message length
-	int msg_length = sizeof(*incoming_msg_ptr) / sizeof(uint8_t);
+	int msg_length = sizeof(uart_obc_msg_chars) / sizeof(uint8_t);
 
+
+	// for loop makes no sense, but idk
 	// Iiterate through the buffer
-	for (int i = 0; i < msg_length; i++)
-
 		// Check for ESC character
 			// signifies start and of message data frame
 			// create temp buffer (cmd_msg or something) for data frame
@@ -317,7 +314,29 @@ void UARTOBCRecvMsgHandler(uint8_t* incoming_msg_ptr )
 			// Else, Buffer is command data
 				// process command data
 				// UARTOBCResponseHandler(cmd_msg);
-
+	
+	// Figure out if OBC is speaking our language
+	if(uart_obc_msg_chars[0] == UART_OBC_ESCAPE &&
+	   uart_obc_msg_chars[1] == UART_OBC_SOM &&
+	   uart_obc_msg_chars[2] == UART_OBC_ESCAPE) {
+		if(uart_obc_msg_chars[3] == 'M' &&
+		   uart_obc_msg_chars[4] == 'D') {
+			// OBC wants the health and error data, so send it to them
+		}
+		else if(uart_obc_msg_chars[3] == 'D' &&
+		   uart_obc_msg_chars[4] == 'M') {
+			// OBC wants us to clear the health and error data
+		}
+		else {
+			// Tell OBC what they said makes no sense, but they were speaking our language
+			// (i.e. error, but different than below)
+		}
+	}
+	else {
+		// Tell OBC they aren't speaking our language
+		// (i.e. error saying what they sent doesn't match the protocol)
+	}
+}
 //*/ 
 
 
