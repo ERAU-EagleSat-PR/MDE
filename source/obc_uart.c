@@ -286,42 +286,20 @@ void TransmitHealth()
 //*
 void UARTOBCRecvMsgHandler()
 {
-	/** 
-	 * Call this function 
-	 */
-
-	/**
-	 * Yeah this does nothing
-	 */
-	// recover the message length
-	int msg_length = sizeof(uart_obc_msg_chars) / sizeof(uint8_t);
-
-
-	// for loop makes no sense, but idk
-	// Iiterate through the buffer
-		// Check for ESC character
-			// signifies start and of message data frame
-			// create temp buffer (cmd_msg or something) for data frame
-	
-			// Check buffer SOM character
-				// use SOM to calibrate? check if fist data frame is SOM,
-				// if not, send error message to OBC that request was not
-				// understood 
-
-			// Check buffer for EOM character
-				// break
-
-			// Else, Buffer is command data
-				// process command data
-				// UARTOBCResponseHandler(cmd_msg);
-	
 	// Figure out if OBC is speaking our language
+	// All messages start with an escape character (to indicate that something is coming)
+	// followed by the start of message character
+	// Then, an escape character is sent to signify the start of data transmission
 	if(uart_obc_msg_chars[0] == UART_OBC_ESCAPE &&
 	   uart_obc_msg_chars[1] == UART_OBC_SOM &&
 	   uart_obc_msg_chars[2] == UART_OBC_ESCAPE) {
+		// The command IDs are kind of stupid, but it's not like we're limited on 
+		// transmission ability, and Calvin and Hayden (Rozsell) thought it was funny
+		// Can't say I disagree - Nikhil
 		if(uart_obc_msg_chars[3] == 'M' &&
 		   uart_obc_msg_chars[4] == 'D') {
 			// OBC wants the health and error data, so send it to them
+			
 		}
 		else if(uart_obc_msg_chars[3] == 'D' &&
 		   uart_obc_msg_chars[4] == 'M') {
