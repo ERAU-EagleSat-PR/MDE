@@ -17,6 +17,7 @@ void UARTOBCIntHandler(void);
 void UARTOBCEnable(void);
 void UARTOBCSend(const uint8_t *pui8Buffer, uint32_t ui32Count);
 void UARTOBCRecvMsgHandler();
+bool UARTOBCIsDataReady();
 void FormatErrorDataPacket(void);
 void FormatHealthDataPacket(void);
 void TransmitErrors(void);
@@ -32,7 +33,7 @@ void TramsmitHealth(void);
 *******************************************************************************
 */
 
-//These varibales will be used to structure the transmission of health and
+// These variables will be used to structure the transmission of health and
 // error data. The data will be sent in packets, each packet will have a packet
 // type ID to denote what type of data is being sent. 
 
@@ -47,17 +48,6 @@ void TramsmitHealth(void);
 
 /* Max Incoming UART message size from OBC */
 #define UART_OBC_MAX_MSG_SIZE  64   // 64 characters (32 bits each)
-
-/* Flag to indicate an incoming message form the OBC (NOT USED) */
-extern bool uart_obc_msg_flag;
-extern bool* uart_obc_msg_flag_ptr;
-
-// variable and pointer for incoming message
-/*
-extern uint8_t uart_obc_msg;
-extern uint8_t* uart_obc_msg_ptr;
-//*/
-
 
 /*
 *******************************************************************************
