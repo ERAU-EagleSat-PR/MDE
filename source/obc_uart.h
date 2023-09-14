@@ -16,16 +16,12 @@
 void UARTOBCIntHandler(void);
 void UARTOBCEnable(void);
 void UARTOBCSend(const uint8_t *pui8Buffer, uint32_t ui32Count);
-void UARTOBCRecvMsgHandler();
-bool UARTOBCIsDataReady();
+bool UARTOBCIsDataReady(void);
 void FormatErrorDataPacket(void);
 void FormatHealthDataPacket(void);
 void TransmitErrors(void);
 void TramsmitHealth(void);
-
-// TODO - These functions are not yet implemented
-//void UARTOBCRecvMsgHandler(void);
-//void UARTOBCResponseHandler(void);
+void UARTOBCRecvMsgHandler(void);
 
 /*
 *******************************************************************************

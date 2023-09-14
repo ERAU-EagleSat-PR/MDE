@@ -34,28 +34,28 @@
 
 /*
 *******************************************************************************
-*                          OBC UART Local Variables                           *
+*						  OBC UART Variables								  *
 *******************************************************************************
 */
-// These variables are used internally to store values set by the interrupt
-// handler, like the message OBC just sent. Messages are processed in
-// UARTOBCRecvMsgHandler, which should be called in the main loop. So,
-// the interrupt handler stores data in these variables so that 
-// UARTOBCRecvMsgHandler can access it.
-// The variables are static to make it VERY CLEAR that the only code that 
-// should touch these variables resides in this file
+// These are variables that need to be accessed by more than one function in
+// this file (technically, just the interrupt handler and the receive message)
+// handler. The variables are declared as static to make it clear that only
+// functions handling MDE-OBC communication (i.e. functions in this file)
+// should be able to access them
 
 // UART OBC message buffer - filled by the interrupt handler, and 
 // processed by UARTOBCRecvMsgHandler
 static uint32_t uart_obc_msg_chars[UART_OBC_MAX_MSG_SIZE];
-
-// Count for the message length
-// sizeof(uart_obc_msg_chars) would just return UART_OBC_MAX_MSG_SIZE,
-// and we want the actual length of the received data
+	
+// count tracking the length of the incoming message 
+// As of 2023-9-11, this should always be 7, but either way we can iterate
+// over the message safely
 static int uart_obc_msg_index = 0;
 
+// Boolean used by the interrupt handler to tell the main loop that OBC just 
+// sent us a message. Set to true at the end of the interrupt handler and set 
+// to false in the message handler (OBCUARTRecvMsgHandler). 
 static bool uart_obc_data_ready = false;
-
 /*
 *******************************************************************************
 *                         OBC UART Packet Structures                          *
