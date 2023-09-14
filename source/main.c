@@ -332,7 +332,7 @@ int main(void)
     //*****************************
     // Chip Configurations
     //*****************************
-    for(uint8_t chip = 0; chip < MAX_CHIP_COUNT; chip++)
+/*    for(uint8_t chip = 0; chip < MAX_CHIP_COUNT; chip++)
     {
         if ((chip % 16) >= 8 && (chip % 16) < 12) // If the chip is MRAM, prepare its status register
         {
@@ -340,18 +340,17 @@ int main(void)
         }
         CheckChipHealth(chip); // Check health of all chips. This will also initialize chip health array to 1s assuming they are all working.
     }
-
+*/
 
     //*****************************
     // Main Loop
     //*****************************
     while (1)
     {
-
         #ifdef DEBUG
-            BlinkRedLED();
+            BlinkGreenLED();
         #else   /* Idle "heart beat" */
-            BlinkBlueLED();
+            BlinkRedLED();
         #endif /* DEBUG */
 
         //BlinkGreenLED();

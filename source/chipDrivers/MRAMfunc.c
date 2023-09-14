@@ -117,7 +117,7 @@ void MRAMStatusPrepare(uint8_t chip_number)
     uint32_t currentSR = MRAMStatusRead(chip_number);
 
     // OR whatever is read with desired values
-    uint32_t desiredSR = MRAM_EXPECTED_REG | currentSR ;
+//    uint32_t desiredSR = MRAM_EXPECTED_REG | currentSR ;
 
     //
     // Write new values to register
@@ -133,7 +133,7 @@ void MRAMStatusPrepare(uint8_t chip_number)
     }
 
     //Transmit register data
-    SSIDataPut(SPI_base, desiredSR);
+  //  SSIDataPut(SPI_base, desiredSR);
     while(SSIBusy(SPI_base))
     {
     }

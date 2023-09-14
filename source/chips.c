@@ -81,10 +81,3 @@ void ReadFromChips(uint32_t chip_number, uint32_t current_sequence)
 }
 */
 
-uint8_t CheckChipHealth(uint32_t chip_number)
-{
-    //TODO: check the health of the chip. Return a 1 if the read values match expected returns as given in the chips .h files.
-    //      return a 0 if the chip is determined to be unhealthy.
-    //      The controlling function should be the one to track the chips in the buffer given in the .h file.
-
-}

@@ -18,7 +18,7 @@
 
 void WriteToChips(uint32_t chip_number, unsigned char sequence_start, unsigned char sequence_offset);
 void ReadFromChips(uint32_t chip_number, unsigned char sequence_start, unsigned char sequence_offset);
-uint8_t CheckChipHealth(uint32_t chip_number);
+// uint8_t CheckChipHealth(uint32_t chip_number);
 // TODO: configure the SPI clock if needed
 
 /*

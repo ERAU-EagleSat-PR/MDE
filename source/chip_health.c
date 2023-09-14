@@ -51,10 +51,10 @@ CheckChipHealth(uint8_t chip_number)
         FLASHID FLASH_register = FlashStatusRead(chip_number);
 
         // One mismatch will be a fail condition
-        if(FLASH_register.cypID != FLASH_CYP_ID // || FLASH_register.RDSR != 0b00000001                  Option here to check if the WIP bit of the register is a 1 or not.
-                || FLASH_register.prodID1 != FLASH_PROD1 || FLASH_register.prodID2 != FLASH_PROD2)    // I believe it may be stuck 1 if the chip dies, but could also be a 1 even if chip is not dead.
+    //    if(FLASH_register.cypID != FLASH_CYP_ID // || FLASH_register.RDSR != 0b00000001                  Option here to check if the WIP bit of the register is a 1 or not.
+    //            || FLASH_register.prodID1 != FLASH_PROD1 || FLASH_register.prodID2 != FLASH_PROD2)    // I believe it may be stuck 1 if the chip dies, but could also be a 1 even if chip is not dead.
         {
-            chip_health = chip_health_array[chip_number] + 1; // Increment value in array by 1 if failed
+  //          chip_health = chip_health_array[chip_number] + 1; // Increment value in array by 1 if failed
         }
     }
     else if (chip_number_norm < 8)  // FRAM
@@ -66,7 +66,7 @@ CheckChipHealth(uint8_t chip_number)
         if(FRAM_register.fujID != FRAM_FUJ_ID || FRAM_register.contCode != FRAM_CONT_CODE
                 || FRAM_register.prodID1 != FRAM_PROD1 || FRAM_register.prodID2 != FRAM_PROD2)
         {
-            chip_health = chip_health_array[chip_number] + 1; // Increment value in array by 1 if failed
+    //        chip_health = chip_health_array[chip_number] + 1; // Increment value in array by 1 if failed
         }
     }
     else if (chip_number_norm < 12) // MRAM
@@ -79,7 +79,7 @@ CheckChipHealth(uint8_t chip_number)
         // Check for an incorrect return
         if (MRAM_register != MRAM_EXPECTED)
         {
-            chip_health = chip_health_array[chip_number] + 1; // Increment value in array by 1 if failed
+    //        chip_health = chip_health_array[chip_number] + 1; // Increment value in array by 1 if failed
         }
     }
     else                            // SRAM
@@ -92,11 +92,11 @@ CheckChipHealth(uint8_t chip_number)
         // Check for an incorrect return
         if (SRAM_register != SRAM_EXPECTED)
         {
-            chip_health = chip_health_array[chip_number] + 1; // Increment value in array by 1 if failed
+     //       chip_health = chip_health_array[chip_number] + 1; // Increment value in array by 1 if failed
         }
     }
 
     // Finally, update the health array with the result
-    chip_health_array[chip_number] = chip_health;
+ //   chip_health_array[chip_number] = chip_health;
     return chip_health;
 }
