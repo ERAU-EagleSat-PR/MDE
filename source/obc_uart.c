@@ -34,6 +34,30 @@
 
 /*
 *******************************************************************************
+*                          OBC UART Local Variables                           *
+*******************************************************************************
+*/
+// These variables are used internally to store values set by the interrupt
+// handler, like the message OBC just sent. Messages are processed in
+// UARTOBCRecvMsgHandler, which should be called in the main loop. So,
+// the interrupt handler stores data in these variables so that 
+// UARTOBCRecvMsgHandler can access it.
+// The variables are static to make it VERY CLEAR that the only code that 
+// should touch these variables resides in this file
+
+// UART OBC message buffer - filled by the interrupt handler, and 
+// processed by UARTOBCRecvMsgHandler
+static uint32_t uart_obc_msg_chars[UART_OBC_MAX_MSG_SIZE];
+
+// Count for the message length
+// sizeof(uart_obc_msg_chars) would just return UART_OBC_MAX_MSG_SIZE,
+// and we want the actual length of the received data
+static int uart_obc_msg_index = 0;
+
+static bool uart_obc_data_ready = false;
+
+/*
+*******************************************************************************
 *                         OBC UART Packet Structures                          *
 *******************************************************************************
 */
@@ -50,12 +74,6 @@ typedef struct {
     uint8_t written_sequence;
     uint8_t retrieved_sequence;
 } MDE_Error_Packet_struct;
-
-// UART OBC message buffer - filled by the interrupt handler, and 
-// processed by UARTOBCRecvMsgHandler
-// Scope is local to this file, so only functions in here can access it
-static uint32_t uart_obc_msg_chars[UART_OBC_MAX_MSG_SIZE];
-
 /*
 *******************************************************************************
 *                              OBC UART Functions                             *
@@ -69,10 +87,8 @@ void UARTOBCIntHandler(void)
 {
     uint32_t ui32Status;
 
-	// Buffer of the incoming message
-	
-	//intiialze buffer index to 0
-	int uart_obc_msg_index = 0;
+	// Reset buffer index to 0
+	uart_obc_msg_index = 0;
 
     //
     // Get the interrupt status.
@@ -103,6 +119,7 @@ void UARTOBCIntHandler(void)
 			uart_obc_msg_index += 1;
         }
     }
+	uart_obc_data_ready = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -314,6 +331,10 @@ void UARTOBCRecvMsgHandler()
 		// Tell OBC they aren't speaking our language
 		// (i.e. error saying what they sent doesn't match the protocol)
 	}
+	// Set the data_ready variable to false
+	// The message has been processed, so there's no need to check it again
+	uart_obc_data_ready = false;
+
 }
 //*/ 
 
@@ -328,5 +349,9 @@ void UARTOBCResponseHandler(void)
 
 }
 //*/
+
+bool UARTOBCIsDataReady() {
+
+}
 
 #endif /* ENABLE_UART_ENABLE */
