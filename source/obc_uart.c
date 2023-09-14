@@ -130,14 +130,14 @@ void UARTOBCEnable(void)
     //*
 
     // Enable Debug UART0
-    SysCtlPeripheralEnable(UART_OBC_SYSCTL);
-    while(!SysCtlPeripheralReady(UART_OBC_SYSCTL))
+    SysCtlPeripheralEnable(UART_OBC_UART_SYSCTL);
+    while(!SysCtlPeripheralReady(UART_OBC_UART_SYSCTL))
     {
     }
 
     // Enable GPIO for OBC coms
-    SysCtlPeripheralEnable(UART_OBC_SYSCTL);
-    while(!SysCtlPeripheralReady(UART_OBC_SYSCTL));
+    SysCtlPeripheralEnable(UART_OBC_GPIO_SYSCTL);
+    while(!SysCtlPeripheralReady(UART_OBC_GPIO_SYSCTL));
     {
     }
 
@@ -351,7 +351,7 @@ void UARTOBCResponseHandler(void)
 //*/
 
 bool UARTOBCIsDataReady() {
-
+    return uart_obc_data_ready;
 }
 
 #endif /* ENABLE_UART_ENABLE */
