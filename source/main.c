@@ -353,6 +353,8 @@ int main(void)
             BlinkRedLED();
         #endif /* DEBUG */
 
+        if(UARTOBCIsDataReady())
+            UARTOBCRecvMsgHandler();
         //BlinkGreenLED();
 
 
