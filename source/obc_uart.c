@@ -127,17 +127,15 @@ void UARTOBCIntHandler(void)
 //-----------------------------------------------------------------------------
 void UARTOBCEnable(void)
 {
-    //*
-
-    // Enable Debug UART0
-    SysCtlPeripheralEnable(UART_OBC_UART_SYSCTL);
-    while(!SysCtlPeripheralReady(UART_OBC_UART_SYSCTL))
-    {
-    }
-
     // Enable GPIO for OBC coms
     SysCtlPeripheralEnable(UART_OBC_GPIO_SYSCTL);
     while(!SysCtlPeripheralReady(UART_OBC_GPIO_SYSCTL));
+    {
+    }
+
+    // Enable OBC UART Base, UART 1
+    SysCtlPeripheralEnable(UART_OBC_UART_SYSCTL);
+    while(!SysCtlPeripheralReady(UART_OBC_UART_SYSCTL))
     {
     }
 
@@ -301,7 +299,7 @@ void TransmitHealth()
 //-----------------------------------------------------------------------------
 
 //*
-void UARTOBCRecvMsgHandler()
+void UARTOBCRecvMsgHandler(void)
 {
 	// Figure out if OBC is speaking our language
 	// All messages start with an escape character (to indicate that something is coming)
@@ -316,7 +314,8 @@ void UARTOBCRecvMsgHandler()
 		if(uart_obc_msg_chars[3] == 'M' &&
 		   uart_obc_msg_chars[4] == 'D') {
 			// OBC wants the health and error data, so send it to them
-			
+            char msg[] = "it works lol\r\n";
+			UARTDebugSend(msg, strlen(msg));
 		}
 		else if(uart_obc_msg_chars[3] == 'D' &&
 		   uart_obc_msg_chars[4] == 'M') {
@@ -354,4 +353,15 @@ bool UARTOBCIsDataReady() {
     return uart_obc_data_ready;
 }
 
-#endif /* ENABLE_UART_ENABLE */
+#ifdef DEBUG
+void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count) {
+    int i = 0;
+    for(i = 0; i < ui32Count; ++i) {
+        uart_obc_msg_chars[i] = pui8Buffer[i];
+    }
+    uart_obc_data_ready = true;
+}
+
+#endif /* DEBUG */
+
+#endif /* ENABLE_UART_OBC */

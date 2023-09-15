@@ -23,6 +23,12 @@ void TransmitErrors(void);
 void TramsmitHealth(void);
 void UARTOBCRecvMsgHandler(void);
 
+#ifdef DEBUG
+// Functions used for debugging
+void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count);
+
+#endif /* DEBUG */
+
 /*
 *******************************************************************************
 *                  MDE-OBC UART Protocol and Message Handling                 *
@@ -55,7 +61,7 @@ void UARTOBCRecvMsgHandler(void);
 #define ENABLE_UART_OBC
 
 // Register base for OBC UART
-#define UART_OBC        UART1_BASE
+#define UART_OBC_DEBUG_BASE UART0_BASE        
 #define UART_OBC_BASE   UART1_BASE
 // SYSCTL PERIPH for the OBC UART
 #define UART_OBC_UART_SYSCTL SYSCTL_PERIPH_UART1
