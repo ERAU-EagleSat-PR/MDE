@@ -42,6 +42,7 @@
 #include "chipDrivers/MRAMfunc.h"
 #include "chipDrivers/SRAMfunc.h"
 #include "source/chips.h"
+#include "source/obc_uart.h"
 
 /*
  *******************************************************************************
@@ -198,9 +199,7 @@ void printDebugMenu(void)
         snprintf(buf, bufSize,  "A - Enter Auto Mode (not implemented)\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         // OBC Debug Options
-        snprintf(buf, bufSize,  "O - Send OBC Command to get health data\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf, bufSize,  "P - Send OBC Command to clear health data\n\r");
+        snprintf(buf, bufSize,  "O - OBC UART Commands\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "H - Send Health Packet (TransmitHealth) \n\r");   // TODO
         UARTDebugSend((uint8_t*) buf, strlen(buf));
@@ -269,7 +268,14 @@ void printDebugMenu(void)
             UARTDebugSend((uint8_t*) buf, strlen(buf));
         }
         break;
-
+    case OBC_COMMANDS:
+        snprintf(buf,bufSize, "G - Get Health Data\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "C - Clear Health Data\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "Q - Return to main menu\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        break;
     default:
         UARTCharPut(UART_DEBUG, 0xC);
         snprintf(buf, bufSize, "State failure!");
@@ -297,6 +303,9 @@ void processDebugInput(int32_t recv_char)
         break;
     case CHIP_FUNCTIONS:
         processChipFunctionsInput(recv_char);
+        break;
+    case OBC_COMMANDS:
+        processOBCCommandInput(recv_char);
         break;
     case AUTO:
         switch (recv_char)
@@ -345,17 +354,11 @@ void processMainMenuInput(int32_t recv_char)
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
 
-    case 'o':   // Send OBC health get request
+    case 'o':   // Switch to OBC coms menu
         UARTCharPut(UART_DEBUG, 0xC);
+        menuState = OBC_COMMANDS;
         printDebugMenu();
-        snprintf(buf, bufSize,  "Function Not Implemented.\n\r");              // TODO
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
-    case 'p':   // Send OBC health clear request
-        UARTCharPut(UART_DEBUG, 0xC);
-        printDebugMenu();
-        snprintf(buf, bufSize,  "Function Not Implemented.\n\r");              // TODO
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
     case 'h':   // Health Packet
         UARTCharPut(UART_DEBUG, 0xC);
         printDebugMenu();
@@ -600,7 +603,37 @@ void processChipSelectInput(int32_t recv_char)
     IntMasterEnable();
 }
 
+//-----------------------------------------------------------------------------
+// Process OBC Selection Menu
+//-----------------------------------------------------------------------------
+void processOBCCommandInput(int32_t recv_char)
+{
+    IntMasterDisable();
+    
+    uint8_t get_msg[] = {0x1F, 0x7F, 0x1F, 'M', 'D', 0x1F, 0xFF};
+    uint8_t clr_msg[] = {0x1F, 0x7F, 0x1F, 'D', 'M', 0x1F, 0xFF};
 
+    switch (recv_char) {
+        case 'g':
+            UARTCharPut(UART_DEBUG, 0xC);
+            UARTOBCSetMsg(get_msg, 7);
+            break;
+        case 'c':
+            UARTCharPut(UART_DEBUG, 0xC);
+            UARTOBCSetMsg(clr_msg, 7);
+            break;
+        case 'q':
+            menuState = MAIN;
+            break;
+        default:
+
+            break;
+    }
+
+    // Return to menu
+    printDebugMenu();
+    IntMasterEnable();
+}
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------

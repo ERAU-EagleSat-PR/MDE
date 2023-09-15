@@ -31,6 +31,7 @@ void processDebugInput(int32_t recv_char);
 void processMainMenuInput(int32_t recv_char);
 void processChipFunctionsInput(int32_t recv_char);
 void processChipSelectInput(int32_t recv_char);
+void processOBCCommandInput(int32_t recv_char);
 
 /*
 *******************************************************************************
@@ -59,7 +60,8 @@ enum MENU_STATES {  INIT,
                     MAIN,
                     AUTO,
                     CHIP_SELECT,
-                    CHIP_FUNCTIONS};
+                    CHIP_FUNCTIONS, 
+                    OBC_COMMANDS};
 
 enum BOARDS      {  NO_BOARD,
                     BOARD1,
