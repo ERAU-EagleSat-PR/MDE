@@ -44,12 +44,16 @@ void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count);
 #define UART_OBC_EOM    0xFF // End of Message
 #define UART_OBC_ESCAPE 0x1F // Escape Character (splits packets)
 
+/* Other important Protocol Values*/
+#define UART_OBC_ACK 0x14
+#define UART_OBC_NAK 0x15
+
 /* Packet Type Identifiers */
 #define UART_OBC_HEALTH_PACKET 0x01 // Health Packet Type
 #define UART_OBC_ERROR_PACKET  0x10 // Error Packet Type
 
 /* Max Incoming UART message size from OBC */
-#define UART_OBC_MAX_MSG_SIZE  64   // 64 characters (32 bits each)
+#define UART_OBC_MAX_MSG_SIZE  64   // 64 characters (8 bits each)
 
 /*
 *******************************************************************************
@@ -61,7 +65,6 @@ void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count);
 #define ENABLE_UART_OBC
 
 // Register base for OBC UART
-#define UART_OBC_DEBUG_BASE UART0_BASE        
 #define UART_OBC_BASE   UART1_BASE
 // SYSCTL PERIPH for the OBC UART
 #define UART_OBC_UART_SYSCTL SYSCTL_PERIPH_UART1
