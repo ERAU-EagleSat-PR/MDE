@@ -304,22 +304,37 @@ void UARTOBCRecvMsgHandler(void)
 	// Figure out if OBC is speaking our language
 	// All messages start with an escape character (to indicate that something is coming)
 	// followed by the start of message character
-	// Then, an escape character is sent to signify the start of data transmission
+    // Finally, an escape character is sent to signal the start of data transmission
 	if(uart_obc_msg_chars[0] == UART_OBC_ESCAPE &&
-	   uart_obc_msg_chars[1] == UART_OBC_SOM &&
-	   uart_obc_msg_chars[2] == UART_OBC_ESCAPE) {
+	   uart_obc_msg_chars[1] == UART_OBC_SOM && 
+       uart_obc_msg_chars[2] == UART_OBC_ESCAPE) {
 		// The command IDs are kind of stupid, but it's not like we're limited on 
 		// transmission ability, and Calvin and Hayden (Rozsell) thought it was funny
 		// Can't say I disagree - Nikhil
 		if(uart_obc_msg_chars[3] == 'M' &&
 		   uart_obc_msg_chars[4] == 'D') {
 			// OBC wants the health and error data, so send it to them
-            char msg[] = "it works lol\r\n";
-			UARTDebugSend(msg, strlen(msg));
+
+            #ifdef DEBUG
+                char msg[] = "Return health data\r\n";
+			    UARTDebugSend(msg, strlen(msg));
+
+            #endif /* DEBUG */
 		}
 		else if(uart_obc_msg_chars[3] == 'D' &&
-		   uart_obc_msg_chars[4] == 'M') {
+		        uart_obc_msg_chars[4] == 'M') {
 			// OBC wants us to clear the health and error data
+
+            // If successful, send an ACK
+
+            // Else, send a NAK to tell OBC we couldn't clear the data for some reason
+
+            // If we're debugging, send output to Debug UART
+            #ifdef DEBUG
+                char msg[] = "Clear health data\r\n";
+			    UARTDebugSend(msg, strlen(msg));
+
+            #endif /* DEBUG */
 		}
 		else {
 			// Tell OBC what they said makes no sense, but they were speaking our language
