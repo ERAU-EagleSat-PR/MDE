@@ -45,8 +45,8 @@ void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count);
 #define UART_OBC_ESCAPE 0x1F // Escape Character (splits packets)
 
 /* Other important Protocol Values*/
-#define UART_OBC_ACK 0x14
-#define UART_OBC_NAK 0x15
+#define UART_OBC_ACK 0x14 // ACK - sent after successful execution of a command that doesn't send anything back
+#define UART_OBC_NAK 0x15 // NAK - sent after a command did not complete successfully for some reason
 
 /* Packet Type Identifiers */
 #define UART_OBC_HEALTH_PACKET 0x01 // Health Packet Type
@@ -90,9 +90,6 @@ void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count);
 // NOTE: In the next two sections, defining shifts and masks for the messages
 // masks are applied before shifts!
 
-// The value placed in the two bit header of each error message
-// Valid values are 0 to 3
-#define ERROR_DATA_HEADER_VALUE 3
 // The shifts and masks for the error data, in case the error data formatting
 // needs to be redefined. Adding data needs changes in each chip .c file.
 #define ERROR_DATA_HEADER_SHIFT     38
@@ -115,15 +112,12 @@ void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count);
 //-----------------------------------------------------------------------------
 // TransmitHealth() Health & Responsiveness Variables //TODO
 //-----------------------------------------------------------------------------
-// The value placed in the two bit header of each health message
-// Valid values are 0 to 3
-#define HEALTH_DATA_HEADER_VALUE 2
 // The shifts and masks for the health data, in case the health data formatting
 // needs to be redefined. Adding data needs changes in main .c file.
 #define HEALTH_DATA_HEADER_SHIFT    56                     //while byte header
 #define HEALTH_DATA_HEADER_MASK     0xF                    //1111h
 #define HEALTH_DATA_CYCLE_SHIFT     48
-#define HEALTH_DATA_CYCLE_MASK      0x3FFF // Only 14 bits allocated for the count
+#define HEALTH_DATA_CYCLE_MASK      0xFFFF
 #define HEALTH_DATA_START_SHIFT     4
 #define HEALTH_DATA_START_MASK      0xF
 #define HEALTH_DATA_OFFSET_SHIFT    0

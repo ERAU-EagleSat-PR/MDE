@@ -244,54 +244,35 @@ void FormatHealthDataPacket() /* Probably wont return a void*/
 //TODO
 void TransmitHealth()
 {
-	/*
-	uint64_t health_data;
+    // Use array of 8 chars to hold data
+    // Last char reserved for null terminator
+	char health_data[9];
 
-	//Heath_data is a mask
-	health_data = (((uint64_t)HEALTH_DATA_HEADER_VALUE & HEALTH_DATA_HEADER_MASK) << HEALTH_DATA_HEADER_SHIFT) |
-	  (((uint64_t)cycle_count & HEALTH_DATA_CYCLE_MASK) << HEALTH_DATA_CYCLE_SHIFT) |
-	    (((uint64_t)chip_unresponsive & HEALTH_DATA_RESPONSIVENESS_MASK) << HEALTH_DATA_RESPONSIVENESS_SHIFT) |
-	      (((uint64_t)current_sequence_start & HEALTH_DATA_START_MASK) << HEALTH_DATA_START_SHIFT) |
-	        (((uint64_t)current_sequence_offset & HEALTH_DATA_OFFSET_MASK) << HEALTH_DATA_OFFSET_SHIFT);
+    /*
+    Get cycle count:
+    cycle_count = (some function idk)
 
-#ifdef DEBUG
+    get health array
+    uint32_t health_array = ????
+    */
 
-  char buf[100];
-  sprintf(buf, "Health Data: %llx", health_data);
-  UARTSend((uint8_t*) buf, strlen(buf));
-
-#endif // DEBUG //
-
-	unsigned char data0;
-	unsigned char data1;
-	unsigned char data2;
-	unsigned char data3;
-	unsigned char data4;
-	unsigned char data5;
-	unsigned char data6;
-	unsigned char data7;
-
-	// Putting data into uchars for transmission
-	data0 = health_data & 0xFF;
-	data1 = (health_data>>8) & 0xFF;
-	data2 = (health_data>>16) & 0xFF;
-	data3 = (health_data>>24) & 0xFF;
-	data4 = (health_data>>32) & 0xFF;
-	data5 = (health_data>>40) & 0xFF;
-	data6 = (health_data>>48) & 0xFF;
-	data7 = (health_data>>54) & 0xFF;
+    // Temporary hard-coded health packet
+    health_data[0] = UART_OBC_HEALTH_PACKET; // Packet Type ID
+    health_data[1] = '1'; // Unique ID
+    health_data[2] = '6'; // Cycle count high
+    health_data[3] = '9'; // Cycle count low
+    health_data[4] = '4'; // Health array for idk
+    health_data[5] = '2'; // Health array for idk
+    health_data[6] = '0'; // Health array for idk
+    health_data[7] = 'L'; // Health array for idk
+    health_data[8] = '\0'; // Null terminator, used so that we can call strlen for the length
+    #ifdef DEBUG
+        UARTDebugSend("Health Data:\r\n", 14);
+	    UARTDebugSend(health_data, strlen(health_data));
+    #endif // DEBUG //
 
 	// Transmit data
-	UARTCharPut(UART_PRIMARY, data7);
-	UARTCharPut(UART_PRIMARY, data6);
-	UARTCharPut(UART_PRIMARY, data5);
-	UARTCharPut(UART_PRIMARY, data4);
-	UARTCharPut(UART_PRIMARY, data3);
-	UARTCharPut(UART_PRIMARY, data2);
-	UARTCharPut(UART_PRIMARY, data1);
-	UARTCharPut(UART_PRIMARY, data0);
-
-	*/
+	UARTOBCSend(health_data, strlen(health_data));
 }
 
 //-----------------------------------------------------------------------------
@@ -316,25 +297,50 @@ void UARTOBCRecvMsgHandler(void)
 			// OBC wants the health and error data, so send it to them
 
             #ifdef DEBUG
-                char msg[] = "Return health data\r\n";
+                char msg[] = "Return health and error data\r\n";
 			    UARTDebugSend(msg, strlen(msg));
-
             #endif /* DEBUG */
+
+            // Send message beginning characters
+			char start_msg[] = {UART_OBC_ESCAPE, UART_OBC_EOM, '\0'};
+			UARTOBCSend(start_msg, strlen(start_msg));
+
+			// Transmit Health and errors should each prepend a data packet with an escape character
+            TransmitHealth();
+            TransmitErrors();
+
+            char term_msg[] = {UART_OBC_ESCAPE, UART_OBC_EOM, '\0'};
+            UARTOBCSend(term_msg, strlen(term_msg));
 		}
 		else if(uart_obc_msg_chars[3] == 'D' &&
 		        uart_obc_msg_chars[4] == 'M') {
 			// OBC wants us to clear the health and error data
 
-            // If successful, send an ACK
-
-            // Else, send a NAK to tell OBC we couldn't clear the data for some reason
-
             // If we're debugging, send output to Debug UART
             #ifdef DEBUG
-                char msg[] = "Clear health data\r\n";
-			    UARTDebugSend(msg, strlen(msg));
+                char debug_msg[] = "Clear health data\r\n";
+			    UARTDebugSend(debug_msg, strlen(debug_msg));
 
             #endif /* DEBUG */
+
+            // Clear errors
+            // Not sure how??
+            // Get whether clearing errors was successful
+            // Check if clearing was successful
+
+            // If successful, send an ACK
+            char msg[] = {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_ACK, UART_OBC_ESCAPE, UART_OBC_EOM, 0x00};
+            
+            // Else, send a NAK to tell OBC we couldn't clear the data for some reason
+            // char msg[] = {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_NAK, UART_OBC_ESCAPE, UART_OBC_EOM, 0x00};
+
+
+            UARTOBCSend(msg, strlen(msg));
+            // If debug is enabled, also send the output to the debug prompt
+            #ifdef DEBUG
+                UARTDebugSend(msg, strlen(msg));
+            #endif
+
 		}
 		else {
 			// Tell OBC what they said makes no sense, but they were speaking our language
@@ -344,6 +350,7 @@ void UARTOBCRecvMsgHandler(void)
 	else {
 		// Tell OBC they aren't speaking our language
 		// (i.e. error saying what they sent doesn't match the protocol)
+        char incomprehensible_msg[] =  {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_ESCAPE, UART_OBC_ACK, UART_OBC_ESCAPE, UART_OBC_EOM, 0x00};
 	}
 	// Set the data_ready variable to false
 	// The message has been processed, so there's no need to check it again
