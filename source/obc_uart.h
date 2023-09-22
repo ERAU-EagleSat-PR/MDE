@@ -23,6 +23,10 @@ void TransmitErrors(void);
 void TramsmitHealth(void);
 void UARTOBCRecvMsgHandler(void);
 
+// Should be called in the main while loop to send a command to OBC to reset MDE
+// (turn it off)
+void MDERequestReset(void);
+
 #ifdef DEBUG
 // Functions used for debugging
 void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count);
@@ -44,9 +48,12 @@ void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count);
 #define UART_OBC_EOM    0xFF // End of Message
 #define UART_OBC_ESCAPE 0x1F // Escape Character (splits packets)
 
-/* Other important Protocol Values*/
+/* MDE Response Characters */
 #define UART_OBC_ACK 0x14 // ACK - sent after successful execution of a command that doesn't send anything back
 #define UART_OBC_NAK 0x15 // NAK - sent after a command did not complete successfully for some reason
+#define UART_OBC_RESET_MDE 'R'
+#define UART_OBC_ERROR_BAD_PACKET 'P'
+#define UART_OBC_ERROR_BAD_COMMAND 'C'
 
 /* Packet Type Identifiers */
 #define UART_OBC_HEALTH_PACKET 0x01 // Health Packet Type
