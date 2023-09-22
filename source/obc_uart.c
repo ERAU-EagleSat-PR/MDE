@@ -339,18 +339,21 @@ void UARTOBCRecvMsgHandler(void)
             // If debug is enabled, also send the output to the debug prompt
             #ifdef DEBUG
                 UARTDebugSend(msg, strlen(msg));
-            #endif
+            #endif /* DEBUG */
 
 		}
 		else {
 			// Tell OBC what they said makes no sense, but they were speaking our language
 			// (i.e. error, but different than below)
+			char bad_cmd_msg[] =  {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_ESCAPE, UART_OBC_ERROR_BAD_COMMAND, UART_OBC_ESCAPE, UART_OBC_EOM, 0x00};
+			UARTOBCSend(bad_cmd_msg, strlen(bad_cmd_msg));
 		}
 	}
 	else {
 		// Tell OBC they aren't speaking our language
 		// (i.e. error saying what they sent doesn't match the protocol)
-        char incomprehensible_msg[] =  {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_ESCAPE, UART_OBC_ACK, UART_OBC_ESCAPE, UART_OBC_EOM, 0x00};
+        char bad_packet_msg[] =  {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_ESCAPE, UART_OBC_ERROR_BAD_PACKET, UART_OBC_ESCAPE, UART_OBC_EOM, 0x00};
+		UARTOBCSend(bad_packet_msg, strlen(bad_packet_msg));
 	}
 	// Set the data_ready variable to false
 	// The message has been processed, so there's no need to check it again
@@ -373,6 +376,11 @@ void UARTOBCResponseHandler(void)
 
 bool UARTOBCIsDataReady() {
     return uart_obc_data_ready;
+}
+
+void MDERequestReset(void) {
+	char msg[] = {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_RESET_MDE, UART_OBC_ESCAPE, UART_OBC_EOM, 0x00};
+    UARTDebugSend(msg, strlen(msg));
 }
 
 #ifdef DEBUG
