@@ -192,39 +192,48 @@ void FormatErrorDataPacket() /* Probably wont return a void*/
 //TODO
 void TransmitErrors()
 {
-	/*
+    // Create array to hold data. Add an extra character for a null
+    // terminator so we can call strlen on it
+	char error_data[ERROR_DATA_LENGTH + 1];
 
-    Dont forget to use a free(*pointerInBuffer) on every iteration
-    so that malloc can continue adding errors -Tyler
+    /*
+     * For actual implementation, we'll have to iterate over the list of errors 
+     * and retrieve the information for each error
+     */
 
-	uint32_t error_iter;
-	unsigned char data1;
-	unsigned char data2;
-	unsigned char data3;
-	for(error_iter = 0; error_iter < current_error; error_iter++){
+    // Temporary hard-coded error packet
+    error_data[0] = UART_OBC_ESCAPE;
+    error_data[1] = UART_OBC_ERROR_PACKET; // Packet Type ID
+    error_data[2] = 1; // Unique ID
+    error_data[3] = 6; // Chip ID 
+    error_data[4] = 9; // Cell address, includes next 3 bytes
+    error_data[5] = 4; 
+    error_data[6] = 2;
+    error_data[7] = 0;
+    error_data[8] = 8;  // Written Sequence
+    error_data[9] = 9; // Retrieved Sequence
+    error_data[10] = '\0'; // Null terminator, used so that we can call strlen for the length
+    #ifdef DEBUG
+        // Debug message, will contain each character in error_data as
+        // a 2 character hex value, with spaces in between
+        char debug_msg[ERROR_DATA_LENGTH * 3 + 1];
 
-		while(UARTBusy(UART_PRIMARY)){
-		}
+        int i = 0;
+        for(i = 0; i < ERROR_DATA_LENGTH; ++i) {
+            // Print every byte in error_data as a 3 character string, with 2 characters for a
+            // hex value, and a space afterwards.
+            // Have to print 4 characters, since snprintf automatically makes the last character
+            // a null terminator. So, we have to overwrite the null terminator on all but the last
+            // print. However, it does add the null terminator for us, so that's nice
+            snprintf(&debug_msg[i*3], 4, "%02x ", error_data[i]);
+        }
 
-		// Transmit the 3 byte data header, 0b10000000/0x80
-		UARTCharPut(UART_PRIMARY, 0x80);
-		UARTCharPut(UART_PRIMARY, 0x80);
-		UARTCharPut(UART_PRIMARY, 0x80);
+        UARTDebugSend("\r\nError Data:\r\n", 15);
+	    UARTDebugSend(debug_msg, strlen(debug_msg));
+    #endif // DEBUG //
 
-		// Putting data into uchars for transmission
-		data1 = error_buffer[error_iter] & 0xFF;
-		data2 = (error_buffer[error_iter]>>8) & 0xFF;
-		data3 = (error_buffer[error_iter]>>16) & 0xFF;
-
-		// Transmit data
-		UARTCharPut(UART_PRIMARY, data3);
-		UARTCharPut(UART_PRIMARY, data2);
-		UARTCharPut(UART_PRIMARY, data1);
-
-  	current_error = 0; keep, used for iterating through error buf
-	}
-	
-    */
+	// Transmit data
+	UARTOBCSend(error_data, strlen(error_data));
 
 
 }
@@ -244,9 +253,9 @@ void FormatHealthDataPacket() /* Probably wont return a void*/
 //TODO
 void TransmitHealth()
 {
-    // Use array of 8 chars to hold data
-    // Last char reserved for null terminator
-	char health_data[9];
+    // Create array to hold data. Add an extra character for a null
+    // terminator so we can call strlen on it
+	char health_data[HEALTH_DATA_LENGTH + 1];
 
     /*
     Get cycle count:
@@ -257,18 +266,34 @@ void TransmitHealth()
     */
 
     // Temporary hard-coded health packet
-    health_data[0] = UART_OBC_HEALTH_PACKET; // Packet Type ID
-    health_data[1] = '1'; // Unique ID
-    health_data[2] = '6'; // Cycle count high
-    health_data[3] = '9'; // Cycle count low
-    health_data[4] = '4'; // Health array for idk
-    health_data[5] = '2'; // Health array for idk
-    health_data[6] = '0'; // Health array for idk
-    health_data[7] = 'L'; // Health array for idk
-    health_data[8] = '\0'; // Null terminator, used so that we can call strlen for the length
+
+    health_data[0] = UART_OBC_ESCAPE;
+    health_data[1] = UART_OBC_HEALTH_PACKET; // Packet Type ID
+    health_data[2] = 1; // Unique ID
+    health_data[3] = 6; // Cycle count high
+    health_data[4] = 9; // Cycle count low
+    health_data[5] = 4; // Health array for idk
+    health_data[6] = 2; // Health array for idk
+    health_data[7] = 0; // Health array for idk
+    health_data[8] = 1; // Health array for idk
+    health_data[9] = '\0'; // Null terminator, used so that we can call strlen for the length
     #ifdef DEBUG
-        UARTDebugSend("Health Data:\r\n", 14);
-	    UARTDebugSend(health_data, strlen(health_data));
+        // Debug message, will contain each character in error_data as
+        // a 2 character hex value, with spaces in between
+        char debug_msg[HEALTH_DATA_LENGTH * 3 + 2];
+
+        int i = 0;
+        for(i = 0; i < HEALTH_DATA_LENGTH; ++i) {
+            // Print every byte in error_data as a 3 character string, with 2 characters for a
+            // hex value, and a space afterwards.
+            // Have to print 4 characters, since snprintf automatically makes the last character
+            // a null terminator. So, we have to overwrite the null terminator on all but the last
+            // print. However, it does add the null terminator for us, so that's nice
+            snprintf(&debug_msg[i*3], 4, "%02x ", health_data[i]);
+        }
+
+        UARTDebugSend("\r\nHealth Data:\r\n", 16);
+	    UARTDebugSend(debug_msg, strlen(debug_msg));
     #endif // DEBUG //
 
 	// Transmit data
