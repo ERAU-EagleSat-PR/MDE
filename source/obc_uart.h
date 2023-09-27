@@ -99,6 +99,7 @@ void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count);
 
 // The shifts and masks for the error data, in case the error data formatting
 // needs to be redefined. Adding data needs changes in each chip .c file.
+#define ERROR_DATA_LENGTH           10 // Length of the packet in bytes, including the preceding escape character
 #define ERROR_DATA_HEADER_SHIFT     38
 #define ERROR_DATA_HEADER_MASK      0x3
 #define ERROR_DATA_CHIP_SHIFT       32
@@ -121,6 +122,7 @@ void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count);
 //-----------------------------------------------------------------------------
 // The shifts and masks for the health data, in case the health data formatting
 // needs to be redefined. Adding data needs changes in main .c file.
+#define HEALTH_DATA_LENGTH          9 // Length of the packet in bytes, including the preceding escape character
 #define HEALTH_DATA_HEADER_SHIFT    56                     //while byte header
 #define HEALTH_DATA_HEADER_MASK     0xF                    //1111h
 #define HEALTH_DATA_CYCLE_SHIFT     48
