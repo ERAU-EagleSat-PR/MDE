@@ -43,6 +43,8 @@
 // functions handling MDE-OBC communication (i.e. functions in this file)
 // should be able to access them
 
+// MDE should be mapped to pins 19 and 20 on the OBC (we think, as of 2023-09-27)
+
 // UART OBC message buffer - filled by the interrupt handler, and 
 // processed by UARTOBCRecvMsgHandler
 static uint32_t uart_obc_msg_chars[UART_OBC_MAX_MSG_SIZE];
@@ -312,13 +314,12 @@ void UARTOBCRecvMsgHandler(void)
 	// followed by the start of message character
     // Finally, an escape character is sent to signal the start of data transmission
 	if(uart_obc_msg_chars[0] == UART_OBC_ESCAPE &&
-	   uart_obc_msg_chars[1] == UART_OBC_SOM && 
-       uart_obc_msg_chars[2] == UART_OBC_ESCAPE) {
+	   uart_obc_msg_chars[1] == UART_OBC_SOM) {
 		// The command IDs are kind of stupid, but it's not like we're limited on 
 		// transmission ability, and Calvin and Hayden (Rozsell) thought it was funny
 		// Can't say I disagree - Nikhil
-		if(uart_obc_msg_chars[3] == 'M' &&
-		   uart_obc_msg_chars[4] == 'D') {
+		if(uart_obc_msg_chars[2] == 'M' &&
+		   uart_obc_msg_chars[3] == 'D') {
 			// OBC wants the health and error data, so send it to them
 
             #ifdef DEBUG
@@ -337,8 +338,8 @@ void UARTOBCRecvMsgHandler(void)
             char term_msg[] = {UART_OBC_ESCAPE, UART_OBC_EOM, '\0'};
             UARTOBCSend(term_msg, strlen(term_msg));
 		}
-		else if(uart_obc_msg_chars[3] == 'D' &&
-		        uart_obc_msg_chars[4] == 'M') {
+		else if(uart_obc_msg_chars[2] == 'D' &&
+		        uart_obc_msg_chars[3] == 'M') {
 			// OBC wants us to clear the health and error data
 
             // If we're debugging, send output to Debug UART

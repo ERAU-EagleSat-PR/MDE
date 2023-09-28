@@ -610,8 +610,8 @@ void processOBCCommandInput(int32_t recv_char)
 {
     IntMasterDisable();
     
-    uint8_t get_msg[] = {0x1F, 0x7F, 0x1F, 'M', 'D', 0x1F, 0xFF};
-    uint8_t clr_msg[] = {0x1F, 0x7F, 0x1F, 'D', 'M', 0x1F, 0xFF};
+    uint8_t get_msg[] = {0x1F, 0x7F, 'M', 'D', 0x1F, 0xFF};
+    uint8_t clr_msg[] = {0x1F, 0x7F, 'D', 'M', 0x1F, 0xFF};
 
     switch (recv_char) {
         case 'g':
