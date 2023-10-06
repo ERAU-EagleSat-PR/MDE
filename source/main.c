@@ -294,8 +294,8 @@ int main(void)
     SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN |
                            SYSCTL_XTAL_16MHZ);
 
-    // Enable processor interrupts.
-    IntMasterEnable();
+    // Disable Interrupts while we're setting stuff up
+    IntMasterDisable();
 
     //*****************************
     // Peripheral Enablers
@@ -341,7 +341,8 @@ int main(void)
         CheckChipHealth(chip); // Check health of all chips. This will also initialize chip health array to 1s assuming they are all working.
     }
 */
-
+    // Enable processor interrupts.
+    IntMasterEnable();
     //*****************************
     // Main Loop
     //*****************************
