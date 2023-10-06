@@ -330,7 +330,7 @@ void UARTOBCRecvMsgHandler(void)
             #endif /* DEBUG */
 
             // Send message beginning characters
-			char start_msg[] = {UART_OBC_ESCAPE, UART_OBC_EOM, '\0'};
+			char start_msg[] = {UART_OBC_ESCAPE, UART_OBC_SOM, '\0'};
 			UARTOBCSend(start_msg, strlen(start_msg));
 
 			// Transmit Health and errors should each prepend a data packet with an escape character
