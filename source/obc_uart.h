@@ -68,26 +68,39 @@ void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count);
 *******************************************************************************
 */
 
-// The primary UART base to read and write to (OBC Communication)
+// Flag used to enable the OBC UART
 #define ENABLE_UART_OBC
 
-// Register base for OBC UART
-#define UART_OBC_BASE   UART1_BASE
-// SYSCTL PERIPH for the OBC UART
-#define UART_OBC_UART_SYSCTL SYSCTL_PERIPH_UART1
+// The System Peripheral for the GPIO pins the 
+// OBC UART uses 
+#define UART_OBC_SYSCTL_GPIO SYSCTL_PERIPH_GPIOB
 
-// GPIO for OBC UART
-#define UART_OBC_PORT_BASE  GPIO_PORTB_BASE
-// SYSCTL PERIPH for the OBC UART's GPIO pins
-#define UART_OBC_GPIO_SYSCTL   SYSCTL_PERIPH_GPIOB 
-#define UART_OBC_RX_PIN     GPIO_PIN_0
-#define UART_OBC_TX_PIN     GPIO_PIN_1
+// The System Peripheral driver value for the
+// OBC UART, UART 1
+#define UART_OBC_SYSCTL_UART SYSCTL_PERIPH_UART1
+
+// The GPIO Port Base for the OBC UART
+#define UART_OBC_GPIO_PORT_BASE GPIO_PORTB_BASE
+
+// The UART Port Base for the OBC UART
+#define UART_OBC_UART_PORT_BASE UART1_BASE
+
+// The set baud rate for the UART
+#define UART_OBC_BAUD_RATE 115200
+
+// The value to pass to IntEnable to enable Interrupts for the OBC UART
+#define INT_UART_OBC INT_UART1
+
+// Setting which GPIO pins in the base are used for the UART
+// You need to check the documentation to see which pins are used
+// For each UART on the microcontroller
+#define UART_OBC_RX_PIN GPIO_PIN_0
+#define UART_OBC_TX_PIN GPIO_PIN_1
+
+// Values to pass to GPIOPinConfigure to configure the GPIO pins that the
+// OBC UART uses to be UART pins
 #define UART_OBC_RX_PIN_CFG GPIO_PB0_U1RX
 #define UART_OBC_TX_PIN_CFG GPIO_PB1_U1TX
-
-#define UART_OBC_BAUD_RATE  115200
-
-
 /*
 *******************************************************************************
 *                          Error Data Packet Defines                          *

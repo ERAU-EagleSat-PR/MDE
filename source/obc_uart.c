@@ -95,20 +95,20 @@ void UARTOBCIntHandler(void)
     //
     // Get the interrupt status.
     //
-    ui32Status = UARTIntStatus(UART_OBC_BASE, true);
+    ui32Status = UARTIntStatus(UART_OBC_UART_PORT_BASE, true);
 
     //
     // Clear the asserted interrupts.
     //
-    UARTIntClear(UART_OBC_BASE, ui32Status);
+    UARTIntClear(UART_OBC_UART_PORT_BASE, ui32Status);
 
     //
     // Loop while there are unsigned characters in the receive FIFO.
     //
-    while(UARTCharsAvail(UART_OBC_BASE))
+    while(UARTCharsAvail(UART_OBC_UART_PORT_BASE))
     {
         int32_t local_char;
-        local_char = UARTCharGet(UART_OBC_BASE);
+        local_char = UARTCharGet(UART_OBC_UART_PORT_BASE);
 
 		// Ensure we don't buffer overflow like an idiot
         if(local_char != -1 && uart_obc_msg_index < 64)
@@ -121,6 +121,12 @@ void UARTOBCIntHandler(void)
 			uart_obc_msg_index += 1;
         }
     }
+#ifdef DEBUG
+        int i = 0;
+        for(i = 0; i < uart_obc_msg_index; ++i) {
+            UARTCharPut(UART_DEBUG, uart_obc_msg_chars[i]);
+        }
+#endif /* DEBUG */
 	uart_obc_data_ready = true;
 }
 
@@ -129,36 +135,32 @@ void UARTOBCIntHandler(void)
 //-----------------------------------------------------------------------------
 void UARTOBCEnable(void)
 {
-    // Enable GPIO for OBC coms
-    SysCtlPeripheralEnable(UART_OBC_GPIO_SYSCTL);
-    while(!SysCtlPeripheralReady(UART_OBC_GPIO_SYSCTL));
-    {
-    }
 
-    // Enable OBC UART Base, UART 1
-    SysCtlPeripheralEnable(UART_OBC_UART_SYSCTL);
-    while(!SysCtlPeripheralReady(UART_OBC_UART_SYSCTL))
-    {
-    }
+    SysCtlPeripheralEnable(UART_OBC_SYSCTL_GPIO);
+    SysCtlPeripheralEnable(UART_OBC_SYSCTL_UART);
 
-    // Configure the UART pins for OBC coms
-    GPIOPinTypeUART(UART_OBC_BASE, UART_OBC_RX_PIN |  UART_OBC_TX_PIN);
+    // Wait for peripheral access to be ready
+    while(!SysCtlPeripheralReady(UART_OBC_SYSCTL_GPIO));
+    while(!SysCtlPeripheralReady(UART_OBC_SYSCTL_UART));
+
+    GPIOPinTypeUART(UART_OBC_GPIO_PORT_BASE, UART_OBC_RX_PIN | UART_OBC_TX_PIN);
     GPIOPinConfigure(UART_OBC_RX_PIN_CFG);
     GPIOPinConfigure(UART_OBC_TX_PIN_CFG);
 
     // Configure the UART for 115,200, 8-N-1 operation.
-    UARTConfigSetExpClk(UART_OBC_BASE, SysCtlClockGet(), UART_OBC_BAUD_RATE,
-                       (UART_CONFIG_WLEN_8 |
-                        UART_CONFIG_STOP_ONE |
-                        UART_CONFIG_PAR_NONE));
+    UARTConfigSetExpClk(UART_OBC_UART_PORT_BASE, 
+                        SysCtlClockGet(), UART_OBC_BAUD_RATE,
+                        (UART_CONFIG_WLEN_8 | 
+                         UART_CONFIG_STOP_ONE | 
+                         UART_CONFIG_PAR_NONE));
 
-    // Map the Interrupt handler for OBC coms UART
-    UARTIntRegister( UART_OBC_BASE , UARTOBCIntHandler );
+    // Enable UART Interrupts
+    IntEnable(INT_UART_OBC);
+    // Enable interrupts for recieve and receive timeout
+    UARTIntEnable(UART_OBC_UART_PORT_BASE, UART_INT_RX | UART_INT_RT);
 
-    // Enable interrupts for OBC coms UART
-    UARTIntEnable( UART_OBC_BASE, UART_INT_RX | UART_INT_RT);
-
-    //*/
+    // Register the interrupt handler for the OBC UART
+    UARTIntRegister(UART_OBC_UART_PORT_BASE, UARTOBCIntHandler);
 }
 
 //-----------------------------------------------------------------------------
@@ -175,7 +177,7 @@ void UARTOBCSend(const uint8_t *pui8Buffer, uint32_t ui32Count)
     //
     // Write the next character to the UART.
     //
-    UARTCharPut(UART_OBC_BASE, *pui8Buffer++);
+    UARTCharPut(UART_OBC_UART_PORT_BASE, *pui8Buffer++);
   }
 }
 
