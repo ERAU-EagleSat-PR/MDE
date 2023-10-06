@@ -259,11 +259,11 @@ void TransmitHealth()
 {
     // Create array to hold data. Add an extra character for a null
     // terminator so we can call strlen on it
-	char health_data[HEALTH_DATA_LENGTH + 1];
+	uint8_t health_data[HEALTH_DATA_LENGTH + 1];
 
     /*
     Get cycle count:
-    cycle_count = (some function idk)
+    uint16_t cycle_count = (some function idk)
 
     get health array
     uint32_t health_array = ????
@@ -271,16 +271,33 @@ void TransmitHealth()
 
     // Temporary hard-coded health packet
 
-    health_data[0] = UART_OBC_ESCAPE;
+    health_data[0] = UART_OBC_ESCAPE;   // Escape character - signals that data is being sent
     health_data[1] = UART_OBC_HEALTH_PACKET; // Packet Type ID
     health_data[2] = 1; // Unique ID
     health_data[3] = 6; // Cycle count high
+    // health_data[3] = (uint8_t)( (cycle_count >> 8) & 0xFF); // Cycle count high
     health_data[4] = 9; // Cycle count low
+    // health_data[3] = (uint8_t)( (cycle_count) & 0xFF); // Cycle count low
     health_data[5] = 4; // Health array for idk
     health_data[6] = 2; // Health array for idk
     health_data[7] = 0; // Health array for idk
     health_data[8] = 1; // Health array for idk
     health_data[9] = '\0'; // Null terminator, used so that we can call strlen for the length
+
+    // Actual Health packet
+    /**
+    health_data[0] = UART_OBC_ESCAPE;   // Escape character - signals that data is being sent
+    health_data[1] = UART_OBC_HEALTH_PACKET; // Packet Type ID
+    health_data[2] = 1; // Unique ID
+    health_data[3] = (uint8_t)( (cycle_count >> 8) & 0xFF); // Cycle count high
+    health_data[4] = (uint8_t)( (cycle_count) & 0xFF); // Cycle count low
+    health_data[5] = (uint8_t)( (health_array >> 24) & 0xFF); // Health array for idk
+    health_data[6] = (uint8_t)( (health_array >> 16) & 0xFF); // Health array for idk
+    health_data[7] = (uint8_t)( (health_array >> 8) & 0xFF); // Health array for idk
+    health_data[8] = (uint8_t)( (health_array) & 0xFF); // Health array for idk
+    health_data[9] = '\0'; // Null terminator, used so that we can call strlen for the length
+    */
+
     #ifdef DEBUG
         // Debug message, will contain each character in error_data as
         // a 2 character hex value, with spaces in between
