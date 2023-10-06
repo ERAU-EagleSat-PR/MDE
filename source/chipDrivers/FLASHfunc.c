@@ -22,10 +22,8 @@
 #include "FLASHfunc.h"
 #include "source/multiplexer.h"
 #include "source/mde.h"
-
-#ifdef DEBUG
 #include "source/devtools.h"
-#endif
+
 
 //*****************************************************************************
 //
@@ -224,7 +222,7 @@ FlashErase(uint8_t chip_number)
 //*****************************************************************************
 
 void
-FlashSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
+FlashSequenceTransmit(uint8_t current_cycle, uint8_t chip_number)
 {
     // Write to entire flash memory array
     // Chip number 0-3 for Flash
@@ -251,7 +249,7 @@ FlashSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
     //
 
     // We only need to erase the chip if we are writing all 1s, and we only need to perform a Page Program if we are writing all 0s. This will save significant time waiting and doing nothing.
-    if (current_cycle == 1)
+    if (current_cycle == 255)
     {
         // This erase function counts as writing all 1s to memory
         FlashErase(chip_number);
@@ -384,7 +382,7 @@ FlashSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
 //
 //*****************************************************************************
 void
-FlashSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
+FlashSequenceRetrieve(uint8_t current_cycle, uint8_t chip_number)
 {
     // retrieve from entire flash memory, send each byte to be error checked
     // currently has uart printing for observing integrated
@@ -461,16 +459,17 @@ FlashSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
         //Send data to be checked and prepared
         //CheckErrors(data, sequence, byte_num, chip_number);
 #ifdef DEBUG
-        char buf[10];
-        sprintf(buf, "%d ", data);
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        char str[12];
+        sprintf(str, "%d ", data);
+        UARTDebugSend((uint8_t*) str, strlen(str));
 #endif
     }
-
-    // Bring CS high again, ending read
+    // Bring CS high, ending read
     SetChipSelect(chip_number_alt);
+
 #ifdef DEBUG
-    sprintf(buf, "\r\n");
-    UARTDebugSend((uint8_t*) buf, strlen(buf));
+        char str[5];
+        sprintf(str, "\r\n");
+        UARTDebugSend((uint8_t*) str, strlen(str));
 #endif
 }

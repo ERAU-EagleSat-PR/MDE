@@ -18,7 +18,7 @@ typedef struct {
     uint8_t retrieved_sequence; // Read sequence
 } MDE_Error_Data;
 
-void CheckErrors(uint8_t chip_number, uint32_t byte_num, uint8_t byte_data, uint8_t data_cycle);
+void CheckErrors(uint8_t chip_number, uint32_t byte_num, uint8_t byte_data, uint8_t written_data);
 
 //-----------------------------------------------------------------------------
 // TransmitErrors() Error Buffer Variables //TODO

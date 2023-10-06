@@ -17,8 +17,8 @@ typedef struct {
 
 // Function Prototypes
 void FlashErase(uint8_t chip_number);
-void FlashSequenceTransmit(uint8_t currentCycle, uint32_t chip_number);
-void FlashSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number);
+void FlashSequenceTransmit(uint8_t current_cycle, uint8_t chip_number);
+void FlashSequenceRetrieve(uint8_t current_cycle, uint8_t chip_number);
 FLASHID FlashStatusRead(uint8_t chip_number);
 
 // Flash Commands

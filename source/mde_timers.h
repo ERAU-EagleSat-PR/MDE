@@ -16,7 +16,9 @@
 *                             Function Prototypes                             *
 *******************************************************************************
 */
+void MDETimerConfigure(void);
 void MDETimerEnable(void);
+void MDETimerDisable(void);
 void MDETimerInt(void);
 void MDEWatchdogsEnable(void);
 void ChipWatchdogPoke(void);
@@ -36,7 +38,7 @@ void ChipWatchdogInt(void);
 
 // Cycle time is the time it takes for a timer interrupt to trigger in seconds
 // Timer cycles is how many cycles the timer will do before performing a check
-#define MEMORY_CYCLE_TIME 90 //minutes
+#define MEMORY_CYCLE_TIME 1 //minutes
 #define TIMER_CYCLES 1
 
 // Variables for the watchdog timers.
@@ -52,6 +54,7 @@ void ChipWatchdogInt(void);
 
 // Variables for the timer
 extern uint32_t timer_current_cycle;
+extern uint32_t cycle_time_clockrate;
 extern bool reading_chip;
 
 // The target clock speed for the system clock.

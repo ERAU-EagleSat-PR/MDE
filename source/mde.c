@@ -35,10 +35,8 @@
 #include "source/mde.h"
 #include "source/chips.h"
 #include "source/chip_health.h"
-
-#ifdef DEBUG
-#include "devtools.h"
-#endif
+#include "source/devtools.h"
+#include "source/chips.h"
 
 //******************************************************************//
 //                                                                  //
@@ -49,11 +47,29 @@
 //******************************************************************//
 
 void
-MDECycleStart(void)
+MDEProcessCycle(void)
 {
-    // Prepare for a new data cycle.
+    // Perform a complete cycle of the MDE experiment including
+    // health check, data read, error check, and data write.
+    // NOTE: This function uses a preset global chip count for purposes of
+    // the watchdog. Set the global chip to 0 or desired chip before running.
 
-    // Perform a health check on all chips.
+    // Prepare for a new data cycle.
+    uint8_t i;
+
+
+    for(i = current_chip; i < MAX_CHIP_NUMBER; i++)
+    {
+
+        if(chip_death_array[i] == 0)
+        {
+            // Perform a health check on all chips, excluding dead ones.
+            CheckChipHealth(i);
+
+            // If chip is healthy, immediately get its data.
+            //ReadFromChip(currentCycle, i);
+        }
+    }
 
     // Prepare new data
 

@@ -14,6 +14,7 @@
 
 // Standard C files
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -34,14 +35,19 @@
 #include "driverlib/uart.h"
 #include "driverlib/ssi.h"
 
-// Additional Includes
-#include "source/devtools.h"
-#include "source/multiplexer.h"
+// Custom Memory Drivers
 #include "chipDrivers/FLASHfunc.h"
 #include "chipDrivers/FRAMfunc.h"
 #include "chipDrivers/MRAMfunc.h"
 #include "chipDrivers/SRAMfunc.h"
+
+// Additional Includes
+#include "source/devtools.h"
+#include "source/multiplexer.h"
 #include "source/chips.h"
+#include "source/mde_timers.h"
+#include "source/chip_health.h"
+#include "source/bit_errors.h"
 
 /*
  *******************************************************************************
@@ -197,13 +203,11 @@ printDebugMenu(void)
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "F - Chip Functions.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf, bufSize,  "H - Chip Health Functions.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "B - Change currently selected board: %d\n\r",workingBoard);
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "A - Enter Auto Mode (not implemented)\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf, bufSize,  "H - Send Health Packet (TransmitHealth) \n\r");   // TODO
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf, bufSize,  "E - Send Data Packet (TransmitErrors) \n\r");     // TODO
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "X - Restart Program.\n\r");                       // TODO
         UARTDebugSend((uint8_t*) buf, strlen(buf));
@@ -221,6 +225,11 @@ printDebugMenu(void)
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf,bufSize, "R - Read from chip.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
+        if(seedErrors == 1)
+            snprintf(buf,bufSize, "E - Disable error seeding.\r\n");
+        else
+            snprintf(buf,bufSize, "E - Enable error seeding.\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf,bufSize, "P - Prepare Status Register (MRAM/SRAM only)\n\r");
         UARTDebugSend((uint8_t*)buf, strlen(buf));
         snprintf(buf,bufSize, "S - Read Status Register \n\r");
@@ -229,11 +238,15 @@ printDebugMenu(void)
         UARTDebugSend((uint8_t*)buf, strlen(buf));
         snprintf(buf, bufSize,"Q - Swap currently selected chip.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf, bufSize,"B - Print current error buffer (resets it)\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
 
     case AUTO:
         UARTCharPut(UART_DEBUG, 0xC);
-        snprintf(buf, bufSize, "AUTO MODE. Hit M to exit.\n\r");
+        snprintf(buf, bufSize, "AUTO MODE. Cycle time: %d",MEMORY_CYCLE_TIME);
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf, bufSize, "Hit M to exit.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
 
@@ -268,7 +281,21 @@ printDebugMenu(void)
             UARTDebugSend((uint8_t*) buf, strlen(buf));
         }
         break;
-
+    case CHIP_HEALTH:
+        UARTCharPut(UART_DEBUG, 0xC);
+        snprintf(buf,bufSize, "Chip Health and Data Functions\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf, bufSize,  "M - Return to main menu.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize,   "P - Print chip health array.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize,   "D - Print chip death array.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf, bufSize,  "H - Send Health Packet (TransmitHealth) \n\r");   // TODO
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf, bufSize,  "E - Send Data Packet (TransmitErrors) \n\r");     // TODO
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        break;
     default:
         UARTCharPut(UART_DEBUG, 0xC);
         snprintf(buf, bufSize, "State failure!");
@@ -297,6 +324,9 @@ processDebugInput(int32_t recv_char)
         break;
     case CHIP_FUNCTIONS:
         processChipFunctionsInput(recv_char);
+        break;
+    case CHIP_HEALTH:
+        processChipHealthInput(recv_char);
         break;
     case AUTO:
         switch (recv_char)
@@ -339,23 +369,13 @@ processMainMenuInput(int32_t recv_char)
         printDebugMenu();
         break;
     case 'a':   // Enter Auto Mode
-        // = AUTO;
-        UARTCharPut(UART_DEBUG, 0xC);
+        menuState = AUTO;
+        MDETimerEnable();
         printDebugMenu();
-        snprintf(buf, bufSize,  "Function Not Implemented.\n\r");              // TODO
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
-    case 'h':   // Health Packet
-        UARTCharPut(UART_DEBUG, 0xC);
+    case 'h':   // Health Functions
+        menuState = CHIP_HEALTH;
         printDebugMenu();
-        snprintf(buf, bufSize,  "Function Not Implemented.\n\r");              // TODO
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        break;
-    case 'e':   // Data/ Error Packet
-        UARTCharPut(UART_DEBUG, 0xC);
-        printDebugMenu();
-        snprintf(buf, bufSize,  "Function Not Implemented.\n\r");              // TODO
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
     case 'x':
         UARTCharPut(UART_DEBUG, 0xC);
@@ -451,6 +471,18 @@ processChipFunctionsInput(int32_t recv_char)
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
 
+    case 'e':
+        if (seedErrors == 1)
+            seedErrors = 0;
+        else
+            seedErrors = 1;
+        UARTCharPut(UART_DEBUG, 0xC);
+        printDebugMenu();
+        break;
+
+    case 'b':
+        printErrorBuffer();
+        break;
     case 'p':
         // Write SR from correct chip type
         if(workingChip <=7) { // FRAMFLASH
@@ -514,11 +546,11 @@ processChipFunctionsInput(int32_t recv_char)
 
     case 'd':
         // Swap the current data cycle to the opposite
-        if(currentCycle == 1)
+        if(currentCycle == 0)
         {
-            currentCycle = 0;
+            currentCycle = 255;
         } else {
-            currentCycle = 1;
+            currentCycle = 0;
         }
         snprintf(buf,bufSize, "Changed to %d's memory cycle.\n\r",currentCycle);              // TODO
         UARTDebugSend((uint8_t*) buf, strlen(buf));
@@ -591,7 +623,70 @@ processChipSelectInput(int32_t recv_char)
     IntMasterEnable();
 }
 
+//-----------------------------------------------------------------------------
+// Process Chip Health Functions Menu
+//-----------------------------------------------------------------------------
 
+void processChipHealthInput(int32_t recv_char)
+{
+    IntMasterDisable();
+    char buf[20];
+    uint8_t bufSize = 20;
+    uint8_t i;
+
+    switch (recv_char)
+    {
+    case 'm':   // Return to Main Menu
+        menuState = MAIN;
+        printDebugMenu();
+        break;
+
+    case 'p':
+        for(i=0; i<MAX_CHIP_NUMBER; i++)
+        {
+            snprintf(buf, bufSize, "%4d" ,chip_health_array[i].HealthCount);
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
+        }
+        break;
+    case 'd':
+        for(i=0; i<MAX_CHIP_NUMBER; i++)
+        {
+            snprintf(buf, bufSize,  "%d" ,chip_death_array[i]);
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
+        }
+        break;
+    case 'h':
+        snprintf(buf, bufSize,  "Function Not Implemented.\n\r");              // TODO
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        break;
+    case 'e':
+        snprintf(buf, bufSize,  "Function Not Implemented.\n\r");              // TODO
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        break;
+    }
+
+    snprintf(buf, bufSize,  "\r\n");
+    UARTDebugSend((uint8_t*) buf, strlen(buf));
+    IntMasterEnable();
+}
+
+void printErrorBuffer(void)
+{
+    uint8_t i;
+    char buf[30];
+    uint8_t bufSize = 30;
+    for(i=0; i < current_error; i++)
+    {
+        snprintf(buf,bufSize, "Current error: %d. Chip: %d\r\n",i+1, error_buffer[i]->chip_id);
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "Error address: %x\r\n", error_buffer[i]->cell_address);
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "Written: %d Received: %d\r\n\n", error_buffer[i]->written_sequence, error_buffer[i]->retrieved_sequence);
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        free(error_buffer[i]);
+    }
+    current_error = 0;
+}
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------

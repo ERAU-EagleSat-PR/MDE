@@ -36,10 +36,11 @@
 #include "source/mde.h"
 #include "source/chips.h"
 #include "source/chip_health.h"
+#include "source/bit_errors.h"
 #include "source/multiplexer.h"
 #include "source/obc_uart.h"
-#include "source/devtools.h"
 #include "source/mde_timers.h"
+#include "source/devtools.h"
 
 /*
 *******************************************************************************
@@ -50,14 +51,17 @@
 // Variables for the timer
 uint32_t timer_current_cycle = 0;   // unnecessary?
 bool timer_wakeup = false;          // unnecessary?
+uint32_t cycle_time_clockrate = MEMORY_CYCLE_TIME*60*SYS_CLK_SPEED;
 
 // Error Variables
 uint32_t current_error = 0;         // global error count (from bit_errors.c)
 
 // Global Chip Trackers
-uint8_t auto_chip_number = 0;      // Chip tracker for auto mode (from mde.h)
+uint8_t auto_chip_number = 0;       // Chip tracker for auto mode (from mde.h)
 uint8_t current_chip = 5;           // track active chip (from chips.h)
 CHIPHEALTH chip_health_array[32];   // track chip health (from chiphealth.h)
+MDE_Error_Data                      // catalogue errors  (from bit_errors.h)
+*error_buffer[ERROR_BUFFER_MAX_SIZE];
 bool chip_death_array[32];          // track dead chips (from chiphealth.h)
 bool reading_chip;                  // read/write tracker (from mde_timers.h)
 
@@ -65,8 +69,9 @@ bool reading_chip;                  // read/write tracker (from mde_timers.h)
 #ifdef DEBUG
 enum MENU_STATES menuState  = INIT; // Debug menu state
 uint8_t selectedBoard = 1;          // Value 0 or 1 as an offset
-uint8_t currentCycle = 1;           // Value 0 or 1 for writing all 0s or 1s
+uint8_t currentCycle = 255;           // Value 0 or 255 for writing all 0s or 1s
 uint8_t chipSelectStep = 1;         // Used for chip type -> chip number step tracking
+uint8_t seedErrors = 0;             // Value 0 or 1 for seeding errors when writing
 volatile uint32_t ui32Loop;         // Loop variable for blink
 #endif
 
@@ -320,7 +325,9 @@ main(void)
     // Peripheral Enablers
     //*****************************
 
-    MDEWatchdogsEnable(); // Watchdogs First
+    //MDEWatchdogsEnable(); // Watchdog Timers
+
+    MDETimerConfigure();
 
     EnableSPI(); // Chip SPI communications
 
@@ -343,7 +350,11 @@ main(void)
     //*****************************
     // Chip Configurations
     //*****************************
+
+    // Initialize Health and Death arrays
     InitializeChipHealth();
+
+    // Check all chips before program start
     uint8_t chip;
     for(chip = 0; chip < MAX_CHIP_NUMBER; chip++)
     {
@@ -358,8 +369,6 @@ main(void)
     // Other Configurations
     //*****************************
 
-    // Initialize health array to 0s.
-    InitializeChipHealth();
 
 
     //*****************************

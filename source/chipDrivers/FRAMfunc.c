@@ -1,6 +1,6 @@
 //*****************************************************************************
 //
-// This file contains the functions for the MB85RS2MTYPNF FRAM
+// This file contains the functions for the MB85RS16N FRAM
 //
 //*****************************************************************************
 
@@ -22,10 +22,7 @@
 #include "FRAMfunc.h"
 #include "source/multiplexer.h"
 #include "source/mde.h"
-
-#ifdef DEBUG
 #include "source/devtools.h"
-#endif
 
 //*****************************************************************************
 //
@@ -113,12 +110,7 @@ FRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
     chip_number_alt = chip_number + 7;
 
     // Set data to write depending on current cycle of all 1s or all 0s
-    uint32_t data;
-    if(current_cycle == 1){
-        data = 0b11111111; //255 in binary
-    } else {
-        data = 0; // == 0b00000000
-    }
+    uint32_t data = current_cycle;
 
     // SPI port
     if(chip_number < 16) {
@@ -269,11 +261,12 @@ FRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
         UARTDebugSend((uint8_t*) str, strlen(str));
 #endif
     }
-
     // Bring CS high, ending read
     SetChipSelect(chip_number_alt);
+
 #ifdef DEBUG
-        sprintf(str, "\r\n", data);
+        char str[5];
+        sprintf(str, "\r\n");
         UARTDebugSend((uint8_t*) str, strlen(str));
 #endif
 }

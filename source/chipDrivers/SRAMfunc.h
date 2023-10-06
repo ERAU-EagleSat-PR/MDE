@@ -9,8 +9,8 @@
 #define SRAMFUNC_H_
 
 // Function Prototypes
-void SRAMSequenceTransmit(uint8_t currentCycle, uint32_t chip_number);
-void SRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number);
+void SRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number);
+void SRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number);
 uint8_t SRAMStatusRead(uint32_t chip_number);
 
 // SRAM Command Codes

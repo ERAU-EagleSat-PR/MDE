@@ -24,10 +24,7 @@
 #include "SRAMfunc.h"
 #include "source/multiplexer.h"
 #include "source/mde.h"
-
-#ifdef DEBUG
 #include "source/devtools.h"
-#endif
 
 //*****************************************************************************
 //
@@ -123,12 +120,7 @@ SRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
     }
 
     // Set data depending on the cycle
-    uint32_t data;
-    if(current_cycle == 1) {
-        data = 255;
-    } else {
-        data = 0;
-    }
+    uint32_t data = current_cycle;
 
     //
     // Write to the SRAM.
@@ -215,6 +207,8 @@ SRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
     SSIDataPut(SPI_base, 0x0);
     SSIDataPut(SPI_base, 0x0);
 
+    // TODO: Needs 8 dummy cycles according to datasheet? look back later.
+
     // Wait for the transaction to complete
     while(SSIBusy(SPI_base))
     {
@@ -250,14 +244,13 @@ SRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
         sprintf(str, "%d ", data);
         UARTDebugSend((uint8_t*) str, strlen(str));
 #endif
-        // Send data to be compared and prepared
-        //CheckErrors(data, sequence, byte_num, chip_number);
     }
-
-    // Set CS high, ending read
+    // Bring CS high, ending read
     SetChipSelect(chip_number_alt);
+
 #ifdef DEBUG
-        sprintf(str, "\r\n", data);
+        char str[5];
+        sprintf(str, "\r\n");
         UARTDebugSend((uint8_t*) str, strlen(str));
 #endif
 }

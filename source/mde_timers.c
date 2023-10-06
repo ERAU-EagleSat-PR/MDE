@@ -41,6 +41,7 @@
 #include "source/mde.h"
 #include "source/chips.h"
 #include "source/chip_health.h"
+#include "source/devtools.h"
 
 /*
 *******************************************************************************
@@ -49,9 +50,9 @@
 */
 
 void
-MDETimerEnable(void)
+MDETimerConfigure(void)
 {
-    // Enable the general MDE cycle timer.
+    // Configure the general MDE cycle timer. Does not enable timer.
 
     // Enable peripheral
     SysCtlPeripheralEnable(MDE_TIMER_CTL);
@@ -67,6 +68,20 @@ MDETimerEnable(void)
     TimerIntEnable(MDE_TIMER_BASE, MDE_TIMER_INT);
 }
 
+void MDETimerEnable(void)
+{
+    // Reset the timer's load and enable it if needed.
+
+    TimerLoadSet(MDE_TIMER_BASE, TIMER_A, cycle_time_clockrate);
+    TimerEnable(MDE_TIMER_BASE, TIMER_A);
+}
+
+void MDETimerDisable(void)
+{
+    // Disable the timer.
+
+    TimerDisable(MDE_TIMER_BASE, TIMER_A);
+}
 void
 MDETimerInt(void)
 {
@@ -74,7 +89,14 @@ MDETimerInt(void)
     TimerIntClear(MDE_TIMER_BASE, MDE_TIMER_INT);
 
     // Call the function to begin a new cycle.
-    MDECycleStart();
+    current_chip = 0;
+    //MDEProcessCycle();
+#ifdef DEBUG
+        char str[12];
+        sprintf(str, "Beep\r\n");
+        UARTDebugSend((uint8_t*) str, strlen(str));
+#endif
+
 }
 
 void
