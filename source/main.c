@@ -117,11 +117,6 @@ void EnablePrimaryUART(void)
 */
 
 
-#ifdef ENABLE_UART_DEBUG
-
-
-#endif /* ENABLE_UART_DEBUG  */
-
 /*
 *******************************************************************************
 *                               Chip Select Pins                              *
@@ -318,8 +313,8 @@ main(void)
     SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN |
                            SYSCTL_XTAL_16MHZ);
 
-    // Enable processor interrupts.
-    IntMasterEnable();
+    // Disable Interrupts while we're setting stuff up
+    IntMasterDisable();
 
     //*****************************
     // Peripheral Enablers
@@ -348,15 +343,24 @@ main(void)
 #endif /* DEBUG */
 
     //*****************************
+    // Enable the UART for OBC 
+    // which is UART1. UART0 is
+    // used for debug. So, if debugging, 
+    // UART output will be on both UARTs
+    //*****************************
+    UARTOBCEnable();
+
+    //*****************************
     // Chip Configurations
     //*****************************
-
     // Initialize Health and Death arrays
     InitializeChipHealth();
 
     // Check all chips before program start
     uint8_t chip;
     for(chip = 0; chip < MAX_CHIP_NUMBER; chip++)
+
+    for(uint8_t chip = 0; chip < MAX_CHIP_COUNT; chip++)
     {
         if ((chip % 16) >= 8 && (chip % 16) < 12) // If the chip is MRAM, prepare its status register
         {
@@ -368,21 +372,22 @@ main(void)
     //*****************************
     // Other Configurations
     //*****************************
-
-
+    // Enable processor interrupts.
+    IntMasterEnable();
 
     //*****************************
     // Main Loop
     //*****************************
     while (1)
     {
-
         #ifdef DEBUG
-            BlinkRedLED();
+            BlinkGreenLED();
         #else   /* Idle "heart beat" */
-            BlinkBlueLED();
+            BlinkRedLED();
         #endif /* DEBUG */
 
+        if(UARTOBCIsDataReady())
+            UARTOBCRecvMsgHandler();
         //BlinkGreenLED();
 
 

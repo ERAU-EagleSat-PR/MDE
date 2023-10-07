@@ -48,6 +48,8 @@
 #include "source/mde_timers.h"
 #include "source/chip_health.h"
 #include "source/bit_errors.h"
+#include "source/obc_uart.h"
+
 
 /*
  *******************************************************************************
@@ -209,6 +211,9 @@ printDebugMenu(void)
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "A - Enter Auto Mode (not implemented)\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
+        // OBC Debug Options
+        snprintf(buf, bufSize,  "O - OBC UART Commands\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "X - Restart Program.\n\r");                       // TODO
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
@@ -294,6 +299,13 @@ printDebugMenu(void)
         snprintf(buf, bufSize,  "H - Send Health Packet (TransmitHealth) \n\r");   // TODO
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "E - Send Data Packet (TransmitErrors) \n\r");     // TODO
+        break;
+    case OBC_COMMANDS:
+        snprintf(buf,bufSize, "G - Get Health Data\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "C - Clear Health Data\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "Q - Return to main menu\r\n");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
     default:
@@ -327,6 +339,9 @@ processDebugInput(int32_t recv_char)
         break;
     case CHIP_HEALTH:
         processChipHealthInput(recv_char);
+        break;
+    case OBC_COMMANDS:
+        processOBCCommandInput(recv_char);
         break;
     case AUTO:
         switch (recv_char)
@@ -374,7 +389,13 @@ processMainMenuInput(int32_t recv_char)
         printDebugMenu();
         break;
     case 'h':   // Health Functions
+        UARTCharPut(UART_DEBUG, 0xC);
         menuState = CHIP_HEALTH;
+        printDebugMenu();
+        break;
+    case 'o':   // Switch to OBC coms menu
+        UARTCharPut(UART_DEBUG, 0xC);
+        menuState = OBC_COMMANDS;
         printDebugMenu();
         break;
     case 'x':
@@ -503,7 +524,9 @@ processChipFunctionsInput(int32_t recv_char)
 
         if (workingChip <= 3){ // FLASH
             FLASHID idFlash; // struct for ID parts
+            struct FLASHID idFlash; // struct for ID parts
             idFlash = FlashStatusRead(workingChip);
+          
             //Print struct to console
             sprintf(buf,"cypress id: %d \n\r",idFlash.cypID);
             UARTDebugSend((uint8_t*) buf,strlen(buf));
@@ -525,7 +548,7 @@ processChipFunctionsInput(int32_t recv_char)
             sprintf(buf,"prod ID1: %d \n\r",idFRAM.prodID1);
             UARTDebugSend((uint8_t*) buf,strlen(buf));
             sprintf(buf,"prod ID2: %d \n\r",idFRAM.prodID2);
-            UARTDebugSend((uint8_t*) buf,strlen(buf));
+            UARTDebugSend((uint8_t*) buf,strlen(buf));            */
 
         } else if(workingChip <= 11) { // MRAM
             uint8_t mramSR = MRAMStatusRead(workingChip);
@@ -686,6 +709,37 @@ void printErrorBuffer(void)
         free(error_buffer[i]);
     }
     current_error = 0;
+=======
+// Process OBC Selection Menu
+//-----------------------------------------------------------------------------
+void processOBCCommandInput(int32_t recv_char)
+{
+    IntMasterDisable();
+    
+    uint8_t get_msg[] = {0x1F, 0x7F, 'M', 'D', 0x1F, 0xFF};
+    uint8_t clr_msg[] = {0x1F, 0x7F, 'D', 'M', 0x1F, 0xFF};
+
+    switch (recv_char) {
+        case 'g':
+            UARTCharPut(UART_DEBUG, 0xC);
+            UARTOBCSetMsg(get_msg, 7);
+            break;
+        case 'c':
+            UARTCharPut(UART_DEBUG, 0xC);
+            UARTOBCSetMsg(clr_msg, 7);
+            break;
+        case 'q':
+            menuState = MAIN;
+            break;
+        default:
+
+            break;
+    }
+
+    // Return to menu
+    printDebugMenu();
+    IntMasterEnable();
+
 }
 //-----------------------------------------------------------------------------
 //
