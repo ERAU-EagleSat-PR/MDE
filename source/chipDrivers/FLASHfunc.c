@@ -22,10 +22,8 @@
 #include "FLASHfunc.h"
 #include "source/multiplexer.h"
 #include "source/mde.h"
-
-#ifdef DEBUG
 #include "source/devtools.h"
-#endif
+
 
 //*****************************************************************************
 //
@@ -111,11 +109,12 @@ FlashStatusRead(uint8_t chip_number)
 
 //*****************************************************************************
 //
-// Erase the flash (reset to all 1s)
+// Erase the flash (resetting it to all 1s)
 //
 //*****************************************************************************
 
-void FlashErase(uint8_t chip_number)
+void
+FlashErase(uint8_t chip_number)
 {
     // Erases all currently stored data from flash, resetting it to it's default state (all 1s in memory)
     // Chip number is a value 0 - 3 for which flash chip you wish to erase
@@ -195,6 +194,8 @@ void FlashErase(uint8_t chip_number)
      }
      SSIDataGetNonBlocking(SPI_base, &status_register);
 
+     //ChipWatchdogPoke(); // Poke the chip watchdog before waiting for the flash erase to complete.
+
      // Loop until wipe cycle is completed.
      while(status_register & 0x01)
      {
@@ -211,7 +212,7 @@ void FlashErase(uint8_t chip_number)
 
      // CS high
      SetChipSelect(chip_number_alt);
-
+     //ChipWatchdogPoke(); // Erase success; poke watchdog a final time.
 }
 
 //*****************************************************************************
@@ -221,7 +222,7 @@ void FlashErase(uint8_t chip_number)
 //*****************************************************************************
 
 void
-FlashSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
+FlashSequenceTransmit(uint8_t current_cycle, uint8_t chip_number)
 {
     // Write to entire flash memory array
     // Chip number 0-3 for Flash
@@ -248,7 +249,7 @@ FlashSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
     //
 
     // We only need to erase the chip if we are writing all 1s, and we only need to perform a Page Program if we are writing all 0s. This will save significant time waiting and doing nothing.
-    if (current_cycle == 1)
+    if (current_cycle == 255)
     {
         // This erase function counts as writing all 1s to memory
         FlashErase(chip_number);
@@ -372,7 +373,7 @@ FlashSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
 
 
     // Chip write may not be complete at this point; could add a check of the status register to find that out here, but it will be finished long before the next read cycle so I see no point in waiting
-    // on each chip to completely finish its flash.
+    // on each chip to completely finish its flash. However could be a good point for the watchdog to wait.
 }
 
 //*****************************************************************************
@@ -381,7 +382,7 @@ FlashSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
 //
 //*****************************************************************************
 void
-FlashSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
+FlashSequenceRetrieve(uint8_t current_cycle, uint8_t chip_number)
 {
     // retrieve from entire flash memory, send each byte to be error checked
     // currently has uart printing for observing integrated
@@ -458,16 +459,17 @@ FlashSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
         //Send data to be checked and prepared
         //CheckErrors(data, sequence, byte_num, chip_number);
 #ifdef DEBUG
-        char buf[10];
-        sprintf(buf, "%d ", data);
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        char str[12];
+        sprintf(str, "%d ", data);
+        UARTDebugSend((uint8_t*) str, strlen(str));
 #endif
     }
-
-    // Bring CS high again, ending read
+    // Bring CS high, ending read
     SetChipSelect(chip_number_alt);
+
 #ifdef DEBUG
-    sprintf(buf, "\r\n");
-    UARTDebugSend((uint8_t*) buf, strlen(buf));
+        char str[5];
+        sprintf(str, "\r\n");
+        UARTDebugSend((uint8_t*) str, strlen(str));
 #endif
 }

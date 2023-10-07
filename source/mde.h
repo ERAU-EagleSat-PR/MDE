@@ -54,8 +54,9 @@ void EnableSPI(void);
 #define CS_SRAM4   15
 
 // Tracking variables for writing and reading from chips
-extern uint32_t current_sequence_offset;
-extern unsigned short cycle_count;
+extern uint8_t auto_chip_number; // current chip tracked by global variable to allow returns from watchdog interrupts.
+extern uint32_t current_data_cycle; // Current data cylce, 0 or 255. Probably doesn't need to be global, should consider it.
+extern unsigned short cycle_count; // Count of current cycle
 
 //**************************************************************//
 //                                                              //

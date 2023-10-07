@@ -34,35 +34,45 @@
 
 // Custom Header Files
 #include "source/mde.h"
+#include "source/chips.h"
+#include "source/chip_health.h"
+#include "source/bit_errors.h"
 #include "source/multiplexer.h"
 #include "source/obc_uart.h"
+#include "source/mde_timers.h"
 #include "source/devtools.h"
-#include "source/chips.h"
-//#include "source/mde_timer.h"
 
 /*
 *******************************************************************************
-*                             Global Variables                                *
+*                        Initialize Global Variables                          *
 *******************************************************************************
 */
 
-// Loop variable for blink
-volatile uint32_t ui32Loop;
-
 // Variables for the timer
-uint32_t timer_current_cycle = 0;
-bool timer_wakeup = false;
+uint32_t timer_current_cycle = 0;   // unnecessary?
+bool timer_wakeup = false;          // unnecessary?
+uint32_t cycle_time_clockrate = MEMORY_CYCLE_TIME*60*SYS_CLK_SPEED;
 
 // Error Variables
-uint32_t current_error = 0;
+uint32_t current_error = 0;         // global error count (from bit_errors.c)
 
-// Debug Menu State tracker
+// Global Chip Trackers
+uint8_t auto_chip_number = 0;       // Chip tracker for auto mode (from mde.h)
+uint8_t current_chip = 5;           // track active chip (from chips.h)
+CHIPHEALTH chip_health_array[32];   // track chip health (from chiphealth.h)
+MDE_Error_Data                      // catalogue errors  (from bit_errors.h)
+*error_buffer[ERROR_BUFFER_MAX_SIZE];
+bool chip_death_array[32];          // track dead chips (from chiphealth.h)
+bool reading_chip;                  // read/write tracker (from mde_timers.h)
+
+// Debug Variables (from devtools.h)
 #ifdef DEBUG
-enum MENU_STATES menuState          = INIT;
-uint8_t selectedChip = 5;   // Value 0-15
-uint8_t selectedBoard = 1;  // Value 0 or 1, will be changed to work as an offset when a second board is necessary in testing
-uint8_t currentCycle = 1;   // Value 0 or 1 for writing 0s or 1s
-uint8_t chipSelectStep = 1; // Used for chip type -> chip number step tracking
+enum MENU_STATES menuState  = INIT; // Debug menu state
+uint8_t selectedBoard = 1;          // Value 0 or 1 as an offset
+uint8_t currentCycle = 255;           // Value 0 or 255 for writing all 0s or 1s
+uint8_t chipSelectStep = 1;         // Used for chip type -> chip number step tracking
+uint8_t seedErrors = 0;             // Value 0 or 1 for seeding errors when writing
+volatile uint32_t ui32Loop;         // Loop variable for blink
 #endif
 
 
@@ -88,12 +98,13 @@ void processCSTypeMenuInput(int32_t recv_char);
 void processCSNumMenuInput(int32_t recv_char);
 */
 
+#ifdef DEBUG
 // LED Functions
 void EnableLED(void);
 void BlinkRedLED(void);
 void BlinkBlueLED(void);
 void BlinkGreenLED(void);
-
+#endif
 
 //-----------------------------------------------------------------------------
 // Enable and configure UART1 for science
@@ -115,7 +126,8 @@ void EnablePrimaryUART(void)
 //-----------------------------------------------------------------------------
 // Enables GPIO for Board 1 chip select
 //-----------------------------------------------------------------------------
-void EnableBoard1ChipSelectPins(void)
+void
+EnableBoard1ChipSelectPins(void)
 {
     IntMasterDisable();
 
@@ -139,7 +151,8 @@ void EnableBoard1ChipSelectPins(void)
 //-----------------------------------------------------------------------------
 // Enables GPIO for Board 2 chip select
 //-----------------------------------------------------------------------------
-void EnableBoard2ChipSelectPins(void)
+void
+EnableBoard2ChipSelectPins(void)
 {
     IntMasterDisable();
 
@@ -180,11 +193,13 @@ void EnableBoard2ChipSelectPins(void)
 *                                LED FUNCTIONS                               *
 ******************************************************************************
 */
+#ifdef DEBUG
 
 //-----------------------------------------------------------------------------
 // Enables the RGB LED
 //-----------------------------------------------------------------------------
-void EnableLED(void)
+void
+EnableLED(void)
 {
 
   // Enable LED GPIO PIN
@@ -209,7 +224,8 @@ void EnableLED(void)
 //-----------------------------------------------------------------------------
 // Blinks the Red LED
 //-----------------------------------------------------------------------------
-void BlinkRedLED(void)
+void
+BlinkRedLED(void)
 {
 
     // Turn on RED LED
@@ -232,7 +248,8 @@ void BlinkRedLED(void)
 //-----------------------------------------------------------------------------
 // Blinks the Blue LED, Signifying the MDE is IDLE / WAITING
 //-----------------------------------------------------------------------------
-void BlinkBlueLED(void)
+void
+BlinkBlueLED(void)
 {
 
     // Turn on BLUE LED
@@ -255,7 +272,8 @@ void BlinkBlueLED(void)
 //-----------------------------------------------------------------------------
 // Blinks the Green LED
 //-----------------------------------------------------------------------------
-void BlinkGreenLED(void)
+void
+BlinkGreenLED(void)
 {
 
     // Turn on GREEN LED
@@ -274,7 +292,7 @@ void BlinkGreenLED(void)
     {
     }
 }
-
+#endif
 ///////////////////////////////////////////////////////////////////////////////
 
 //*****************************************************************************
@@ -282,7 +300,8 @@ void BlinkGreenLED(void)
 //                                      MAIN                                  *
 //                                                                            *
 //*****************************************************************************
-int main(void)
+int
+main(void)
 {
 
     // Enable lazy stacking for interrupt handlers.  This allows floating-point
@@ -301,16 +320,18 @@ int main(void)
     // Peripheral Enablers
     //*****************************
 
-    EnableLED();
+    //MDEWatchdogsEnable(); // Watchdog Timers
 
-    EnableSPI();
+    MDETimerConfigure();
 
-    EnableBoard1ChipSelectPins();
+    EnableSPI(); // Chip SPI communications
 
-    //EnableBoard2ChipSelectPins();
+    EnableBoard1ChipSelectPins(); // Board 1 MUX enable
 
+    //EnableBoard2ChipSelectPins(); // Board 2 MUX enable
 
 #ifdef DEBUG
+    EnableLED(); // Debug LEDs
 
     // UART Enable and Configuration
     UARTDebugEnable();
@@ -332,17 +353,28 @@ int main(void)
     //*****************************
     // Chip Configurations
     //*****************************
-/*    for(uint8_t chip = 0; chip < MAX_CHIP_COUNT; chip++)
+    // Initialize Health and Death arrays
+    InitializeChipHealth();
+
+    // Check all chips before program start
+    uint8_t chip;
+    for(chip = 0; chip < MAX_CHIP_NUMBER; chip++)
+
+    for(uint8_t chip = 0; chip < MAX_CHIP_COUNT; chip++)
     {
         if ((chip % 16) >= 8 && (chip % 16) < 12) // If the chip is MRAM, prepare its status register
         {
-            MRAMStatusPrepare(chip);
+            //MRAMStatusPrepare(chip);
         }
         CheckChipHealth(chip); // Check health of all chips. This will also initialize chip health array to 1s assuming they are all working.
     }
-*/
+
+    //*****************************
+    // Other Configurations
+    //*****************************
     // Enable processor interrupts.
     IntMasterEnable();
+
     //*****************************
     // Main Loop
     //*****************************

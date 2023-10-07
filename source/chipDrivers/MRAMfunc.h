@@ -8,8 +8,8 @@
 #ifndef MRAMFUNC_H
 #define MRAMFUNC_H
 
-void MRAMSequenceTransmit(uint8_t currentCycle, uint32_t chip_number);
-void MRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number);
+void MRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number);
+void MRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number);
 uint8_t MRAMStatusRead(uint8_t chip_number);
 void MRAMStatusPrepare(uint8_t chip_number);
 
@@ -28,6 +28,6 @@ void MRAMStatusPrepare(uint8_t chip_number);
 
 // MRAM Size
 //#define MRAM_SIZE_BYTES 524288
-#define MRAM_SIZE_BYTES 10
+#define MRAM_SIZE_BYTES 30
 
 #endif /* MRAMFUNC_H_ */

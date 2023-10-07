@@ -18,7 +18,7 @@ typedef struct {
     uint8_t retrieved_sequence; // Read sequence
 } MDE_Error_Data;
 
-void CheckErrors(uint8_t chip_number, uint32_t byte_num, uint8_t byte_data, uint8_t data_cycle);
+void CheckErrors(uint8_t chip_number, uint32_t byte_num, uint8_t byte_data, uint8_t written_data);
 
 //-----------------------------------------------------------------------------
 // TransmitErrors() Error Buffer Variables //TODO
@@ -30,7 +30,7 @@ void CheckErrors(uint8_t chip_number, uint32_t byte_num, uint8_t byte_data, uint
 #define ERROR_BUFFER_MAX_SIZE 1000
 
 // The buffer variables
-extern uint64_t error_buffer[ERROR_BUFFER_MAX_SIZE];
+extern MDE_Error_Data *error_buffer[ERROR_BUFFER_MAX_SIZE];
 extern uint32_t current_error;
 extern uint32_t old_current_error;
 

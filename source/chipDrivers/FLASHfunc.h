@@ -17,8 +17,8 @@ typedef struct {
 
 // Function Prototypes
 void FlashErase(uint8_t chip_number);
-void FlashSequenceTransmit(uint8_t currentCycle, uint32_t chip_number);
-void FlashSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number);
+void FlashSequenceTransmit(uint8_t current_cycle, uint8_t chip_number);
+void FlashSequenceRetrieve(uint8_t current_cycle, uint8_t chip_number);
 FLASHID FlashStatusRead(uint8_t chip_number);
 
 // Flash Commands
@@ -31,9 +31,9 @@ FLASHID FlashStatusRead(uint8_t chip_number);
 #define FLASH_IDENT 0x9F
 
 // Flash Expected Device ID information
-#define FLASH_MANUFACTURER 0x01
-#define FLASH_DEVICEID_1 0x60
-#define FLASH_DEVICEID_2 0x19
+#define FLASH_CYP_ID 0x01
+#define FLASH_PROD1 0x60
+#define FLASH_PROD2 0x19
 
 #define FLASH_SIZE_BYTES 256
 //#define FLASH_SIZE_BYTES 256000000
