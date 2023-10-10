@@ -196,9 +196,8 @@ void FormatErrorDataPacket() /* Probably wont return a void*/
 //TODO
 void TransmitErrors()
 {
-    // Create array to hold data. Add an extra character for a null
-    // terminator so we can call strlen on it
-	char error_data[ERROR_DATA_LENGTH + 1];
+    // Create array to hold data.
+	uint8_t error_data[ERROR_DATA_LENGTH];
 
     /*
      * For actual implementation, we'll have to iterate over the list of errors 
@@ -216,7 +215,6 @@ void TransmitErrors()
     error_data[7] = 0;
     error_data[8] = 8;  // Written Sequence
     error_data[9] = 9; // Retrieved Sequence
-    error_data[10] = '\0'; // Null terminator, used so that we can call strlen for the length
     #ifdef DEBUG
         // Debug message, will contain each character in error_data as
         // a 2 character hex value, with spaces in between
@@ -233,11 +231,11 @@ void TransmitErrors()
         }
 
         UARTDebugSend("\r\nError Data:\r\n", 15);
-	    UARTDebugSend(debug_msg, strlen(debug_msg));
+	    UARTDebugSend((uint8_t*)debug_msg, strlen(debug_msg));
     #endif // DEBUG //
 
 	// Transmit data
-	UARTOBCSend(error_data, strlen(error_data));
+	UARTOBCSend(error_data, ERROR_DATA_LENGTH);
 
 
 }
@@ -259,7 +257,7 @@ void TransmitHealth()
 {
     // Create array to hold data. Add an extra character for a null
     // terminator so we can call strlen on it
-	uint8_t health_data[HEALTH_DATA_LENGTH + 1];
+	uint8_t health_data[HEALTH_DATA_LENGTH];
 
     /*
     Get cycle count:
@@ -282,7 +280,6 @@ void TransmitHealth()
     health_data[6] = 2; // Health array for idk
     health_data[7] = 0; // Health array for idk
     health_data[8] = 1; // Health array for idk
-    health_data[9] = '\0'; // Null terminator, used so that we can call strlen for the length
 
     // Actual Health packet
     /**
@@ -295,7 +292,6 @@ void TransmitHealth()
     health_data[6] = (uint8_t)( (health_array >> 16) & 0xFF); // Health array for idk
     health_data[7] = (uint8_t)( (health_array >> 8) & 0xFF); // Health array for idk
     health_data[8] = (uint8_t)( (health_array) & 0xFF); // Health array for idk
-    health_data[9] = '\0'; // Null terminator, used so that we can call strlen for the length
     */
 
     #ifdef DEBUG
@@ -314,11 +310,11 @@ void TransmitHealth()
         }
 
         UARTDebugSend("\r\nHealth Data:\r\n", 16);
-	    UARTDebugSend(debug_msg, strlen(debug_msg));
+	    UARTDebugSend((uint8_t*)debug_msg, strlen(debug_msg));
     #endif // DEBUG //
 
 	// Transmit data
-	UARTOBCSend(health_data, strlen(health_data));
+	UARTOBCSend(health_data, HEALTH_DATA_LENGTH);
 }
 
 //-----------------------------------------------------------------------------
@@ -343,19 +339,21 @@ void UARTOBCRecvMsgHandler(void)
 
             #ifdef DEBUG
                 char msg[] = "Return health and error data\r\n";
-			    UARTDebugSend(msg, strlen(msg));
+			    UARTDebugSend((uint8_t*)msg, strlen(msg));
             #endif /* DEBUG */
 
-            // Send message beginning characters
-			char start_msg[] = {UART_OBC_ESCAPE, UART_OBC_SOM, '\0'};
-			UARTOBCSend(start_msg, strlen(start_msg));
+            // Send characters signaling start of message
+            UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_ESCAPE);
+            UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_SOM);
 
 			// Transmit Health and errors should each prepend a data packet with an escape character
             TransmitHealth();
             TransmitErrors();
 
-            char term_msg[] = {UART_OBC_ESCAPE, UART_OBC_EOM, '\0'};
-            UARTOBCSend(term_msg, strlen(term_msg));
+
+            // Send characters signaling start of message
+            UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_ESCAPE);
+            UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_EOM);
 		}
 		else if(uart_obc_msg_chars[2] == 'D' &&
 		        uart_obc_msg_chars[3] == 'M') {
@@ -364,7 +362,7 @@ void UARTOBCRecvMsgHandler(void)
             // If we're debugging, send output to Debug UART
             #ifdef DEBUG
                 char debug_msg[] = "Clear health data\r\n";
-			    UARTDebugSend(debug_msg, strlen(debug_msg));
+			    UARTDebugSend((uint8_t*)debug_msg, strlen(debug_msg));
 
             #endif /* DEBUG */
 
@@ -374,31 +372,31 @@ void UARTOBCRecvMsgHandler(void)
             // Check if clearing was successful
 
             // If successful, send an ACK
-            char msg[] = {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_ACK, UART_OBC_ESCAPE, UART_OBC_EOM, 0x00};
+            uint8_t msg[] = {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_ACK, UART_OBC_ESCAPE, UART_OBC_EOM};
             
             // Else, send a NAK to tell OBC we couldn't clear the data for some reason
             // char msg[] = {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_NAK, UART_OBC_ESCAPE, UART_OBC_EOM, 0x00};
 
 
-            UARTOBCSend(msg, strlen(msg));
+            UARTOBCSend(msg, 5);
             // If debug is enabled, also send the output to the debug prompt
             #ifdef DEBUG
-                UARTDebugSend(msg, strlen(msg));
+                UARTDebugSend(msg, 5);
             #endif /* DEBUG */
 
 		}
 		else {
 			// Tell OBC what they said makes no sense, but they were speaking our language
 			// (i.e. error, but different than below)
-			char bad_cmd_msg[] =  {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_ESCAPE, UART_OBC_ERROR_BAD_COMMAND, UART_OBC_ESCAPE, UART_OBC_EOM, 0x00};
-			UARTOBCSend(bad_cmd_msg, strlen(bad_cmd_msg));
+			uint8_t bad_cmd_msg[] =  {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_ERROR_BAD_COMMAND, UART_OBC_ESCAPE, UART_OBC_EOM};
+			UARTOBCSend(bad_cmd_msg, 5);
 		}
 	}
 	else {
 		// Tell OBC they aren't speaking our language
 		// (i.e. error saying what they sent doesn't match the protocol)
-        char bad_packet_msg[] =  {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_ESCAPE, UART_OBC_ERROR_BAD_PACKET, UART_OBC_ESCAPE, UART_OBC_EOM, 0x00};
-		UARTOBCSend(bad_packet_msg, strlen(bad_packet_msg));
+        uint8_t bad_packet_msg[] =  {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_ERROR_BAD_PACKET, UART_OBC_ESCAPE, UART_OBC_EOM};
+		UARTOBCSend(bad_packet_msg, 5);
 	}
 	// Set the data_ready variable to false
 	// The message has been processed, so there's no need to check it again
@@ -424,8 +422,8 @@ bool UARTOBCIsDataReady() {
 }
 
 void MDERequestReset(void) {
-	char msg[] = {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_RESET_MDE, UART_OBC_ESCAPE, UART_OBC_EOM, 0x00};
-    UARTDebugSend(msg, strlen(msg));
+	uint8_t msg[] = {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_RESET_MDE, UART_OBC_ESCAPE, UART_OBC_EOM};
+    UARTDebugSend(msg, 5);
 }
 
 #ifdef DEBUG
