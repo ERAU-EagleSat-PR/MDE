@@ -373,22 +373,6 @@ void UARTOBCRecvMsgHandler(void)
 
             // Clear errors
             // Not sure how??
-            // Get whether clearing errors was successful
-            // Check if clearing was successful
-
-            // If successful, send an ACK
-            uint8_t msg[] = {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_ACK, UART_OBC_ESCAPE, UART_OBC_EOM};
-            
-            // Else, send a NAK to tell OBC we couldn't clear the data for some reason
-            // char msg[] = {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_NAK, UART_OBC_ESCAPE, UART_OBC_EOM, 0x00};
-
-
-            UARTOBCSend(msg, 5);
-            // If debug is enabled, also send the output to the debug prompt
-            #ifdef DEBUG
-                UARTDebugSend(msg, 5);
-            #endif /* DEBUG */
-
 		}
 		else {
 			// Tell OBC what they said makes no sense, but they were speaking our language
