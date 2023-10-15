@@ -126,6 +126,9 @@ void UARTOBCIntHandler(void)
         for(i = 0; i < uart_obc_msg_index; ++i) {
             UARTCharPut(UART_DEBUG, uart_obc_msg_chars[i]);
         }
+        UARTCharPut(UART_DEBUG, '\r');
+        UARTCharPut(UART_DEBUG, '\n');
+
 #endif /* DEBUG */
 	uart_obc_data_ready = true;
 }
@@ -230,8 +233,9 @@ void TransmitErrors()
             snprintf(&debug_msg[i*3], 4, "%02x ", error_data[i]);
         }
 
-        UARTDebugSend("\r\nError Data:\r\n", 15);
+        UARTDebugSend("Error Data:\r\n", 13);
 	    UARTDebugSend((uint8_t*)debug_msg, strlen(debug_msg));
+        UARTDebugSend("\r\nEnd Error Data\r\n\r\n", 20);
     #endif // DEBUG //
 
 	// Transmit data
@@ -309,8 +313,9 @@ void TransmitHealth()
             snprintf(&debug_msg[i*3], 4, "%02x ", health_data[i]);
         }
 
-        UARTDebugSend("\r\nHealth Data:\r\n", 16);
+        UARTDebugSend("Health Data:\r\n", 14);
 	    UARTDebugSend((uint8_t*)debug_msg, strlen(debug_msg));
+        UARTDebugSend("\r\nEnd Health Data\r\n", 21);
     #endif // DEBUG //
 
 	// Transmit data
