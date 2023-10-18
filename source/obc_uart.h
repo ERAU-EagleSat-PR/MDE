@@ -52,8 +52,6 @@ void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count);
 #define UART_OBC_ACK 0x14 // ACK - sent after successful execution of a command that doesn't send anything back
 #define UART_OBC_NAK 0x15 // NAK - sent after a command did not complete successfully for some reason
 #define UART_OBC_RESET_MDE 'R'
-#define UART_OBC_ERROR_BAD_PACKET 'P'
-#define UART_OBC_ERROR_BAD_COMMAND 'C'
 
 /* Packet Type Identifiers */
 #define UART_OBC_HEALTH_PACKET 0x01 // Health Packet Type

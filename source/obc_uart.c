@@ -334,19 +334,8 @@ void UARTOBCRecvMsgHandler(void)
             // Clear errors
             // Not sure how??
 		}
-		else {
-			// Tell OBC what they said makes no sense, but they were speaking our language
-			// (i.e. error, but different than below)
-			uint8_t bad_cmd_msg[] =  {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_ERROR_BAD_COMMAND, UART_OBC_ESCAPE, UART_OBC_EOM};
-			UARTOBCSend(bad_cmd_msg, 5);
-		}
 	}
-	else {
-		// Tell OBC they aren't speaking our language
-		// (i.e. error saying what they sent doesn't match the protocol)
-        uint8_t bad_packet_msg[] =  {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_ERROR_BAD_PACKET, UART_OBC_ESCAPE, UART_OBC_EOM};
-		UARTOBCSend(bad_packet_msg, 5);
-	}
+
 	// Set the data_ready variable to false
 	// The message has been processed, so there's no need to check it again
 	uart_obc_data_ready = false;
