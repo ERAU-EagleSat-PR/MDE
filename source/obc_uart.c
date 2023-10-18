@@ -280,10 +280,8 @@ void TransmitHealth()
 }
 
 //-----------------------------------------------------------------------------
-// Break the incoming UART data into packets for processing/ response
+// Handle an existing message in the receive buffer and send the correct response
 //-----------------------------------------------------------------------------
-
-//*
 void UARTOBCRecvMsgHandler(void)
 {
 	// Figure out if OBC is speaking our language
@@ -365,30 +363,27 @@ void UARTOBCRecvMsgHandler(void)
 	uart_obc_data_ready = false;
 
 }
-//*/ 
-
 
 //-----------------------------------------------------------------------------
-// Reponse to UART commands from OBC
+// Check if a message has been received
 //-----------------------------------------------------------------------------
-
-//*
-void UARTOBCResponseHandler(void)
-{
-
-}
-//*/
-
 bool UARTOBCIsDataReady() {
     return uart_obc_data_ready;
 }
 
+//-----------------------------------------------------------------------------
+// Send a packet to OBC requesting a reset (power cycle MDE by turning off the 3.3V rail)
+//-----------------------------------------------------------------------------
 void MDERequestReset(void) {
 	uint8_t msg[] = {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_RESET_MDE, UART_OBC_ESCAPE, UART_OBC_EOM};
     UARTDebugSend(msg, 5);
 }
 
 #ifdef DEBUG
+
+//-----------------------------------------------------------------------------
+// Manually fill the message buffer with a given string
+//-----------------------------------------------------------------------------
 void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count) {
     int i = 0;
     for(i = 0; i < ui32Count; ++i) {
