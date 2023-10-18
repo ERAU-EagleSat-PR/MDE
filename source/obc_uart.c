@@ -30,8 +30,6 @@
 #include "source/obc_uart.h"
 #include "source/devtools.h"
 
-#ifdef ENABLE_UART_OBC
-
 /*
 *******************************************************************************
 *						  OBC UART Variables								  *
@@ -437,4 +435,3 @@ void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count) {
 
 #endif /* DEBUG */
 
-#endif /* ENABLE_UART_OBC */
