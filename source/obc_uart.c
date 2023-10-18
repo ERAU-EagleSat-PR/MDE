@@ -30,8 +30,6 @@
 #include "source/obc_uart.h"
 #include "source/devtools.h"
 
-#ifdef ENABLE_UART_OBC
-
 /*
 *******************************************************************************
 *						  OBC UART Variables								  *
@@ -58,24 +56,7 @@ static int uart_obc_msg_index = 0;
 // sent us a message. Set to true at the end of the interrupt handler and set 
 // to false in the message handler (OBCUARTRecvMsgHandler). 
 static bool uart_obc_data_ready = false;
-/*
-*******************************************************************************
-*                         OBC UART Packet Structures                          *
-*******************************************************************************
-*/
-typedef struct {
-    uint8_t unique_id;
-    uint16_t cycle_count;
-    uint32_t health_array;
-} MDE_Health_Packet_struct;
 
-typedef struct {
-    uint8_t unique_id;
-    uint8_t chip_id;
-    uint16_t cell_address;
-    uint8_t written_sequence;
-    uint8_t retrieved_sequence;
-} MDE_Error_Packet_struct;
 /*
 *******************************************************************************
 *                              OBC UART Functions                             *
@@ -185,15 +166,6 @@ void UARTOBCSend(const uint8_t *pui8Buffer, uint32_t ui32Count)
 }
 
 //-----------------------------------------------------------------------------
-// Format Data in Error Buffer to be trasmitted over UART
-//-----------------------------------------------------------------------------
-//TODO
-void FormatErrorDataPacket() /* Probably wont return a void*/
-{
-	
-}
-
-//-----------------------------------------------------------------------------
 // Transmit the current error buffer over UART to OBC
 //-----------------------------------------------------------------------------
 //TODO
@@ -245,18 +217,8 @@ void TransmitErrors()
 }
 
 //-----------------------------------------------------------------------------
-// Format Health data to be transmitted over UART
+// Create the health data packet and transmit it over UART to OBC
 //-----------------------------------------------------------------------------
-//TODO
-void FormatHealthDataPacket() /* Probably wont return a void*/
-{
-	
-}
-
-//-----------------------------------------------------------------------------
-// Create the health data integer and transmit it over UART to OBC
-//-----------------------------------------------------------------------------
-//TODO
 void TransmitHealth()
 {
     // Create array to hold data. Add an extra character for a null
@@ -323,10 +285,8 @@ void TransmitHealth()
 }
 
 //-----------------------------------------------------------------------------
-// Break the incoming UART data into packets for processing/ response
+// Handle an existing message in the receive buffer and send the correct response
 //-----------------------------------------------------------------------------
-
-//*
 void UARTOBCRecvMsgHandler(void)
 {
 	// Figure out if OBC is speaking our language
@@ -392,30 +352,27 @@ void UARTOBCRecvMsgHandler(void)
 	uart_obc_data_ready = false;
 
 }
-//*/ 
-
 
 //-----------------------------------------------------------------------------
-// Reponse to UART commands from OBC
+// Check if a message has been received
 //-----------------------------------------------------------------------------
-
-//*
-void UARTOBCResponseHandler(void)
-{
-
-}
-//*/
-
 bool UARTOBCIsDataReady() {
     return uart_obc_data_ready;
 }
 
+//-----------------------------------------------------------------------------
+// Send a packet to OBC requesting a reset (power cycle MDE by turning off the 3.3V rail)
+//-----------------------------------------------------------------------------
 void MDERequestReset(void) {
 	uint8_t msg[] = {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_RESET_MDE, UART_OBC_ESCAPE, UART_OBC_EOM};
     UARTDebugSend(msg, 5);
 }
 
 #ifdef DEBUG
+
+//-----------------------------------------------------------------------------
+// Manually fill the message buffer with a given string
+//-----------------------------------------------------------------------------
 void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count) {
     int i = 0;
     for(i = 0; i < ui32Count; ++i) {
@@ -426,4 +383,3 @@ void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count) {
 
 #endif /* DEBUG */
 
-#endif /* ENABLE_UART_OBC */

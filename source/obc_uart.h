@@ -68,9 +68,6 @@ void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count);
 *******************************************************************************
 */
 
-// Flag used to enable the OBC UART
-#define ENABLE_UART_OBC
-
 // The System Peripheral for the GPIO pins the 
 // OBC UART uses 
 #define UART_OBC_SYSCTL_GPIO SYSCTL_PERIPH_GPIOB
