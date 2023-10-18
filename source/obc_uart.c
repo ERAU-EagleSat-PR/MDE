@@ -94,8 +94,6 @@ void UARTOBCIntHandler(void)
 		// Ensure we don't buffer overflow like an idiot
         if(local_char != -1 && uart_obc_msg_index < 64)
         {
-            // TODO : Store the character in the receive buffer
-
             // Add each incoming character to buffer in hex format
 			uart_obc_msg_chars[uart_obc_msg_index] = local_char;
 			// Increment the buffer index
@@ -150,7 +148,6 @@ void UARTOBCEnable(void)
 //-----------------------------------------------------------------------------
 // Send a string to the UART.
 //-----------------------------------------------------------------------------
-//TODO
 void UARTOBCSend(const uint8_t *pui8Buffer, uint32_t ui32Count)
 {
   //
@@ -168,7 +165,6 @@ void UARTOBCSend(const uint8_t *pui8Buffer, uint32_t ui32Count)
 //-----------------------------------------------------------------------------
 // Transmit the current error buffer over UART to OBC
 //-----------------------------------------------------------------------------
-//TODO
 void TransmitErrors()
 {
     // Create array to hold data.
@@ -190,30 +186,28 @@ void TransmitErrors()
     error_data[7] = 0;
     error_data[8] = 8;  // Written Sequence
     error_data[9] = 9; // Retrieved Sequence
-    #ifdef DEBUG
-        // Debug message, will contain each character in error_data as
-        // a 2 character hex value, with spaces in between
-        char debug_msg[ERROR_DATA_LENGTH * 3 + 1];
+#ifdef DEBUG
+    // Debug message, will contain each character in error_data as
+    // a 2 character hex value, with spaces in between
+    char debug_msg[ERROR_DATA_LENGTH * 3 + 1];
 
-        int i = 0;
-        for(i = 0; i < ERROR_DATA_LENGTH; ++i) {
-            // Print every byte in error_data as a 3 character string, with 2 characters for a
-            // hex value, and a space afterwards.
-            // Have to print 4 characters, since snprintf automatically makes the last character
-            // a null terminator. So, we have to overwrite the null terminator on all but the last
-            // print. However, it does add the null terminator for us, so that's nice
-            snprintf(&debug_msg[i*3], 4, "%02x ", error_data[i]);
-        }
+    int i = 0;
+    for(i = 0; i < ERROR_DATA_LENGTH; ++i) {
+        // Print every byte in error_data as a 3 character string, with 2 characters for a
+        // hex value, and a space afterwards.
+        // Have to print 4 characters, since snprintf automatically makes the last character
+        // a null terminator. So, we have to overwrite the null terminator on all but the last
+        // print. However, it does add the null terminator for us, so that's nice
+        snprintf(&debug_msg[i*3], 4, "%02x ", error_data[i]);
+    }
 
-        UARTDebugSend("Error Data:\r\n", 13);
-	    UARTDebugSend((uint8_t*)debug_msg, strlen(debug_msg));
-        UARTDebugSend("\r\nEnd Error Data\r\n\r\n", 20);
-    #endif // DEBUG //
+    UARTDebugSend("Error Data:\r\n", 13);
+    UARTDebugSend((uint8_t*)debug_msg, strlen(debug_msg));
+    UARTDebugSend("\r\nEnd Error Data\r\n\r\n", 20);
+#endif // DEBUG //
 
 	// Transmit data
 	UARTOBCSend(error_data, ERROR_DATA_LENGTH);
-
-
 }
 
 //-----------------------------------------------------------------------------
@@ -260,27 +254,25 @@ void TransmitHealth()
     health_data[8] = (uint8_t)( (health_array) & 0xFF); // Health array for idk
     */
 
-    #ifdef DEBUG
-        // Debug message, will contain each character in error_data as
-        // a 2 character hex value, with spaces in between
-        char debug_msg[HEALTH_DATA_LENGTH * 3 + 2];
+#ifdef DEBUG
+    // Debug message, will contain each character in error_data as
+    // a 2 character hex value, with spaces in between
+    char debug_msg[HEALTH_DATA_LENGTH * 3 + 2];
+    int i = 0;
+    for(i = 0; i < HEALTH_DATA_LENGTH; ++i) {
+        // Print every byte in error_data as a 3 character string, with 2 characters for a
+        // hex value, and a space afterwards.
+        // Have to print 4 characters, since snprintf automatically makes the last character
+        // a null terminator. So, we have to overwrite the null terminator on all but the last
+        // print. However, it does add the null terminator for us, so that's nice
+        snprintf(&debug_msg[i*3], 4, "%02x ", health_data[i]);
+    }
+    UARTDebugSend("Health Data:\r\n", 14);
+    UARTDebugSend((uint8_t*)debug_msg, strlen(debug_msg));
+    UARTDebugSend("\r\nEnd Health Data\r\n", 21);
+#endif // DEBUG //
 
-        int i = 0;
-        for(i = 0; i < HEALTH_DATA_LENGTH; ++i) {
-            // Print every byte in error_data as a 3 character string, with 2 characters for a
-            // hex value, and a space afterwards.
-            // Have to print 4 characters, since snprintf automatically makes the last character
-            // a null terminator. So, we have to overwrite the null terminator on all but the last
-            // print. However, it does add the null terminator for us, so that's nice
-            snprintf(&debug_msg[i*3], 4, "%02x ", health_data[i]);
-        }
-
-        UARTDebugSend("Health Data:\r\n", 14);
-	    UARTDebugSend((uint8_t*)debug_msg, strlen(debug_msg));
-        UARTDebugSend("\r\nEnd Health Data\r\n", 21);
-    #endif // DEBUG //
-
-	// Transmit data
+    // Transmit data
 	UARTOBCSend(health_data, HEALTH_DATA_LENGTH);
 }
 
@@ -302,10 +294,10 @@ void UARTOBCRecvMsgHandler(void)
 		   uart_obc_msg_chars[3] == 'D') {
 			// OBC wants the health and error data, so send it to them
 
-            #ifdef DEBUG
-                char msg[] = "Return health and error data\r\n";
-			    UARTDebugSend((uint8_t*)msg, strlen(msg));
-            #endif /* DEBUG */
+#ifdef DEBUG
+            char msg[] = "Return health and error data\r\n";
+		    UARTDebugSend((uint8_t*)msg, strlen(msg));
+#endif /* DEBUG */
 
             // Send characters signaling start of message
             UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_ESCAPE);
@@ -325,21 +317,18 @@ void UARTOBCRecvMsgHandler(void)
 			// OBC wants us to clear the health and error data
 
             // If we're debugging, send output to Debug UART
-            #ifdef DEBUG
-                char debug_msg[] = "Clear health data\r\n";
-			    UARTDebugSend((uint8_t*)debug_msg, strlen(debug_msg));
-
-            #endif /* DEBUG */
+#ifdef DEBUG
+            char debug_msg[] = "Clear health data\r\n";
+			UARTDebugSend((uint8_t*)debug_msg, strlen(debug_msg));
+#endif /* DEBUG */
 
             // Clear errors
             // Not sure how??
 		}
 	}
-
 	// Set the data_ready variable to false
 	// The message has been processed, so there's no need to check it again
 	uart_obc_data_ready = false;
-
 }
 
 //-----------------------------------------------------------------------------
