@@ -56,24 +56,7 @@ static int uart_obc_msg_index = 0;
 // sent us a message. Set to true at the end of the interrupt handler and set 
 // to false in the message handler (OBCUARTRecvMsgHandler). 
 static bool uart_obc_data_ready = false;
-/*
-*******************************************************************************
-*                         OBC UART Packet Structures                          *
-*******************************************************************************
-*/
-typedef struct {
-    uint8_t unique_id;
-    uint16_t cycle_count;
-    uint32_t health_array;
-} MDE_Health_Packet_struct;
 
-typedef struct {
-    uint8_t unique_id;
-    uint8_t chip_id;
-    uint16_t cell_address;
-    uint8_t written_sequence;
-    uint8_t retrieved_sequence;
-} MDE_Error_Packet_struct;
 /*
 *******************************************************************************
 *                              OBC UART Functions                             *
@@ -180,15 +163,6 @@ void UARTOBCSend(const uint8_t *pui8Buffer, uint32_t ui32Count)
 }
 
 //-----------------------------------------------------------------------------
-// Format Data in Error Buffer to be trasmitted over UART
-//-----------------------------------------------------------------------------
-//TODO
-void FormatErrorDataPacket() /* Probably wont return a void*/
-{
-	
-}
-
-//-----------------------------------------------------------------------------
 // Transmit the current error buffer over UART to OBC
 //-----------------------------------------------------------------------------
 //TODO
@@ -239,18 +213,8 @@ void TransmitErrors()
 }
 
 //-----------------------------------------------------------------------------
-// Format Health data to be transmitted over UART
+// Create the health data packet and transmit it over UART to OBC
 //-----------------------------------------------------------------------------
-//TODO
-void FormatHealthDataPacket() /* Probably wont return a void*/
-{
-	
-}
-
-//-----------------------------------------------------------------------------
-// Create the health data integer and transmit it over UART to OBC
-//-----------------------------------------------------------------------------
-//TODO
 void TransmitHealth()
 {
     // Create array to hold data. Add an extra character for a null
