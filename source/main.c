@@ -65,6 +65,10 @@ MDE_Error_Data                      // catalogue errors  (from bit_errors.h)
 bool chip_death_array[32];          // track dead chips (from chiphealth.h)
 bool reading_chip;                  // read/write tracker (from mde_timers.h)
 
+// Cycle count - global tracker for the number of times MDE has gone through the main
+// experiment loop
+uint16_t cycle_count = 0;
+
 // Debug Variables (from devtools.h)
 #ifdef DEBUG
 enum MENU_STATES menuState  = INIT; // Debug menu state
