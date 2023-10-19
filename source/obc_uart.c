@@ -355,8 +355,8 @@ bool UARTOBCIsDataReady() {
 // Send a packet to OBC requesting a reset (power cycle MDE by turning off the 3.3V rail)
 //-----------------------------------------------------------------------------
 void MDERequestReset(void) {
-	uint8_t msg[] = {UART_OBC_ESCAPE, UART_OBC_SOM, UART_OBC_RESET_MDE, UART_OBC_ESCAPE, UART_OBC_EOM};
-    UARTDebugSend(msg, 5);
+	uint8_t msg[] = {UART_OBC_ESCAPE, UART_OBC_SOM, 0x52, 0x80, UART_OBC_ESCAPE, UART_OBC_EOM};
+    UARTOBCSend(msg, 5);
 }
 
 #ifdef DEBUG
