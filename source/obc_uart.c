@@ -27,8 +27,9 @@
 #include "driverlib/ssi.h"
 
 // local project files
-#include "source/obc_uart.h"
-#include "source/devtools.h"
+#include "source/obc_uart.h" 
+#include "source/devtools.h" // Used for debugging code
+#include "source/mde.h" // Used to access the cycle count
 
 /*
 *******************************************************************************
@@ -252,10 +253,10 @@ void TransmitHealth()
     health_data[0] = UART_OBC_ESCAPE;   // Escape character - signals that data is being sent
     health_data[1] = UART_OBC_HEALTH_PACKET; // Packet Type ID
     health_data[2] = unique_id; // Unique ID
-    health_data[3] = 6; // Cycle count high
-    // health_data[3] = (uint8_t)( (cycle_count >> 8) & 0xFF); // Cycle count high
-    health_data[4] = 9; // Cycle count low
-    // health_data[3] = (uint8_t)( (cycle_count) & 0xFF); // Cycle count low
+    // health_data[3] = 6; // Cycle count high
+    health_data[3] = (uint8_t)( (cycle_count >> 8) & 0xFF); // Cycle count high
+    // health_data[4] = 9; // Cycle count low
+    health_data[4] = (uint8_t)( (cycle_count) & 0xFF); // Cycle count low
     health_data[5] = 4; // Health array for idk
     health_data[6] = 2; // Health array for idk
     health_data[7] = 0; // Health array for idk
