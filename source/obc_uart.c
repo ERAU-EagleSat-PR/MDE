@@ -193,7 +193,7 @@ void TransmitErrors()
         error_data[4] = 9; // Cell address, includes next 3 bytes
         error_data[5] = 4; 
         error_data[6] = 2;
-        error_data[7] = 0;
+        error_data[7] = i + 2;
         error_data[8] = 8;  // Written Sequence
         error_data[9] = 9; // Retrieved Sequence
 #ifdef DEBUG
