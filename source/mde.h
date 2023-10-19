@@ -55,8 +55,8 @@ void EnableSPI(void);
 
 // Tracking variables for writing and reading from chips
 extern uint8_t auto_chip_number; // current chip tracked by global variable to allow returns from watchdog interrupts.
-extern uint32_t current_data_cycle; // Current data cylce, 0 or 255. Probably doesn't need to be global, should consider it.
-extern unsigned short cycle_count; // Count of current cycle
+extern uint32_t current_data_cycle; // Current data cylce, 0 or 1. Probably doesn't need to be global, should consider it.
+extern uint16_t cycle_count; // cycle count - tracks number of memory cycles
 
 //**************************************************************//
 //                                                              //
