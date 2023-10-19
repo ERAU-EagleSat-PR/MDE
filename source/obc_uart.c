@@ -219,7 +219,7 @@ void TransmitErrors()
 	    UARTOBCSend(error_data, ERROR_DATA_LENGTH);
     }
 #ifdef DEBUG
-    UARTDebugSend("End Error Data\r\n\r\n", 20);
+    UARTDebugSend("End Error Data\r\n\n", 17);
 #endif
 }
 
@@ -280,9 +280,9 @@ void TransmitHealth()
         // print. However, it does add the null terminator for us, so that's nice
         snprintf(&debug_msg[i*3], 4, "%02x ", health_data[i]);
     }
-    UARTDebugSend("Health Data:\r\n", 14);
+    UARTDebugSend("\r\nHealth Data:\r\n", 16);
     UARTDebugSend((uint8_t*)debug_msg, strlen(debug_msg));
-    UARTDebugSend("\r\nEnd Health Data\r\n", 21);
+    UARTDebugSend("\r\nEnd Health Data\r\n\r\n", 21);
 #endif // DEBUG //
 
     // Transmit data
