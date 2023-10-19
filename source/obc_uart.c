@@ -184,7 +184,8 @@ void TransmitErrors()
      *
      * For now, I'm just gonna write a for loop to test things
      */
-    for(int i = 0; i < 3; ++i)
+    int i = 0;
+    for(i = 0; i < 3; ++i)
     {
         // Temporary hard-coded error packet
         error_data[2] = i; // Unique ID
