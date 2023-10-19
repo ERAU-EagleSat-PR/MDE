@@ -305,6 +305,8 @@ printDebugMenu(void)
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf,bufSize, "C - Clear Health Data\r\n");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "R - Request Power Off\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf,bufSize, "Q - Return to main menu\r\n");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
@@ -724,13 +726,23 @@ void processOBCCommandInput(int32_t recv_char)
         case 'g':
             UARTCharPut(UART_DEBUG, 0xC);
             UARTOBCSetMsg(get_msg, 7);
+            printDebugMenu();
             break;
         case 'c':
             UARTCharPut(UART_DEBUG, 0xC);
             UARTOBCSetMsg(clr_msg, 7);
+            printDebugMenu();
+            break;
+        case 'r':
+            UARTCharPut(UART_DEBUG, 0xC);
+            MDERequestReset();
+            printDebugMenu();
+            UARTDebugSend("Request Power Off\r\n", 19);
             break;
         case 'q':
+            UARTCharPut(UART_DEBUG, 0xC);
             menuState = MAIN;
+            printDebugMenu();
             break;
         default:
 
@@ -738,7 +750,6 @@ void processOBCCommandInput(int32_t recv_char)
     }
 
     // Return to menu
-    printDebugMenu();
     IntMasterEnable();
 
 }
