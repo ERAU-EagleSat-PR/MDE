@@ -57,6 +57,13 @@ static int uart_obc_msg_index = 0;
 // to false in the message handler (OBCUARTRecvMsgHandler). 
 static bool uart_obc_data_ready = false;
 
+// ID used to differentiate error packets. This value is incremented each time 
+// the error data is cleared. So, until OBC clears the health data, the errors
+// will be associated with the same health packet. Once data is retrieved by OBC
+// and transmitted down to ground station, we can filter out duplicate data if 
+// OBC ever sent get health twice before sending clear health.
+static uint8_t unique_id = 0;
+
 /*
 *******************************************************************************
 *                              OBC UART Functions                             *
@@ -188,7 +195,7 @@ void TransmitErrors()
     for(i = 0; i < 3; ++i)
     {
         // Temporary hard-coded error packet
-        error_data[2] = i; // Unique ID
+        error_data[2] = unique_id; // Unique ID
         error_data[3] = 6; // Chip ID 
         error_data[4] = 9; // Cell address, includes next 3 bytes
         error_data[5] = 4; 
@@ -244,7 +251,7 @@ void TransmitHealth()
 
     health_data[0] = UART_OBC_ESCAPE;   // Escape character - signals that data is being sent
     health_data[1] = UART_OBC_HEALTH_PACKET; // Packet Type ID
-    health_data[2] = 1; // Unique ID
+    health_data[2] = unique_id; // Unique ID
     health_data[3] = 6; // Cycle count high
     // health_data[3] = (uint8_t)( (cycle_count >> 8) & 0xFF); // Cycle count high
     health_data[4] = 9; // Cycle count low
@@ -337,6 +344,14 @@ void UARTOBCRecvMsgHandler(void)
 
             // Clear errors
             // Not sure how??
+
+
+            // Increment unique_id to indicate that the next set of data is
+            // disjoint/unrelated to what was just sent
+            // Also ensure no integer overflow (technically this shouldn't be
+            // an issue, but I don't want to take chances)
+            if(unique_id == 255) unique_id = 0;
+            else ++unique_id;
 		}
 	}
 	// Set the data_ready variable to false
