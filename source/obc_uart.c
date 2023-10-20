@@ -201,9 +201,9 @@ void TransmitErrors()
         error_data[4] = 9; // Cell address, includes next 3 bytes
         error_data[5] = 4; 
         error_data[6] = 2;
-        error_data[7] = i + 2;
-        error_data[8] = 8;  // Written Sequence
-        error_data[9] = 9; // Retrieved Sequence
+        error_data[7] = 0;
+        error_data[8] = i;  // Written Sequence
+        error_data[9] = 1+i; // Retrieved Sequence
 #ifdef DEBUG
         // Debug message, will contain each character in error_data as
         // a 2 character hex value, with spaces in between
@@ -349,10 +349,10 @@ void UARTOBCRecvMsgHandler(void)
 
             // Increment unique_id to indicate that the next set of data is
             // disjoint/unrelated to what was just sent
-            // Also ensure no integer overflow (technically this shouldn't be
-            // an issue, but I don't want to take chances)
-            if(unique_id == 255) unique_id = 0;
-            else ++unique_id;
+            // We don't have to worry about overflow because the C standard defines
+            // that when unsigned integer overflow occurs, the result is just wrapped
+            // back around
+            ++unique_id;
 		}
 	}
 	// Set the data_ready variable to false
