@@ -28,8 +28,9 @@
 
 // local project files
 #include "source/obc_uart.h" 
-#include "source/devtools.h" // Used for debugging code
-#include "source/mde.h" // Used to access the cycle count
+#include "source/devtools.h"    // Used to write debug code
+#include "source/mde.h"         // Used to access the cycle count
+#include "source/chip_health.h" // Used to access chip_death_array
 
 /*
 *******************************************************************************
@@ -240,46 +241,34 @@ void TransmitHealth()
     // terminator so we can call strlen on it
 	uint8_t health_data[HEALTH_DATA_LENGTH];
 
-    /*
-    Get cycle count:
-    uint16_t cycle_count = (some function idk)
+    // uint32_t to store the chip death data in
+    uint32_t health_array = 0;
 
-    get health array
-    uint32_t health_array = ????
-    */
+    // iterator variable for for loops
+    int i = 0;
 
-    // Temporary hard-coded health packet
+    // Some wild bit-level operations to turn the chip_dead_array into a uint32_t
+    // chip_dead_array[0] corresponds to the ones bit of health_array, chip_dead_array[1] 
+    // corresponds to the twos bit of health_array, and so on
+    for (i = 0; i < 32; ++i) {
+        health_array ^= (chip_death_array[i] == 1) << i;
+	}
 
+    // Assemble Health packet
     health_data[0] = UART_OBC_ESCAPE;   // Escape character - signals that data is being sent
     health_data[1] = UART_OBC_HEALTH_PACKET; // Packet Type ID
     health_data[2] = unique_id; // Unique ID
-    // health_data[3] = 6; // Cycle count high
-    health_data[3] = (uint8_t)( (cycle_count >> 8) & 0xFF); // Cycle count high
-    // health_data[4] = 9; // Cycle count low
-    health_data[4] = (uint8_t)( (cycle_count) & 0xFF); // Cycle count low
-    health_data[5] = 4; // Health array for idk
-    health_data[6] = 2; // Health array for idk
-    health_data[7] = 0; // Health array for idk
-    health_data[8] = 1; // Health array for idk
-
-    // Actual Health packet
-    /**
-    health_data[0] = UART_OBC_ESCAPE;   // Escape character - signals that data is being sent
-    health_data[1] = UART_OBC_HEALTH_PACKET; // Packet Type ID
-    health_data[2] = 1; // Unique ID
     health_data[3] = (uint8_t)( (cycle_count >> 8) & 0xFF); // Cycle count high
     health_data[4] = (uint8_t)( (cycle_count) & 0xFF); // Cycle count low
     health_data[5] = (uint8_t)( (health_array >> 24) & 0xFF); // Health array for idk
     health_data[6] = (uint8_t)( (health_array >> 16) & 0xFF); // Health array for idk
     health_data[7] = (uint8_t)( (health_array >> 8) & 0xFF); // Health array for idk
     health_data[8] = (uint8_t)( (health_array) & 0xFF); // Health array for idk
-    */
 
 #ifdef DEBUG
     // Debug message, will contain each character in error_data as
     // a 2 character hex value, with spaces in between
     char debug_msg[HEALTH_DATA_LENGTH * 3 + 2];
-    int i = 0;
     for(i = 0; i < HEALTH_DATA_LENGTH; ++i) {
         // Print every byte in error_data as a 3 character string, with 2 characters for a
         // hex value, and a space afterwards.
