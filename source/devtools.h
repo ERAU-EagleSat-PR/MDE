@@ -69,7 +69,7 @@ enum MENU_STATES {  INIT,
                     CHIP_SELECT,
                     CHIP_FUNCTIONS,
                     CHIP_HEALTH,
-                    ERROR_QUEUE,};
+                    ERROR_QUEUE,
                     OBC_COMMANDS};
 
 enum BOARDS      {  NO_BOARD,

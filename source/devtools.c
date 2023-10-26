@@ -551,7 +551,6 @@ processChipFunctionsInput(int32_t recv_char)
 
         if (workingChip <= 3){ // FLASH
             FLASHID idFlash; // struct for ID parts
-            struct FLASHID idFlash; // struct for ID parts
             idFlash = FlashStatusRead(workingChip);
           
             //Print struct to console
@@ -575,7 +574,7 @@ processChipFunctionsInput(int32_t recv_char)
             sprintf(buf,"prod ID1: %d \n\r",idFRAM.prodID1);
             UARTDebugSend((uint8_t*) buf,strlen(buf));
             sprintf(buf,"prod ID2: %d \n\r",idFRAM.prodID2);
-            UARTDebugSend((uint8_t*) buf,strlen(buf));            */
+            UARTDebugSend((uint8_t*) buf,strlen(buf));
 
         } else if(workingChip <= 11) { // MRAM
             uint8_t mramSR = MRAMStatusRead(workingChip);

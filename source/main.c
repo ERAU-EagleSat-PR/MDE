@@ -357,8 +357,6 @@ main(void)
     // Check all chips before program start
     uint8_t chip;
     for(chip = 0; chip < MAX_CHIP_NUMBER; chip++)
-
-    for(uint8_t chip = 0; chip < MAX_CHIP_COUNT; chip++)
     {
         if ((chip % 16) >= 8 && (chip % 16) < 12) // If the chip is MRAM, prepare its status register
         {
