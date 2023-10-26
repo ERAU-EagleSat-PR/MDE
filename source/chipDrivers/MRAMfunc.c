@@ -149,7 +149,7 @@ MRAMStatusPrepare(uint8_t chip_number)
     }
 
     //Transmit register data
-    SSIDataPut(SPI_base, desiredSR);
+  //  SSIDataPut(SPI_base, desiredSR);
     while(SSIBusy(SPI_base))
     {
     }

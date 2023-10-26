@@ -3,8 +3,8 @@
 ##############################
 
 # Code Coposer Studio
-Debug					# Debug folder
-Release					# Release folder
+Debug
+Release
 Debug/
 Release/
 *.config
@@ -13,7 +13,7 @@ MDE_UART_CCS.map
 MDE_MART_CCS_linkinfo.xml
 
 # shit picked up from VS Code
-.vscode/				# .vscode folder
+.vscode/
 
 # DO NOT add these File types to the gitignore (According to Source control with CCS Document)
 # .ccsproject			# contains priject information specific to CCS

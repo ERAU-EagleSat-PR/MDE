@@ -52,8 +52,8 @@ CheckChipHealth(uint8_t chip_number)
         FLASHID FLASH_register = FlashStatusRead(chip_number);
 
         // One mismatch will be a fail condition
-        if(FLASH_register.cypID != FLASH_CYP_ID // || FLASH_register.RDSR != 0b00000001                  Option here to check if the WIP bit of the register is a 1 or not.
-                || FLASH_register.prodID1 != FLASH_PROD1 || FLASH_register.prodID2 != FLASH_PROD2)    // I believe it may be stuck 1 if the chip dies, but could also be a 1 even if chip is not dead.
+    //    if(FLASH_register.cypID != FLASH_CYP_ID // || FLASH_register.RDSR != 0b00000001                  Option here to check if the WIP bit of the register is a 1 or not.
+    //            || FLASH_register.prodID1 != FLASH_PROD1 || FLASH_register.prodID2 != FLASH_PROD2)    // I believe it may be stuck 1 if the chip dies, but could also be a 1 even if chip is not dead.
         {
             chip_health = chip_health_array[chip_number].HealthCount + 1; // Increment value in array by 1 if failed
         }
@@ -104,6 +104,7 @@ CheckChipHealth(uint8_t chip_number)
         // If the chip has failed this check enough times, mark it as dead.
         chip_death_array[chip_number] = 1;
     }
+
     return chip_health;
 }
 
