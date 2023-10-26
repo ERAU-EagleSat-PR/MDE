@@ -35,9 +35,7 @@
 #include "chipDrivers/FRAMfunc.h"
 #include "chipDrivers/MRAMfunc.h"
 #include "chipDrivers/SRAMfunc.h"
-#ifdef DEBUG
 #include "source/devtools.h"
-#endif
 
 //*****************************************************************************
 //

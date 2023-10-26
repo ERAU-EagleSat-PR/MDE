@@ -16,6 +16,8 @@
 #define DEBUG
 #ifdef DEBUG
 
+#include "source/bit_errors.h"
+
 /*
 *******************************************************************************
 *                             Function Prototypes                             *
@@ -28,13 +30,14 @@ void UARTDebugEnable(void);
 void UARTDebugSend(const uint8_t *pui8Buffer, uint32_t ui32Count);
 //Print functions
 void printDebugMenu(void);
-void printErrorBuffer(void);
+void ErrorQueue_PrintLink(MDE_Error_Data_t *ptr, uint8_t printCount);
 //Process inputs
 void processDebugInput(int32_t recv_char);
 void processMainMenuInput(int32_t recv_char);
 void processChipFunctionsInput(int32_t recv_char);
 void processChipSelectInput(int32_t recv_char);
 void processChipHealthInput(int32_t recv_char);
+void processErrorInput(int32_t recv_char);
 
 
 /*
@@ -65,7 +68,8 @@ enum MENU_STATES {  INIT,
                     AUTO,
                     CHIP_SELECT,
                     CHIP_FUNCTIONS,
-                    CHIP_HEALTH};
+                    CHIP_HEALTH,
+                    ERROR_QUEUE};
 
 enum BOARDS      {  NO_BOARD,
                     BOARD1,
