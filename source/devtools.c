@@ -209,6 +209,8 @@ printDebugMenu(void)
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "B - Change currently selected board: %d\n\r",workingBoard);
         UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf, bufSize,  "E - Error queue functions.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "A - Enter Auto Mode (not implemented)\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         // OBC Debug Options
@@ -243,15 +245,37 @@ printDebugMenu(void)
         UARTDebugSend((uint8_t*)buf, strlen(buf));
         snprintf(buf, bufSize,"Q - Swap currently selected chip.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf, bufSize,"B - Print current error buffer (resets it)\n\r");
+        break;
+
+    case CHIP_HEALTH:
+        UARTCharPut(UART_DEBUG, 0xC);
+        snprintf(buf,bufSize, "Chip Health and Data Functions\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf, bufSize,  "M - Return to main menu.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize,   "P - Print chip health array.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize,   "D - Print chip death array.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf, bufSize,  "H - Send Health Packet (TransmitHealth) \n\r");   // TODO
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf, bufSize,  "E - Send Data Packet (TransmitErrors) \n\r");     // TODO
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
 
-    case AUTO:
+    case ERROR_QUEUE:
         UARTCharPut(UART_DEBUG, 0xC);
-        snprintf(buf, bufSize, "AUTO MODE. Cycle time: %d",MEMORY_CYCLE_TIME);
+        snprintf(buf,bufSize, "Chip Error Queue Functions\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf, bufSize, "Hit M to exit.\n\r");
+        snprintf(buf,bufSize, "M - Return to main menu.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "I - Insert a new error link to the queue.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "R - Delete the first link from the queue.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "D - Delete the entire queue.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "P - Print the entire error queue.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
 
@@ -286,20 +310,15 @@ printDebugMenu(void)
             UARTDebugSend((uint8_t*) buf, strlen(buf));
         }
         break;
-    case CHIP_HEALTH:
+
+    case AUTO:
         UARTCharPut(UART_DEBUG, 0xC);
-        snprintf(buf,bufSize, "Chip Health and Data Functions\n\r");
+        snprintf(buf, bufSize, "AUTO MODE. Cycle time: %d",MEMORY_CYCLE_TIME);
         UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf, bufSize,  "M - Return to main menu.\n\r");
+        snprintf(buf, bufSize, "Hit M to exit.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf,bufSize,   "P - Print chip health array.\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf,bufSize,   "D - Print chip death array.\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf, bufSize,  "H - Send Health Packet (TransmitHealth) \n\r");   // TODO
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf, bufSize,  "E - Send Data Packet (TransmitErrors) \n\r");     // TODO
         break;
+		
     case OBC_COMMANDS:
         snprintf(buf,bufSize, "G - Get Health Data\r\n");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
@@ -310,6 +329,7 @@ printDebugMenu(void)
         snprintf(buf,bufSize, "Q - Return to main menu\r\n");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
+
     default:
         UARTCharPut(UART_DEBUG, 0xC);
         snprintf(buf, bufSize, "State failure!");
@@ -342,6 +362,9 @@ processDebugInput(int32_t recv_char)
     case CHIP_HEALTH:
         processChipHealthInput(recv_char);
         break;
+    case ERROR_QUEUE:
+        processErrorInput(recv_char);
+		break;
     case OBC_COMMANDS:
         processOBCCommandInput(recv_char);
         break;
@@ -383,6 +406,10 @@ processMainMenuInput(int32_t recv_char)
         break;
     case 'q':
         menuState = CHIP_SELECT;
+        printDebugMenu();
+        break;
+    case 'e':
+        menuState = ERROR_QUEUE;
         printDebugMenu();
         break;
     case 'a':   // Enter Auto Mode
@@ -504,7 +531,7 @@ processChipFunctionsInput(int32_t recv_char)
         break;
 
     case 'b':
-        printErrorBuffer();
+        ErrorQueue_PrintLink(errorHead, current_error);
         break;
     case 'p':
         // Write SR from correct chip type
@@ -694,24 +721,69 @@ void processChipHealthInput(int32_t recv_char)
     IntMasterEnable();
 }
 
-void printErrorBuffer(void)
-{
-    uint8_t i;
-    char buf[30];
-    uint8_t bufSize = 30;
-    for(i=0; i < current_error; i++)
-    {
-        snprintf(buf,bufSize, "Current error: %d. Chip: %d\r\n",i+1, error_buffer[i]->chip_id);
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf,bufSize, "Error address: %x\r\n", error_buffer[i]->cell_address);
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf,bufSize, "Written: %d Received: %d\r\n\n", error_buffer[i]->written_sequence, error_buffer[i]->retrieved_sequence);
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        free(error_buffer[i]);
-    }
-    current_error = 0;
-}
+//-----------------------------------------------------------------------------
+// Process Error Queue Functions
+//-----------------------------------------------------------------------------
 
+void processErrorInput(int32_t recv_char)
+{
+    IntMasterDisable();
+    //char buf[50];
+    //uint8_t bufSize = 50;
+
+    switch (recv_char)
+    {
+    case 'm': // Return to main menu
+        menuState = MAIN;
+        printDebugMenu();
+        break;
+    case 'i': // Insert (not)random new element
+        ErrorQueue_Insert(&errorHead, 1, 1, 1, 1);
+        current_error++;
+        break;
+    case 'r': // Delete first link, and print it.
+        ErrorQueue_PrintLink(errorHead,1);
+        ErrorQueue_Remove(&errorHead);
+        current_error--;
+        break;
+    case 'd': // Delete the entire queue.
+        ErrorQueue_Remove(&errorHead);
+        current_error = 0;
+        break;
+    case 'p': // Print the entire queue.
+        ErrorQueue_PrintLink(errorHead, current_error);
+        break;
+    }
+    IntMasterEnable();
+}
+//-----------------------------------------------------------------------------
+// Print the given error link
+//-----------------------------------------------------------------------------
+void ErrorQueue_PrintLink(MDE_Error_Data_t *ptr, uint8_t printCount)
+{
+    IntMasterDisable();
+    char buf[40];
+    uint8_t bufSize = 40;
+    MDE_Error_Data_t *currentLink = ptr;
+    uint8_t i;
+    for(i = 0; i < printCount; i++)
+    {
+        snprintf(buf,bufSize, "MDE Error Packet: %p\n\r", currentLink);
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "Chip ID: %u\n\r", currentLink->chip_id);
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "Byte Address: 0x%X\n\r", currentLink->cell_address);
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "Written Sequence: %u\n\r", currentLink->written_sequence);
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "Retrieved Sequence: %u\n\r", currentLink->retrieved_sequence);
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "Next pointer: %p\n\r", currentLink->next);
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        currentLink = currentLink->next;
+    }
+    IntMasterEnable();
+}
 //-----------------------------------------------------------------------------
 // Process OBC Selection Menu
 //-----------------------------------------------------------------------------
@@ -751,51 +823,4 @@ void processOBCCommandInput(int32_t recv_char)
 
     // Return to menu
     IntMasterEnable();
-
 }
-//-----------------------------------------------------------------------------
-//
-//-----------------------------------------------------------------------------
-/*
-char*
-getMemTypeString(void)
-{
-
- * Takes in a chip number
- * Returns a pointer to a char array of the type of memory selected to be
- * printed in the debug Menu
- */
-/*
-    char buf[15];
-
-    switch (selectedChipType)
-    {
-        case NO_MEM_TYPE:
-            snprintf(buf, bufSize,  "None");
-            break;
-        case FLASH:
-            snprintf(buf, bufSize,  "FLASH");
-            break;
-        case FRAM:
-            snprintf(buf, bufSize,  "FRAM");
-            break;
-        case MRAM:
-            snprintf(buf, bufSize,  "MRAM");
-            break;
-        case SRAM:
-            snprintf(buf, bufSize,  "SRAM");
-            break;
-        default:
-            snprintf(buf, bufSize,  "Chip Error");
-            break;
-    }
-
-    return buf;
-}
-
-
- */
-
-
-
-

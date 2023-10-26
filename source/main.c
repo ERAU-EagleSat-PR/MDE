@@ -55,13 +55,12 @@ uint32_t cycle_time_clockrate = MEMORY_CYCLE_TIME*60*SYS_CLK_SPEED;
 
 // Error Variables
 uint32_t current_error = 0;         // global error count (from bit_errors.c)
+MDE_Error_Data_t *errorHead = 0;
 
 // Global Chip Trackers
 uint8_t auto_chip_number = 0;       // Chip tracker for auto mode (from mde.h)
 uint8_t current_chip = 5;           // track active chip (from chips.h)
 CHIPHEALTH chip_health_array[32];   // track chip health (from chiphealth.h)
-MDE_Error_Data                      // catalogue errors  (from bit_errors.h)
-*error_buffer[ERROR_BUFFER_MAX_SIZE];
 bool chip_death_array[32];          // track dead chips (from chiphealth.h)
 bool reading_chip;                  // read/write tracker (from mde_timers.h)
 
@@ -317,8 +316,8 @@ main(void)
     SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN |
                            SYSCTL_XTAL_16MHZ);
 
-    // Disable Interrupts while we're setting stuff up
-    IntMasterDisable();
+    // Enable interrupts
+    IntMasterEnable();
 
     //*****************************
     // Peripheral Enablers
@@ -359,7 +358,6 @@ main(void)
     //*****************************
     // Initialize Health and Death arrays
     InitializeChipHealth();
-
     // Check all chips before program start
     uint8_t chip;
     for(chip = 0; chip < MAX_CHIP_NUMBER; chip++)

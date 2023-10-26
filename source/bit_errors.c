@@ -24,7 +24,13 @@
 // Project files
 #include "source/bit_errors.h"
 
+// Data structure for temporary storage and transmission of errors.
 
+/*
+*******************************************************************************
+*                               MDE Error Functions                           *
+*******************************************************************************
+*/
 void
 CheckErrors(uint8_t chip_number, uint32_t byte_num, uint8_t byte_data, uint8_t written_data)
 {
@@ -37,18 +43,92 @@ CheckErrors(uint8_t chip_number, uint32_t byte_num, uint8_t byte_data, uint8_t w
         // Check to not exceed error limit for memory concerns
         if(current_error <= ERROR_BUFFER_MAX_SIZE){
 
-            // Error Data
-            MDE_Error_Data *found_error = malloc(sizeof(MDE_Error_Data)); // To be free'd in OBC transmission
-            found_error->chip_id = chip_number;
-            found_error->cell_address = byte_num;
-            found_error->written_sequence = written_data;
-            found_error->retrieved_sequence = byte_data;
-
-            // Add error data pointer to the array and increment error count
-            error_buffer[current_error] = found_error;
+            // Request new error link.
+            uint8_t check = ErrorQueue_Insert(&errorHead, chip_number, byte_num, byte_data, written_data);
+            // Increment count
+            if(check == 1)
             current_error++;
         }
     }
 }
+
+/*
+*******************************************************************************
+*                          Circle Queue For Errors                            *
+*******************************************************************************
+*/
+
+MDE_Error_Data_t *ErrorQueue_Init(uint8_t chip_number, uint32_t byte_num, uint8_t byte_data, uint8_t written_data) {
+//  Initialize the first link in the queue, enter data,
+//  and return a pointer to it's head.
+
+    MDE_Error_Data_t *head = (MDE_Error_Data_t *) malloc(sizeof(MDE_Error_Data_t));
+    // Allocation failure check
+    if (head == NULL) {
+        return NULL;
+    }
+    // Write data to link
+    head->chip_id = chip_number;
+    head->cell_address = byte_num;
+    head->written_sequence = written_data;
+    head->retrieved_sequence = byte_data;
+    head->next = head;
+    // Return pointer to new link
+    return head;
+}
+
+uint8_t ErrorQueue_Insert(MDE_Error_Data_t **ptr, uint8_t chip_number, uint32_t byte_num,
+                        uint8_t byte_data, uint8_t written_data) {
+    // Create a new link and insert it at the start of the queue.
+    // 1 = success, 0 = failure
+    if (ptr == NULL) { // Invalid NULL pointer
+        return 0;
+    }
+    if (ErrorQueue_IsEmpty(*ptr) == errorsEmpty) { // Initialize empty queue
+        *ptr = ErrorQueue_Init(chip_number, byte_num, byte_data, written_data);
+        if(ptr == NULL) return 0;
+        return 1;
+    }
+    else { // Add link to existing queue
+        MDE_Error_Data_t *new = ErrorQueue_Init(chip_number, byte_num, byte_data, written_data);
+        if(new == NULL) return 0;
+        new->next = (*ptr)->next;
+        (*ptr)->next = new;
+        (*ptr) = (*ptr)->next;
+        return 1;
+    }
+}
+
+ErrorStatus_enum ErrorQueue_IsEmpty(MDE_Error_Data_t *ptr) {
+    // Return 0 or 1 if queue is empty or full (as defined by enum in .h)
+    ErrorStatus_enum test = (ptr == NULL) ?  errorsEmpty : errorsNotEmpty;
+    return test;
+}
+
+uint8_t ErrorQueue_Remove(MDE_Error_Data_t **ptr) {
+    // Delete a link and free it's memory. Return a 1 on success, and a 0 on failure.
+    if (ptr == NULL) {
+        return 0;
+    }
+    if (ErrorQueue_IsEmpty(*ptr) == errorsEmpty) {
+        return 0;
+    }
+    // Re-form list without link
+    MDE_Error_Data_t *remove = (*ptr)->next;
+    if (*ptr == (*ptr)->next) *ptr = NULL;
+    else (*ptr)->next = (*ptr)->next->next;
+    // Free associated memory
+    free(remove);
+    // Return success
+    return 1;
+}
+
+void ErrorQueue_Destroy(MDE_Error_Data_t **ptr) {
+    // Delete the entire queue.
+    while (ErrorQueue_IsEmpty(*ptr) == errorsNotEmpty) {
+        ErrorQueue_Remove(ptr);
+    }
+}
+
 
 
