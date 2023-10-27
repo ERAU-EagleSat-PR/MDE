@@ -45,6 +45,7 @@
 #include "source/devtools.h"
 #include "source/multiplexer.h"
 #include "source/chips.h"
+#include "source/mde.h"
 #include "source/mde_timers.h"
 #include "source/chip_health.h"
 #include "source/bit_errors.h"
@@ -216,6 +217,9 @@ printDebugMenu(void)
         // OBC Debug Options
         snprintf(buf, bufSize,  "O - OBC UART Commands\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
+        // Board Power functions
+        snprintf(buf, bufSize,  "P - Board Power Control\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "X - Restart Program.\n\r");                       // TODO
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
@@ -329,6 +333,18 @@ printDebugMenu(void)
         snprintf(buf,bufSize, "Q - Return to main menu\r\n");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
+    case BOARD_POWER:
+        snprintf(buf,bufSize, "1 - Turn on Board 1\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "! - Turn off Board 1\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "2 - Turn on Board 2\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "@ - Turn off Board 2\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "Q - Return to main menu\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        break;
 
     default:
         UARTCharPut(UART_DEBUG, 0xC);
@@ -367,6 +383,9 @@ processDebugInput(int32_t recv_char)
 		break;
     case OBC_COMMANDS:
         processOBCCommandInput(recv_char);
+        break;
+    case BOARD_POWER:
+        processBoardPowerInput(recv_char);
         break;
     case AUTO:
         switch (recv_char)
@@ -425,6 +444,11 @@ processMainMenuInput(int32_t recv_char)
     case 'o':   // Switch to OBC coms menu
         UARTCharPut(UART_DEBUG, 0xC);
         menuState = OBC_COMMANDS;
+        printDebugMenu();
+        break;
+    case 'p':   // Switch to board power menu
+        UARTCharPut(UART_DEBUG, 0xC);
+        menuState = BOARD_POWER;
         printDebugMenu();
         break;
     case 'x':
@@ -785,6 +809,52 @@ void ErrorQueue_PrintLink(MDE_Error_Data_t *ptr, uint8_t printCount)
     IntMasterEnable();
 }
 //-----------------------------------------------------------------------------
+// Process Board Power Menu
+//-----------------------------------------------------------------------------
+void processBoardPowerInput(int32_t recv_char)
+{
+    IntMasterDisable();
+
+    switch (recv_char) {
+        case '1':
+            UARTCharPut(UART_DEBUG, 0xC);
+            Board1PowerOn();
+            printDebugMenu();
+            UARTDebugSend("Turning on Board 1\r\n", 20);
+            break;
+        case '!':
+            UARTCharPut(UART_DEBUG, 0xC);
+            Board1PowerOff();
+            printDebugMenu();
+            UARTDebugSend("Turning off Board 1\r\n", 21);
+            break;
+        case '2':
+            UARTCharPut(UART_DEBUG, 0xC);
+            Board2PowerOn();
+            printDebugMenu();
+            UARTDebugSend("Turning on Board 2\r\n", 20);
+            break;
+        case '@':
+            UARTCharPut(UART_DEBUG, 0xC);
+            Board2PowerOff();
+            printDebugMenu();
+            UARTDebugSend("Turning off Board 2\r\n", 21);
+            break;
+        case 'q':
+            UARTCharPut(UART_DEBUG, 0xC);
+            menuState = MAIN;
+            printDebugMenu();
+            break;
+        default:
+            break;
+    }
+
+    // Return to menu
+    IntMasterEnable();
+}
+
+
+//-----------------------------------------------------------------------------
 // Process OBC Selection Menu
 //-----------------------------------------------------------------------------
 void processOBCCommandInput(int32_t recv_char)
@@ -824,3 +894,4 @@ void processOBCCommandInput(int32_t recv_char)
     // Return to menu
     IntMasterEnable();
 }
+
