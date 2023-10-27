@@ -189,42 +189,43 @@ void TransmitErrors()
     UARTDebugSend("Error Data:\r\n", 13);
 #endif
     MDE_Error_Data_t *ptr = errorHead;
-    do {
-        // Take data and fill array
-        error_data[2] = unique_id; // Unique ID
-        error_data[3] = ptr->chip_id; // Chip ID 
-        error_data[4] = (uint8_t) ((ptr->cell_address >> 24) & 0xFF); // Cell address, includes next 3 bytes
-        error_data[5] = (uint8_t) ((ptr->cell_address >> 16) & 0xFF);
-        error_data[6] = (uint8_t)((ptr->cell_address >> 8) & 0xFF);
-        error_data[7] = (uint8_t) ((ptr->cell_address) & 0xFF);
-        error_data[8] = ptr->written_sequence;  // Written Sequence
-        error_data[9] = ptr->retrieved_sequence; // Retrieved Sequence
+    if(ptr != NULL){
+        do {
+            // Take data and fill array
+            error_data[2] = unique_id; // Unique ID
+            error_data[3] = ptr->chip_id; // Chip ID 
+            error_data[4] = (uint8_t) ((ptr->cell_address >> 24) & 0xFF); // Cell address, includes next 3 bytes
+            error_data[5] = (uint8_t) ((ptr->cell_address >> 16) & 0xFF);
+            error_data[6] = (uint8_t)((ptr->cell_address >> 8) & 0xFF);
+            error_data[7] = (uint8_t) ((ptr->cell_address) & 0xFF);
+            error_data[8] = ptr->written_sequence;  // Written Sequence
+            error_data[9] = ptr->retrieved_sequence; // Retrieved Sequence
 
-        // Move to the next error in the queue
-        ptr = ptr->next;
+            // Move to the next error in the queue
+            ptr = ptr->next;
 #ifdef DEBUG
-        // Debug message, will contain each character in error_data as
-        // a 2 character hex value, with spaces in between
-        char debug_msg[ERROR_DATA_LENGTH * 3 + 1];
+            // Debug message, will contain each character in error_data as
+            // a 2 character hex value, with spaces in between
+            char debug_msg[ERROR_DATA_LENGTH * 3 + 1];
 
-        int i = 0;
-        for(i = 0; i < ERROR_DATA_LENGTH; ++i) {
-            // Print every byte in error_data as a 3 character string, with 2 characters for a
-            // hex value, and a space afterwards.
-            // Have to print 4 characters, since snprintf automatically makes the last character
-            // a null terminator. So, we have to overwrite the null terminator on all but the last
-            // print. However, it does add the null terminator for us, so that's nice
+            int i = 0;
+            for(i = 0; i < ERROR_DATA_LENGTH; ++i) {
+                // Print every byte in error_data as a 3 character string, with 2 characters for a
+                // hex value, and a space afterwards.
+                // Have to print 4 characters, since snprintf automatically makes the last character
+                // a null terminator. So, we have to overwrite the null terminator on all but the last
+                // print. However, it does add the null terminator for us, so that's nice
             snprintf(&debug_msg[i*3], 4, "%02x ", error_data[i]);
-        }
+            }
 
-        UARTDebugSend((uint8_t*)debug_msg, strlen(debug_msg));
-        UARTDebugSend("\r\n", 2);
+            UARTDebugSend((uint8_t*)debug_msg, strlen(debug_msg));
+            UARTDebugSend("\r\n", 2);
 #endif // DEBUG //
 
-	    // Transmit error packet
-	    UARTOBCSend(error_data, ERROR_DATA_LENGTH);
-    } while (ptr != errorHead);
-    
+	        // Transmit error packet
+	        UARTOBCSend(error_data, ERROR_DATA_LENGTH);
+        } while (ptr != errorHead);
+    }    
 #ifdef DEBUG
     UARTDebugSend("End Error Data\r\n\n", 17);
 #endif
