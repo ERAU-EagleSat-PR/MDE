@@ -152,6 +152,47 @@ EnableSPI(void)
 }
 
 //******************************************************************//
+//                         Board Power                              //
+//******************************************************************//
+void BoardPowerInit(void) {
+    // Enable Board Power GPIO port
+    SysCtlPeripheralEnable(BOARD_POWER_GPIO_SYSCTL_PERIPH);
+
+    // Check for peripheral to be Enabled
+    while(!SysCtlPeripheralReady(BOARD_POWER_GPIO_SYSCTL_PERIPH))
+    {
+    }
+
+    // PD7 is normally locked for usage for complex reasons that we're gonna ignore
+    // We have to unlock it to configure it
+    // I just grabbed this off the internet
+    HWREG(GPIO_PORTD_BASE+GPIO_O_LOCK) = GPIO_LOCK_KEY;
+    HWREG(GPIO_PORTD_BASE+GPIO_O_CR) |= GPIO_PIN_7;
+
+    // Set the pins to output 
+    GPIOPinTypeGPIOOutput(BOARD_POWER_GPIO_BASE, BOARD_POWER_BOARD_1_PIN | BOARD_POWER_BOARD_2_PIN);
+
+    // Initialize the pin values to being 0 i.e. the boards aren't powered
+    GPIOPinWrite(BOARD_POWER_GPIO_BASE, BOARD_POWER_BOARD_1_PIN | BOARD_POWER_BOARD_2_PIN, 0);
+}
+
+void Board1PowerOn(void) {
+    GPIOPinWrite(BOARD_POWER_GPIO_BASE, BOARD_POWER_BOARD_1_PIN, BOARD_POWER_BOARD_1_PIN);
+}
+
+void Board1PowerOff(void) {
+    GPIOPinWrite(BOARD_POWER_GPIO_BASE, BOARD_POWER_BOARD_1_PIN, 0);
+}
+
+void Board2PowerOn(void) {
+    GPIOPinWrite(BOARD_POWER_GPIO_BASE, BOARD_POWER_BOARD_2_PIN, BOARD_POWER_BOARD_2_PIN);
+}
+
+void Board2PowerOff(void) {
+    GPIOPinWrite(BOARD_POWER_GPIO_BASE, BOARD_POWER_BOARD_2_PIN, 0);
+}
+
+//******************************************************************//
 //                            Main                                  //
 //******************************************************************//
 
