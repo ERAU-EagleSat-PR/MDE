@@ -94,4 +94,15 @@ extern uint16_t cycle_count; // cycle count - tracks number of memory cycles
 // SPI clock speed. Cannot exceed masterclock, defined above, or any of the maximum chip speeds
 #define SPI_CLK_SPEED 4000000
 
+//**************************************************************//
+//                                                              //
+//      GPIO information for controlling power to the boards    //
+//                                                              //
+//**************************************************************//
+
+void MDEBoard1PowerOn(void);
+void MDEBoard1PowerOff(void);
+void MDEBoard2PowerOn(void);
+void MDEBoard2PowerOff(void);
+
 #endif /* MDE_H_ */
