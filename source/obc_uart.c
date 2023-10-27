@@ -28,6 +28,7 @@
 
 // local project files
 #include "source/obc_uart.h" 
+#include "source/bit_errors.h"
 #include "source/devtools.h"    // Used to write debug code
 #include "source/mde.h"         // Used to access the cycle count
 #include "source/chip_health.h" // Used to access chip_death_array
@@ -187,24 +188,20 @@ void TransmitErrors()
 #ifdef DEBUG
     UARTDebugSend("Error Data:\r\n", 13);
 #endif
-    /*
-     * For actual implementation, we'll have to iterate over the list of errors 
-     * and retrieve the information for each error
-     *
-     * For now, I'm just gonna write a for loop to test things
-     */
-    int i = 0;
-    for(i = 0; i < 3; ++i)
-    {
-        // Temporary hard-coded error packet
+    MDE_Error_Data_t *ptr = errorHead;
+    do {
+        // Take data and fill array
         error_data[2] = unique_id; // Unique ID
-        error_data[3] = 6; // Chip ID 
-        error_data[4] = 9; // Cell address, includes next 3 bytes
-        error_data[5] = 4; 
-        error_data[6] = 2;
-        error_data[7] = 0;
-        error_data[8] = i;  // Written Sequence
-        error_data[9] = 1+i; // Retrieved Sequence
+        error_data[3] = ptr->chip_id; // Chip ID 
+        error_data[4] = (uint8_t) ((ptr->cell_address >> 24) & 0xFF); // Cell address, includes next 3 bytes
+        error_data[5] = (uint8_t) ((ptr->cell_address >> 16) & 0xFF);
+        error_data[6] = (uint8_t)((ptr->cell_address >> 8) & 0xFF);
+        error_data[7] = (uint8_t) ((ptr->cell_address) & 0xFF);
+        error_data[8] = ptr->written_sequence;  // Written Sequence
+        error_data[9] = ptr->retrieved_sequence; // Retrieved Sequence
+
+        // Move to the next error in the queue
+        ptr = ptr->next;
 #ifdef DEBUG
         // Debug message, will contain each character in error_data as
         // a 2 character hex value, with spaces in between
@@ -226,7 +223,8 @@ void TransmitErrors()
 
 	    // Transmit error packet
 	    UARTOBCSend(error_data, ERROR_DATA_LENGTH);
-    }
+    } while (ptr != errorHead);
+    
 #ifdef DEBUG
     UARTDebugSend("End Error Data\r\n\n", 17);
 #endif
