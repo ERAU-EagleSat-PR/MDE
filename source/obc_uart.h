@@ -49,8 +49,7 @@ void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count);
 #define UART_OBC_ESCAPE 0x1F // Escape Character (splits packets)
 
 /* MDE Response Characters */
-#define UART_OBC_ACK 0x14 // ACK - sent after successful execution of a command that doesn't send anything back
-#define UART_OBC_NAK 0x15 // NAK - sent after a command did not complete successfully for some reason
+#define UART_OBC_NAK 0x15 // NAK - sent if we have no data to report
 
 /* Packet Type Identifiers */
 #define UART_OBC_HEALTH_PACKET 0x01 // Health Packet Type
