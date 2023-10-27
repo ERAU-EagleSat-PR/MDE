@@ -333,6 +333,9 @@ main(void)
 
     //EnableBoard2ChipSelectPins(); // Board 2 MUX enable
 
+    BoardPowerInit(); // Initialize the Pins controlling the board power
+                      // includes turning power off
+
 #ifdef DEBUG
     EnableLED(); // Debug LEDs
 
