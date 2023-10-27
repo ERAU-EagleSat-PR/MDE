@@ -99,10 +99,28 @@ extern uint16_t cycle_count; // cycle count - tracks number of memory cycles
 //      GPIO information for controlling power to the boards    //
 //                                                              //
 //**************************************************************//
+// The system peripheral macro for the GPIOs controlling power to
+// the boards. Currently GPIO Port D
+#define BOARD_POWER_GPIO_SYSCTL_PERIPH SYSCTL_PERIPH_GPIOD
+// The GPIO base for the GPIOs controlling power to the boards. 
+// Currently GPIO Port D
+#define BOARD_POWER_GPIO_BASE GPIO_PORTD_BASE
 
-void MDEBoard1PowerOn(void);
-void MDEBoard1PowerOff(void);
-void MDEBoard2PowerOn(void);
-void MDEBoard2PowerOff(void);
+// The pins that control whether power is supplied to the chips on the boards.
+// These pins are active high i.e. to supply power the pins should be set to 1
+
+// The pin for board 1
+#define BOARD_POWER_BOARD_1_PIN GPIO_PIN_6
+// The pin for board 2
+#define BOARD_POWER_BOARD_2_PIN GPIO_PIN_7
+
+// Initializes the GPIOs
+void BoardPowerInit(void);
+
+// Controls the GPIO pins
+void Board1PowerOn(void);
+void Board1PowerOff(void);
+void Board2PowerOn(void);
+void Board2PowerOff(void);
 
 #endif /* MDE_H_ */
