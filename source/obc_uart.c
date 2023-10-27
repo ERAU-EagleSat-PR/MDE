@@ -311,10 +311,18 @@ void UARTOBCRecvMsgHandler(void)
             UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_ESCAPE);
             UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_SOM);
 
-			// Transmit Health and errors should each prepend a data packet with an escape character
-            TransmitHealth();
-            TransmitErrors();
-
+            if((ErrorQueue_IsEmpty(errorHead) == errorsNotEmpty) && errorHead != NULL){
+			    // Transmit Health and errors should each prepend a data packet with an escape character
+                TransmitHealth();
+                TransmitErrors();
+            }
+            else {
+                UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_NAK);
+#ifdef DEBUG
+            char msg[] = "No error data\r\n";
+            UARTDebugSend((uint8_t*)msg, strlen(msg));
+#endif /* DEBUG */
+            }
 
             // Send characters signaling start of message
             UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_ESCAPE);
@@ -331,7 +339,7 @@ void UARTOBCRecvMsgHandler(void)
 #endif /* DEBUG */
 
             // Clear errors
-            // Not sure how??
+            ErrorQueue_Destroy(&errorHead);
 
 
             // Increment unique_id to indicate that the next set of data is
