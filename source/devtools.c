@@ -761,8 +761,13 @@ void processErrorInput(int32_t recv_char)
         menuState = MAIN;
         printDebugMenu();
         break;
-    case 'i': // Insert (not)random new element
-        ErrorQueue_Insert(&errorHead, 1, 1, 1, 1);
+    case 'i': // Insert random new element
+        // Use rand to get random numbers. We don't really care about the specifics of the randomness (i.e.
+        // how uniform the distribution is) so it's fine to just call rand and take the modulus to limit the values
+        // to acceptable ranges for the argument - i.e. uint8_t arguments will only get values between 0 and 255
+        // The byte number/memory address is uint32_t, and rand() returns an int that is guaranteed to be positive,
+        // so we don't have to worry about doing anything to the value from rand().
+        ErrorQueue_Insert(&errorHead, rand() % UINT8_MAX, rand(), rand() % UINT8_MAX, rand() % UINT8_MAX);
         current_error++;
         break;
     case 'r': // Delete first link, and print it.
