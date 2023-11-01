@@ -15,6 +15,7 @@
 *                             Function Prototypes                             *
 *******************************************************************************
 */
+void MDEProcessCycle(void);
 void EnableSPI(void);
 
 /*

@@ -181,6 +181,9 @@ printDebugMenu(void)
         snprintf(chipBuf,10,"(error)");
     }
 
+
+
+
     // Begin menu
     switch (menuState)
     {
@@ -244,6 +247,8 @@ printDebugMenu(void)
         snprintf(buf,bufSize, "P - Prepare Status Register (MRAM/SRAM only)\n\r");
         UARTDebugSend((uint8_t*)buf, strlen(buf));
         snprintf(buf,bufSize, "S - Read Status Register \n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "T - Perform an entire MDE chip cycle.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf,bufSize, "D - Swap Data. Current: %d\n\r",currentCycle);
         UARTDebugSend((uint8_t*)buf, strlen(buf));
@@ -391,8 +396,9 @@ processDebugInput(int32_t recv_char)
         switch (recv_char)
         {
         case 'm':
-        menuState = MAIN;
-        break;
+            MDETimerDisable();
+            menuState = MAIN;
+            break;
         }
         break;
     }
@@ -618,7 +624,16 @@ processChipFunctionsInput(int32_t recv_char)
                 UARTDebugSend((uint8_t*) buf, strlen(buf));
         }
         break;
+    case 't':
+        snprintf(buf,bufSize, "Beginning cycle...\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
 
+        current_chip = 0;
+        MDEProcessCycle();
+
+        snprintf(buf,bufSize, "Cycle complete.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        break;
     case 'd':
         // Swap the current data cycle to the opposite
         if(currentCycle == 0)
@@ -780,7 +795,7 @@ void processErrorInput(int32_t recv_char)
         current_error = 0;
         break;
     case 'p': // Print the entire queue.
-        ErrorQueue_PrintLink(errorHead, current_error);
+        ErrorQueue_PrintLink(errorHead->next, current_error);
         break;
     }
     IntMasterEnable();

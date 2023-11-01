@@ -43,7 +43,7 @@
 //                        Functions                                 //
 //                                                                  //
 //******************************************************************//
-//                  Enable/Configure SPI                            //
+//                  MDE Process Functions                           //
 //******************************************************************//
 
 void
@@ -51,59 +51,38 @@ MDEProcessCycle(void)
 {
     // Perform a complete cycle of the MDE experiment including
     // health check, data read, error check, and data write.
-    // NOTE: This function uses a preset global chip count for purposes of
-    // the watchdog. Set the global chip to 0 or desired chip before running.
+    // !! Set current_chip global var to 0 before beginning a brand new cycle.
 
-    // Prepare for a new data cycle.
     uint8_t i;
-
-
     for(i = current_chip; i < MAX_CHIP_NUMBER; i++)
     {
 
         if(chip_death_array[i] == 0)
         {
             // Perform a health check on all chips, excluding dead ones.
-            CheckChipHealth(i);
+            if(CheckChipHealth(i) == 0)
+            {
+                // If chip is healthy, immediately get its data.
+                ReadFromChip(~currentCycle, i);
 
-            // If chip is healthy, immediately get its data.
-            //ReadFromChip(currentCycle, i);
+                // Write new data to chips
+                WriteToChip(currentCycle, i);
+            }
         }
+        current_chip = i; // Update location tracker
     }
 
     // Prepare new data
-
-    // Begin chip read/write cycle
+    if(currentCycle == 0)
+        currentCycle = 255;
+    else
+        currentCycle = 0;
 }
 
-void
-ChipCycle(void)
-{
-    // Loop through all chips.
-    // If a watchdog interrupt is triggered, this function should be called again after it is dealt with.
+//******************************************************************//
+//                         SPI enable                               //
+//******************************************************************//
 
-    uint8_t current_chip = auto_chip_number;
-    while(auto_chip_number < MAX_CHIP_NUMBER)
-    {
-        // Is this chip dead? If so, skip it
-        if( chip_death_array[current_chip] == 1)
-        {
-#ifdef DEBUG
-            char buf[80];
-        sprintf(buf,"Chip %i is marked as dead!\n\r", current_chip);
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-#endif
-        }
-        else // Chip is not dead; continue with cycle
-        {
-            CheckChipHealth(current_chip); // Check chip health. If it fails this cycle, skip for now.
-        }
-    }
-
-    return;
-}
-
-// This should probably go somewhere else.
 void
 EnableSPI(void)
 {
@@ -191,16 +170,3 @@ void Board2PowerOn(void) {
 void Board2PowerOff(void) {
     GPIOPinWrite(BOARD_POWER_GPIO_BASE, BOARD_POWER_BOARD_2_PIN, 0);
 }
-
-//******************************************************************//
-//                            Main                                  //
-//******************************************************************//
-
-/*
-void
-main(){
-
- Not sure if your intention was to eventually move main here but just gonna leave a comment for now
-}
- */
-

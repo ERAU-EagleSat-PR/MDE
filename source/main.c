@@ -72,7 +72,7 @@ uint16_t cycle_count = 0;
 #ifdef DEBUG
 enum MENU_STATES menuState  = INIT; // Debug menu state
 uint8_t selectedBoard = 1;          // Value 0 or 1 as an offset
-uint8_t currentCycle = 255;           // Value 0 or 255 for writing all 0s or 1s
+uint8_t currentCycle = 255;         // Value 0 or 255 for writing all 0s or 1s
 uint8_t chipSelectStep = 1;         // Used for chip type -> chip number step tracking
 uint8_t seedErrors = 0;             // Value 0 or 1 for seeding errors when writing
 volatile uint32_t ui32Loop;         // Loop variable for blink
@@ -370,6 +370,12 @@ main(void)
             //MRAMStatusPrepare(chip);
         }
         CheckChipHealth(chip); // Check health of all chips. This will also initialize chip health array to 1s assuming they are all working.
+    }
+
+    // Initialize all data to 0.
+    for(chip = 0; chip < MAX_CHIP_NUMBER; chip++)
+    {
+        WriteToChip(0,chip);
     }
 
     //*****************************

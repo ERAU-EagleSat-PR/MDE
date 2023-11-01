@@ -149,7 +149,7 @@ MRAMStatusPrepare(uint8_t chip_number)
     }
 
     //Transmit register data
-  //  SSIDataPut(SPI_base, desiredSR);
+    SSIDataPut(SPI_base, desiredSR);
     while(SSIBusy(SPI_base))
     {
     }
@@ -243,7 +243,7 @@ MRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
     // Loop through all of memory
     for(byte_num = 0; byte_num < MRAM_SIZE_BYTES; byte_num++){
 #ifdef DEBUG
-        if(seedErrors == 1 && byte_num == SEEDERRORS_ADDRESS)
+        if(seedErrors == 1 && (byte_num % SEEDERRORS_ADDRESS) == 0)
             data = SEEDERRORS_VALUE;
         // Begin transmitting data
         SSIDataPut(SPI_base, data);
@@ -261,7 +261,6 @@ MRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
         while(SSIBusy(SPI_base))
         {
         }
-        data = current
 #endif
 
     }
@@ -370,6 +369,7 @@ MRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
         sprintf(str, "%d ", data);
         UARTDebugSend((uint8_t*) str, strlen(str));
 #endif
+        // Send data to be checked and packaged
         CheckErrors(chip_number, byte_num, data, current_cycle);
     }
     // Bring CS high, ending read

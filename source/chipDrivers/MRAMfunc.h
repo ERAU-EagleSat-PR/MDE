@@ -28,6 +28,6 @@ void MRAMStatusPrepare(uint8_t chip_number);
 
 // MRAM Size
 //#define MRAM_SIZE_BYTES 524288
-#define MRAM_SIZE_BYTES 30
+#define MRAM_SIZE_BYTES 20
 
 #endif /* MRAMFUNC_H_ */

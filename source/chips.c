@@ -45,7 +45,7 @@
 // TODO
 
 void
-WriteToChips(uint32_t current_cycle, uint32_t chip_number)
+WriteToChip(uint32_t current_cycle, uint32_t chip_number)
 {
     // Given a chip number 0 - 31, this function calls the correct chip function
     // and writes the selected cycle to it.
@@ -80,7 +80,7 @@ WriteToChips(uint32_t current_cycle, uint32_t chip_number)
 // TODO
 
 void
-ReadFromChips(uint32_t current_cycle, uint32_t chip_number)
+ReadFromChip(uint32_t current_cycle, uint32_t chip_number)
 {
     // Given a chip number 0 - 31, this function calls the correct chip function
     // and reads the data, comparing it to to the selected cycle.

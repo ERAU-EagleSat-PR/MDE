@@ -28,9 +28,11 @@
 void UARTDebugIntHandler(void);
 void UARTDebugEnable(void);
 void UARTDebugSend(const uint8_t *pui8Buffer, uint32_t ui32Count);
+
 //Print functions
 void printDebugMenu(void);
 void ErrorQueue_PrintLink(MDE_Error_Data_t *ptr, uint8_t printCount);
+
 //Process inputs
 void processDebugInput(int32_t recv_char);
 void processMainMenuInput(int32_t recv_char);
@@ -62,9 +64,25 @@ void processBoardPowerInput(int32_t recv_char);
 // The baud rate to use for either UART connection
 #define BAUD_RATE_DEBUG     115200
 
-//-----------------------------------------------------------------------------
-// State trackers for Debug menu
-//-----------------------------------------------------------------------------
+// Values controlling error seeding when debugging
+#define SEEDERRORS_ADDRESS  15
+#define SEEDERRORS_VALUE    0b10101010
+
+/*
+*******************************************************************************
+*                                  Globals                                    *
+*******************************************************************************
+*/
+extern uint8_t selectedBoard;  // Value 0 or 1, will be changed to work as an offset when a second board is necessary in testing
+extern uint8_t currentCycle;   // Value 0 or 1 for writing 0s or 1s
+extern uint8_t chipSelectStep; // Used for chip type -> chip number step tracking
+extern uint8_t seedErrors;     // Value 0 or 1 if errors should be seeded when writing.
+
+/*
+*******************************************************************************
+*                                State Tracker                                *
+*******************************************************************************
+*/
 enum MENU_STATES {  INIT,
                     MAIN,
                     AUTO,
@@ -99,15 +117,6 @@ extern enum MEM_TYPES selectedChipType;
 extern enum CHIP_NUMBERS selectedChipNumber;
 //*/
 
-// Global variables for devtools
-extern uint8_t selectedBoard;  // Value 0 or 1, will be changed to work as an offset when a second board is necessary in testing
-extern uint8_t currentCycle;   // Value 0 or 1 for writing 0s or 1s
-extern uint8_t chipSelectStep; // Used for chip type -> chip number step tracking
-extern uint8_t seedErrors;     // Value 0 or 1 if errors should be seeded when writing.
-
-// Values controlling error seeding when debugging
-#define SEEDERRORS_ADDRESS  10
-#define SEEDERRORS_VALUE    0b10101010
 
 // Byte pattern for printing in binary
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"

@@ -150,14 +150,10 @@ FRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
 
     uint32_t byte_num = 0;
     for(byte_num = 0; byte_num < FRAM_SIZE_BYTES; byte_num++){
-
-        // Some fake errors for testing
-        // If seeded errors are needed, change the flag in the primary header
-#ifdef SEEDERRORS
-    if(byte_num == SEEDERRORS_ADDRESS){
-      data = SEEDERRORS_VALUE;
-    }
-#endif
+        // Seeded errors if in debug mode
+#ifdef DEBUG
+        if(seedErrors == 1 && (byte_num % SEEDERRORS_ADDRESS) == 0)
+            data = SEEDERRORS_VALUE;
         // Begin transmitting data
         SSIDataPut(SPI_base, data);
 
@@ -165,7 +161,16 @@ FRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
         while(SSIBusy(SPI_base))
         {
         }
+        data = current_cycle;
+#else // Flight mode
+        // Begin transmitting data
+        SSIDataPut(SPI_base, data);
 
+        // Wait for the transmission to complete before moving on to the next byte
+        while(SSIBusy(SPI_base))
+        {
+        }
+#endif
     }
     // CS high
     SetChipSelect(chip_number_alt);
@@ -253,8 +258,8 @@ FRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
         // Read in the data
         SSIDataGet(SPI_base, &data);
 
-        // Send data to be compared and prepared
-        //CheckErrors(data, sequence, byte_num, chip_number);
+        // Send data to be checked and packaged
+        CheckErrors(chip_number, byte_num, data, current_cycle);
 #ifdef DEBUG
         char str[12];
         sprintf(str, "%d ", data);

@@ -26,6 +26,6 @@ uint8_t SRAMStatusRead(uint32_t chip_number);
 
 // SRAM maximum Size
 //#define SRAM_SIZE_BYTES 512000
-#define SRAM_SIZE_BYTES 10
+#define SRAM_SIZE_BYTES 20
 
 #endif /* SRAMFUNC_H_ */

@@ -252,6 +252,7 @@ FlashSequenceTransmit(uint8_t current_cycle, uint8_t chip_number)
     if (current_cycle == 255)
     {
         // This erase function counts as writing all 1s to memory
+        // DEBUG NOTE: error seeding is impossible when writing 0s to flash because of this.q
         FlashErase(chip_number);
     }
     else if (current_cycle == 0)
@@ -301,22 +302,26 @@ FlashSequenceTransmit(uint8_t current_cycle, uint8_t chip_number)
               if(current_address + byte_num > FLASH_SIZE_BYTES){
                   break;
               }
+#ifdef DEBUG // Error seeding if in debug mode
+        if(seedErrors == 1 && ((current_address + byte_num) % SEEDERRORS_ADDRESS) == 0)
+            data = SEEDERRORS_VALUE;
+        // Begin transmitting data
+        SSIDataPut(SPI_base, data);
 
-              // Some fake errors for testing
-              // If seeded errors are needed, change the flag in the primary header
-    #ifdef SEEDERRORS
-      if(current_address + byte_num == SEEDERRORS_ADDRESS){
-        data = SEEDERRORS_VALUE;
-      }
-    #endif
+        // Wait for the transmission to complete before moving on to the next byte
+        while(SSIBusy(SPI_base))
+        {
+        }
+        data = current_cycle;
+#else // Flight mode
+        // Begin transmitting data
+        SSIDataPut(SPI_base, data);
 
-              // Begin transmitting data
-              SSIDataPut(SPI_base, data);
-
-              // Wait for the transmission to complete before moving on to the next byte
-              while(SSIBusy(SPI_base))
-              {
-              }
+        // Wait for the transmission to complete before moving on to the next byte
+        while(SSIBusy(SPI_base))
+        {
+        }
+#endif
           }
           // CS high
           SetChipSelect(chip_number_alt);
@@ -350,7 +355,7 @@ FlashSequenceTransmit(uint8_t current_cycle, uint8_t chip_number)
               SSIDataGet(SPI_base, &status_register);
 
               // Small delay as quickly checking the register seems to pre-emptively cause a zero-result while a write is still in progress
-              // The erase cycle is so long relatively this barely matters.
+              // The write cycle is so long relatively this barely matters.
               SysCtlDelay(1600);
           }
 
@@ -370,10 +375,6 @@ FlashSequenceTransmit(uint8_t current_cycle, uint8_t chip_number)
       // CS high
       SetChipSelect(chip_number_alt);
     }
-
-
-    // Chip write may not be complete at this point; could add a check of the status register to find that out here, but it will be finished long before the next read cycle so I see no point in waiting
-    // on each chip to completely finish its flash. However could be a good point for the watchdog to wait.
 }
 
 //*****************************************************************************
@@ -456,8 +457,8 @@ FlashSequenceRetrieve(uint8_t current_cycle, uint8_t chip_number)
         // Read in the data
         SSIDataGet(SPI_base, &data);
 
-        //Send data to be checked and prepared
-        //CheckErrors(data, sequence, byte_num, chip_number);
+        // Send data to be checked and packaged
+        CheckErrors(chip_number, byte_num, data, current_cycle);
 #ifdef DEBUG
         char str[12];
         sprintf(str, "%d ", data);
