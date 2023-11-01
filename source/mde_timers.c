@@ -88,14 +88,15 @@ MDETimerInt(void)
     // Clear timer interrupt
     TimerIntClear(MDE_TIMER_BASE, MDE_TIMER_INT);
 
-    // Call the function to begin a new cycle.
-    current_chip = 0;
-    //MDEProcessCycle();
-#ifdef DEBUG
-        char str[12];
-        sprintf(str, "Beep\r\n");
-        UARTDebugSend((uint8_t*) str, strlen(str));
-#endif
+    if(timer_current_cycle >= MEMORY_CYCLE_COUNT)
+    {
+        // Call the function to begin a new cycle.
+        current_chip = 0;
+        MDEProcessCycle();
+        timer_current_cycle = 0;
+    }
+    else
+        timer_current_cycle++;
 
 }
 

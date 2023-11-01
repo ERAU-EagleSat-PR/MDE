@@ -49,9 +49,9 @@
 */
 
 // Variables for the timer
-uint32_t timer_current_cycle = 0;   // unnecessary?
 bool timer_wakeup = false;          // unnecessary?
-uint32_t cycle_time_clockrate = MEMORY_CYCLE_TIME*60*SYS_CLK_SPEED;
+uint32_t cycle_time_clockrate = (uint32_t)MEMORY_CYCLE_TIME * (uint32_t)MINUTE * (uint32_t)SYS_CLK_SPEED;
+uint32_t timer_current_cycle = 0;  // Maximum timer value is limited by the 32 bit architecture, so we must complete multiple timer interrupts before processing.
 
 // Error Variables
 uint32_t current_error = 0;         // global error count (from bit_errors.c)
@@ -326,7 +326,9 @@ main(void)
     //MDEWatchdogsEnable(); // Watchdog Timers
 
     MDETimerConfigure();
-
+#ifdef DEBUG
+    MDETimerDisable(); // For debugging reasons. In flight mode, likely its fine to leave the timer on.
+#endif
     EnableSPI(); // Chip SPI communications
 
     EnableBoard1ChipSelectPins(); // Board 1 MUX enable

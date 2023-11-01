@@ -215,7 +215,7 @@ printDebugMenu(void)
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "E - Error queue functions.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf, bufSize,  "A - Enter Auto Mode (not implemented)\n\r");
+        snprintf(buf, bufSize,  "A - Enter Auto/Flight Mode \n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         // OBC Debug Options
         snprintf(buf, bufSize,  "O - OBC UART Commands\n\r");
@@ -322,7 +322,7 @@ printDebugMenu(void)
 
     case AUTO:
         UARTCharPut(UART_DEBUG, 0xC);
-        snprintf(buf, bufSize, "AUTO MODE. Cycle time: %d",MEMORY_CYCLE_TIME);
+        snprintf(buf, bufSize, "AUTO MODE. Cycle time: %d Cycle count: %d\r\n",MEMORY_CYCLE_TIME, MEMORY_CYCLE_COUNT);
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize, "Hit M to exit.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
@@ -439,8 +439,9 @@ processMainMenuInput(int32_t recv_char)
         break;
     case 'a':   // Enter Auto Mode
         menuState = AUTO;
-        MDETimerEnable();
+        MDETimerEnable(); // Enable MDE loop
         printDebugMenu();
+
         break;
     case 'h':   // Health Functions
         UARTCharPut(UART_DEBUG, 0xC);

@@ -204,6 +204,11 @@ FRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
     uint32_t temp;
     //uint32_t chip_port = RetrieveChipPort(chip_number);
 
+#ifdef DEBUG
+    char buf[10];
+    uint8_t bufSize = 10;
+#endif
+
     // Random chip selection for setting CS high
     // FRAM is always 3-7, so always adding 7 is fine.
     chip_number_alt = chip_number + 7;
@@ -260,18 +265,15 @@ FRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
 
         // Send data to be checked and packaged
         CheckErrors(chip_number, byte_num, data, current_cycle);
+
 #ifdef DEBUG
-        char str[12];
-        sprintf(str, "%d ", data);
-        UARTDebugSend((uint8_t*) str, strlen(str));
+        if(byte_num < 10)
+        {
+            snprintf(buf,bufSize, "%u ", data);
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
+        }
 #endif
     }
     // Bring CS high, ending read
     SetChipSelect(chip_number_alt);
-
-#ifdef DEBUG
-        char str[5];
-        sprintf(str, "\r\n");
-        UARTDebugSend((uint8_t*) str, strlen(str));
-#endif
 }

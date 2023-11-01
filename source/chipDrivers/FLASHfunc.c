@@ -252,7 +252,7 @@ FlashSequenceTransmit(uint8_t current_cycle, uint8_t chip_number)
     if (current_cycle == 255)
     {
         // This erase function counts as writing all 1s to memory
-        // DEBUG NOTE: error seeding is impossible when writing 0s to flash because of this.q
+        // DEBUG NOTE: error seeding is impossible when writing 1s to flash because of this.
         FlashErase(chip_number);
     }
     else if (current_cycle == 0)
@@ -394,6 +394,10 @@ FlashSequenceRetrieve(uint8_t current_cycle, uint8_t chip_number)
     // Necessary Variables
     uint8_t chip_number_alt;
     uint32_t SPI_base;
+#ifdef DEBUG
+    char buf[10];
+    uint8_t bufSize = 10;
+#endif
     //uint32_t chip_port = RetrieveChipPort(chip_number);
     // Random chip selection for setting CS high
     // TODO: remove these checks they are redundant since all chips have guaranteed range to be in
@@ -409,7 +413,7 @@ FlashSequenceRetrieve(uint8_t current_cycle, uint8_t chip_number)
         SPI_base = SPI1_NUM_BASE;
     }
     //
-    // Clear out the FIFO recieve buffer
+    // Clear out the FIFO receive buffer
     //
     uint32_t temp;
     while(SSIDataGetNonBlocking(SPI_base, &temp))
@@ -459,18 +463,16 @@ FlashSequenceRetrieve(uint8_t current_cycle, uint8_t chip_number)
 
         // Send data to be checked and packaged
         CheckErrors(chip_number, byte_num, data, current_cycle);
+
 #ifdef DEBUG
-        char str[12];
-        sprintf(str, "%d ", data);
-        UARTDebugSend((uint8_t*) str, strlen(str));
+        if(byte_num < 10)
+        {
+            snprintf(buf,bufSize, "%u ", data);
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
+        }
 #endif
+
     }
     // Bring CS high, ending read
     SetChipSelect(chip_number_alt);
-
-#ifdef DEBUG
-        char str[5];
-        sprintf(str, "\r\n");
-        UARTDebugSend((uint8_t*) str, strlen(str));
-#endif
 }

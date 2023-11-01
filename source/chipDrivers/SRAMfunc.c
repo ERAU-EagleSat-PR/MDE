@@ -163,7 +163,7 @@ SRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
         }
 #endif
         if(byte_num == 262140) // SRAM Die Boundary - must re-initiate write when crossing in to second memory cell.
-        {             // ^ Magic value based on SRAM address/page organization. Boundary is 0x3FFFF
+        {             // ^ Magic value based on SRAM address/page organization. Boundary is 0x3FFFF, number is FFFF*4pages.
             // Bring CS high, ending write
             SetChipSelect(chip_number_alt);
             // Set CS low
@@ -179,13 +179,6 @@ SRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
 
             // Wait for the transaction to complete
             while(SSIBusy(SPI_base))
-            {
-            }
-
-            // Clear out the FIFO receive buffer
-            //
-            uint32_t temp;
-            while(SSIDataGetNonBlocking(SPI_base, &temp))
             {
             }
         }
@@ -212,6 +205,11 @@ SRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
     uint8_t chip_number_alt;
     uint32_t SPI_base;
     //uint32_t chip_port = RetrieveChipPort(chip_number);
+
+#ifdef DEBUG
+    char buf[10];
+    uint8_t bufSize = 10;
+#endif
 
     // Random chip selection for setting CS high
     // SRAM are always 12 to 15, so fine to subtract 7.
@@ -270,11 +268,6 @@ SRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
 
         // Read in the data
         SSIDataGet(SPI_base, &data);
-#ifdef DEBUG
-        char str[12];
-        sprintf(str, "%d ", data);
-        UARTDebugSend((uint8_t*) str, strlen(str));
-#endif
         // Send data to be checked and packaged
         CheckErrors(chip_number, byte_num, data, current_cycle);
 
@@ -302,18 +295,19 @@ SRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
 
             // Clear out the FIFO receive buffer
             //
-            uint32_t temp;
             while(SSIDataGetNonBlocking(SPI_base, &temp))
             {
             }
         }
+
+#ifdef DEBUG
+        if(byte_num < 10)
+        {
+            snprintf(buf,bufSize, "%u ", data);
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
+        }
+#endif
     }
     // Bring CS high, ending read
     SetChipSelect(chip_number_alt);
-
-#ifdef DEBUG
-    char str[5];
-    sprintf(str, "\r\n");
-    UARTDebugSend((uint8_t*) str, strlen(str));
-#endif
 }

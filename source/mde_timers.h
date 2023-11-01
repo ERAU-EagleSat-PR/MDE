@@ -35,11 +35,12 @@ void ChipWatchdogInt(void);
 #define MDE_TIMER_CTL SYSCTL_PERIPH_TIMER0
 #define MDE_TIMER_BASE TIMER0_BASE
 #define MDE_TIMER_INT TIMER_TIMA_TIMEOUT
+#define MINUTE 60
 
 // Cycle time is the time it takes for a timer interrupt to trigger in seconds
 // Timer cycles is how many cycles the timer will do before performing a check
-#define MEMORY_CYCLE_TIME 1 //minutes
-#define TIMER_CYCLES 1
+#define MEMORY_CYCLE_TIME 4 //minutes. nearly the max value timer can wait.
+#define MEMORY_CYCLE_COUNT 0 //22 //  0 inclusive. Amount of times last timer will trigger before an MDE cycle begins. 90/4 = 22.5 -> 22
 
 // Variables for the watchdog timers.
 #define MDE_WD_BASE WATCHDOG0_BASE
@@ -48,7 +49,7 @@ void ChipWatchdogInt(void);
 // VVV these values need to be pre-calculated with the clock speed to avoid
 //     potential issues.
 #define MDE_WD_TIME 180 // minutes ( currently 1.5x the total cycle length. need to examine this )
-#define CHIP_WD_TIME 30 // seconds ( need to time flash operations, they are longest )
+#define CHIP_WD_TIME 30 // seconds ( need to time flash operations, they are longest: a flash erase takes ~2 minutes 40 seconds. )
 // NOTE: chips will run on the PIOSC clock, not system clock as it is WDT1. reduced accuracy, give it leeway
 
 

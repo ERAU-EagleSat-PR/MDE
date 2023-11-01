@@ -300,6 +300,11 @@ MRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
     uint8_t chip_number_alt;
     uint32_t SPI_base;
 
+#ifdef DEBUG
+    char buf[10];
+    uint8_t bufSize = 10;
+#endif
+
     // Chip port
     //uint32_t chip_port = RetrieveChipPort(chip_number);
 
@@ -364,21 +369,18 @@ MRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
 
         // Read in the data
         SSIDataGet(SPI_base, &data);
-#ifdef DEBUG
-        char str[12];
-        sprintf(str, "%d ", data);
-        UARTDebugSend((uint8_t*) str, strlen(str));
-#endif
         // Send data to be checked and packaged
         CheckErrors(chip_number, byte_num, data, current_cycle);
+
+#ifdef DEBUG
+        if(byte_num < 10)
+        {
+            snprintf(buf,bufSize, "%u ", data);
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
+        }
+#endif
     }
     // Bring CS high, ending read
     SetChipSelect(chip_number_alt);
-
-#ifdef DEBUG
-        char str[5];
-        sprintf(str, "\r\n");
-        UARTDebugSend((uint8_t*) str, strlen(str));
-#endif
 }
 

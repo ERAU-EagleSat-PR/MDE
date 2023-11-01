@@ -37,6 +37,8 @@
 #include "source/chip_health.h"
 #include "source/devtools.h"
 #include "source/chips.h"
+#include "source/mde_timers.h"
+#include "source/devtools.h"
 
 //******************************************************************//
 //                                                                  //
@@ -52,7 +54,14 @@ MDEProcessCycle(void)
     // Perform a complete cycle of the MDE experiment including
     // health check, data read, error check, and data write.
     // !! Set current_chip global var to 0 before beginning a brand new cycle.
+#ifdef DEBUG
+    char buf[40];
+    uint8_t bufSize = 40;
 
+    MDETimerDisable();
+    snprintf(buf,bufSize, "Beginning MDE %u cycle...\n\r", currentCycle);
+    UARTDebugSend((uint8_t*) buf, strlen(buf));
+#endif
     uint8_t i;
     for(i = current_chip; i < MAX_CHIP_NUMBER; i++)
     {
@@ -67,8 +76,21 @@ MDEProcessCycle(void)
 
                 // Write new data to chips
                 WriteToChip(currentCycle, i);
+#ifdef DEBUG
+                snprintf(buf,bufSize, "CHIP %2u OK\n\r", i);
+                UARTDebugSend((uint8_t*) buf, strlen(buf));
+            } else {
+                snprintf(buf,bufSize, "CHIP %2u HEALTH\n\r", i);
+                UARTDebugSend((uint8_t*) buf, strlen(buf));
+            }
+        } else {
+            snprintf(buf,bufSize, "CHIP %2u DEAD\n\r", i);
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
+        }
+#else
             }
         }
+#endif
         current_chip = i; // Update location tracker
     }
 
@@ -77,6 +99,11 @@ MDEProcessCycle(void)
         currentCycle = 255;
     else
         currentCycle = 0;
+#ifdef DEBUG
+    snprintf(buf,bufSize, "MDE Cycle complete.\n\r");
+    UARTDebugSend((uint8_t*) buf, strlen(buf));
+    MDETimerEnable();
+#endif
 }
 
 //******************************************************************//
