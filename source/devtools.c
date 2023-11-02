@@ -769,8 +769,6 @@ void processChipHealthInput(int32_t recv_char)
 void processErrorInput(int32_t recv_char)
 {
     IntMasterDisable();
-    //char buf[50];
-    //uint8_t bufSize = 50;
 
     switch (recv_char)
     {
@@ -784,6 +782,7 @@ void processErrorInput(int32_t recv_char)
         // to acceptable ranges for the argument - i.e. uint8_t arguments will only get values between 0 and 255
         // The byte number/memory address is uint32_t, and rand() returns an int that is guaranteed to be positive,
         // so we don't have to worry about doing anything to the value from rand().
+        // Note that RAND_MAX for the microcontroller is 32767, so the cell address is limited
         ErrorQueue_Insert(&errorHead, rand() % UINT8_MAX, rand(), rand() % UINT8_MAX, rand() % UINT8_MAX);
         break;
     case 'r': // Delete first link, and print it.
@@ -794,6 +793,7 @@ void processErrorInput(int32_t recv_char)
         ErrorQueue_Destroy(&errorHead);
         break;
     case 'p': // Print the entire queue.
+        printDebugMenu();
         ErrorQueue_PrintLink(errorHead->next, current_error);
         break;
     }
