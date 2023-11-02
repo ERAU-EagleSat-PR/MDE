@@ -792,7 +792,6 @@ void processErrorInput(int32_t recv_char)
         break;
     case 'd': // Delete the entire queue.
         ErrorQueue_Destroy(&errorHead);
-        current_error = 0;
         break;
     case 'p': // Print the entire queue.
         printDebugMenu();

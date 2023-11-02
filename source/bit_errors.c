@@ -128,6 +128,7 @@ void ErrorQueue_Destroy(MDE_Error_Data_t **ptr) {
     while (ErrorQueue_IsEmpty(*ptr) == errorsNotEmpty) {
         ErrorQueue_Remove(ptr);
     }
+    current_error = 0;
 }
 
 
