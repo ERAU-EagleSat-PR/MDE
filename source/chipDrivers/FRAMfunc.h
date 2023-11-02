@@ -32,7 +32,6 @@ FRAMID FRAMStatusRead(uint8_t chip_number);
 #define FRAM_PROD2 0x0A
 
 // FRAM Size
-//#define FRAM_SIZE_BYTES 2048
-#define FRAM_SIZE_BYTES 20
+#define FRAM_SIZE_BYTES 2048
 
 #endif /* FRAMFUNC_H_ */

@@ -63,8 +63,16 @@ MDEProcessCycle(void)
     UARTDebugSend((uint8_t*) buf, strlen(buf));
 #endif
     uint8_t i;
+
+    // Enable chips watchdog and give it an initial poke.
+    //ChipWatchdogPoke();
+    //MDEWatchdogPoke();
+    reading_chip = true;
+
     for(i = current_chip; i < MAX_CHIP_NUMBER; i++)
     {
+        //ChipWatchdogPoke(); // Reset watchdog before each chip.
+        //MDEWatchdogPoke();
 
         if(chip_death_array[i] == 0)
         {
@@ -93,6 +101,10 @@ MDEProcessCycle(void)
 #endif
         current_chip = i; // Update location tracker
     }
+
+    // Disable chips watchdog
+    //ChipWatchdogPoke();
+    reading_chip = false;
 
     // Prepare new data
     if(currentCycle == 0)

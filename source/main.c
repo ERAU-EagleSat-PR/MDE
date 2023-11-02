@@ -3,10 +3,10 @@
  */
 
 /*
-*******************************************************************************
-*                               Include Files                                 *
-*******************************************************************************
-*/
+ *******************************************************************************
+ *                               Include Files                                 *
+ *******************************************************************************
+ */
 
 // Standard Includes
 #include <stdint.h>
@@ -42,16 +42,25 @@
 #include "source/mde_timers.h"
 #include "source/devtools.h"
 
+// Chip drivers
+#include "source/chipDrivers/FLASHfunc.h"
+#include "source/chipDrivers/MRAMfunc.h"
+#include "source/chipDrivers/SRAMfunc.h"
+#include "source/chipDrivers/FRAMfunc.h"
+
 /*
-*******************************************************************************
-*                        Initialize Global Variables                          *
-*******************************************************************************
-*/
+ *******************************************************************************
+ *                        Initialize Global Variables                          *
+ *******************************************************************************
+ */
 
 // Variables for the timer
 bool timer_wakeup = false;          // unnecessary?
+bool reading_chip = 0;
 uint32_t cycle_time_clockrate = (uint32_t)MEMORY_CYCLE_TIME * (uint32_t)MINUTE * (uint32_t)SYS_CLK_SPEED;
 uint32_t timer_current_cycle = 0;  // Maximum timer value is limited by the 32 bit architecture, so we must complete multiple timer interrupts before processing.
+uint32_t wd_chip_time = (uint32_t)CHIP_WD_TIME * (uint32_t)MINUTE * (uint32_t)SYS_CLK_SPEED;
+uint32_t wd_mde_time =  (uint32_t)SYS_CLK_SPEED;// * (uint32_t)4 * (uint32_t)MINUTE;
 
 // Error Variables
 uint32_t current_error = 0;         // global error count (from bit_errors.c)
@@ -59,7 +68,7 @@ MDE_Error_Data_t *errorHead = 0;
 
 // Global Chip Trackers
 uint8_t auto_chip_number = 0;       // Chip tracker for auto mode (from mde.h)
-uint8_t current_chip = 5;           // track active chip (from chips.h)
+uint8_t current_chip = 1;           // track active chip (from chips.h)
 CHIPHEALTH chip_health_array[32];   // track chip health (from chiphealth.h)
 bool chip_death_array[32];          // track dead chips (from chiphealth.h)
 bool reading_chip;                  // read/write tracker (from mde_timers.h)
@@ -72,7 +81,7 @@ uint16_t cycle_count = 0;
 #ifdef DEBUG
 enum MENU_STATES menuState  = INIT; // Debug menu state
 uint8_t selectedBoard = 1;          // Value 0 or 1 as an offset
-uint8_t currentCycle = 255;         // Value 0 or 255 for writing all 0s or 1s
+uint8_t currentCycle;               // Value 0 or 255 for writing all 0s or 1s
 uint8_t chipSelectStep = 1;         // Used for chip type -> chip number step tracking
 uint8_t seedErrors = 0;             // Value 0 or 1 for seeding errors when writing
 volatile uint32_t ui32Loop;         // Loop variable for blink
@@ -80,10 +89,10 @@ volatile uint32_t ui32Loop;         // Loop variable for blink
 
 
 /*
-*******************************************************************************
-*                             Function Prototypes                             *
-*******************************************************************************
-*/
+ *******************************************************************************
+ *                             Function Prototypes                             *
+ *******************************************************************************
+ */
 
 // UART Functions
 /*
@@ -99,7 +108,7 @@ void processMainMenuInput(int32_t recv_char);
 void processCSBoardMenuInput(int32_t recv_char);
 void processCSTypeMenuInput(int32_t recv_char);
 void processCSNumMenuInput(int32_t recv_char);
-*/
+ */
 
 #ifdef DEBUG
 // LED Functions
@@ -117,14 +126,14 @@ void EnablePrimaryUART(void)
 {
 
 }
-*/
+ */
 
 
 /*
-*******************************************************************************
-*                               Chip Select Pins                              *
-*******************************************************************************
-*/
+ *******************************************************************************
+ *                               Chip Select Pins                              *
+ *******************************************************************************
+ */
 
 //-----------------------------------------------------------------------------
 // Enables GPIO for Board 1 chip select
@@ -192,10 +201,10 @@ EnableBoard2ChipSelectPins(void)
 }
 
 /*
-******************************************************************************
-*                                LED FUNCTIONS                               *
-******************************************************************************
-*/
+ ******************************************************************************
+ *                                LED FUNCTIONS                               *
+ ******************************************************************************
+ */
 #ifdef DEBUG
 
 //-----------------------------------------------------------------------------
@@ -205,22 +214,22 @@ void
 EnableLED(void)
 {
 
-  // Enable LED GPIO PIN
-  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+    // Enable LED GPIO PIN
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
 
-  // Check for peripheral to be Enabled
-  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF))
-  {
-  }
+    // Check for peripheral to be Enabled
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF))
+    {
+    }
 
-  // Enable the GPIO pin for the RED LED (PF1).  Set the direction as output
-  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
+    // Enable the GPIO pin for the RED LED (PF1).  Set the direction as output
+    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
 
-  // Enable the GPIO pin for the GREEN LED (PF3).  Set the direction as output
-  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_3);
+    // Enable the GPIO pin for the GREEN LED (PF3).  Set the direction as output
+    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_3);
 
-  // Enable the GPIO pin for the BLUE LED (PF2).  Set the direction as output
-  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
+    // Enable the GPIO pin for the BLUE LED (PF2).  Set the direction as output
+    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
 
 }
 
@@ -314,7 +323,7 @@ main(void)
 
     // Set the clock speed.
     SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN |
-                           SYSCTL_XTAL_16MHZ);
+                   SYSCTL_XTAL_16MHZ);
 
     // Enable interrupts
     IntMasterEnable();
@@ -322,8 +331,6 @@ main(void)
     //*****************************
     // Peripheral Enablers
     //*****************************
-
-    //MDEWatchdogsEnable(); // Watchdog Timers
 
     MDETimerConfigure();
 #ifdef DEBUG
@@ -336,7 +343,7 @@ main(void)
     //EnableBoard2ChipSelectPins(); // Board 2 MUX enable
 
     BoardPowerInit(); // Initialize the Pins controlling the board power
-                      // includes turning power off
+    // includes turning power off
 
 #ifdef DEBUG
     EnableLED(); // Debug LEDs
@@ -349,6 +356,8 @@ main(void)
     printDebugMenu();
 
 #endif /* DEBUG */
+
+    //WatchdogsEnable(); //TODO Watchdog Timers WHEN DEBUG MODE IS OFF THIS REQUIRES THAT UART0 IS STILL ENABLED
 
     //*****************************
     // Enable the UART for OBC 
@@ -365,20 +374,28 @@ main(void)
     InitializeChipHealth();
     // Check all chips before program start
     uint8_t chip;
+    uint8_t norm;
     for(chip = 0; chip < MAX_CHIP_NUMBER; chip++)
     {
-        if ((chip % 16) >= 8 && (chip % 16) < 12) // If the chip is MRAM, prepare its status register
+        norm = chip%16;
+
+        if(norm < 4)
+        {
+            //FlashConfiguration(chip);
+        }
+        else if (norm >= 8 && norm < 12) // If the chip is MRAM, prepare its status register
         {
             //MRAMStatusPrepare(chip);
         }
         CheckChipHealth(chip); // Check health of all chips. This will also initialize chip health array to 1s assuming they are all working.
     }
 
-    // Initialize all data to 0.
+    // Initialize all data to 1s, and begin on a 0 cycle.
     for(chip = 0; chip < MAX_CHIP_NUMBER; chip++)
     {
-        WriteToChip(0,chip);
+        WriteToChip(255,chip);
     }
+    currentCycle = 0;
 
     //*****************************
     // Other Configurations
@@ -391,11 +408,13 @@ main(void)
     //*****************************
     while (1)
     {
-        #ifdef DEBUG
-            BlinkGreenLED();
-        #else   /* Idle "heart beat" */
-            BlinkRedLED();
-        #endif /* DEBUG */
+#ifdef DEBUG
+        BlinkGreenLED();
+#else   /* Idle "heart beat" */
+        BlinkRedLED();
+#endif /* DEBUG */
+
+        //MDEWatchdogPoke(); // Keep the dog fed
 
         if(UARTOBCIsDataReady())
             UARTOBCRecvMsgHandler();
@@ -416,7 +435,7 @@ main(void)
     }
 
 }
-
+// We need to send the first address of the current 256 byte block
 //*****************************************************************************
 //                                                                            *
 //                                END MAIN                                    *

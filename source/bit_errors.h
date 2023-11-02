@@ -54,10 +54,8 @@ uint8_t ErrorQueue_Remove(MDE_Error_Data_t **ptr);
 // TransmitErrors() Error Buffer Variables //TODO
 //-----------------------------------------------------------------------------
 
-// Maximum error storage based on given heap size of 16384 bytes, sizeof(MDE_Error_Data_t) = 12 bytes.
-// Given buffer of 1200, there is 2384 bytes of margin.
-// This value can likely be massively increased if wanted as we have 256kb of total memory, most of which is likely unused.
-#define ERROR_BUFFER_MAX_SIZE 1200
+// Maximum error storage based on testing.
+#define ERROR_BUFFER_MAX_SIZE 600
 
 // The buffer variables
 extern uint32_t current_error;
