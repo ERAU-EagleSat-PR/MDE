@@ -392,7 +392,7 @@ main(void)
     while (1)
     {
         #ifdef DEBUG
-            BlinkGreenLED();
+            //BlinkGreenLED();
         #else   /* Idle "heart beat" */
             BlinkRedLED();
         #endif /* DEBUG */
