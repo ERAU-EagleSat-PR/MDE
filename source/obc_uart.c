@@ -312,12 +312,16 @@ void UARTOBCRecvMsgHandler(void)
             UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_ESCAPE);
             UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_SOM);
 
+            // Transmit the health packet (includes prepended ESC)
+            TransmitHealth();
+
+            // If we have errors, send them
             if((ErrorQueue_IsEmpty(errorHead) == errorsNotEmpty) && errorHead != NULL){
-			    // Transmit Health and errors should each prepend a data packet with an escape character
-                TransmitHealth();
                 TransmitErrors();
             }
+            // If not, send a NAK prepended with an escape
             else {
+                UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_ESCAPE);
                 UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_NAK);
 #ifdef DEBUG
             char msg[] = "No error data\r\n";
