@@ -44,7 +44,10 @@
 // functions handling MDE-OBC communication (i.e. functions in this file)
 // should be able to access them
 
-// MDE should be mapped to pins 19 and 20 on the OBC (we think, as of 2023-09-27)
+// UART Pin connections (RX and TX refer to MDE RX and TX pins):
+// MDE dev board: PB0: RX; PB1: TX
+// MDE Stack Header: D10: RX; D11: TX
+// OBC Header H2: 50: RX; 49: TX
 
 // UART OBC message buffer - filled by the interrupt handler, and 
 // processed by UARTOBCRecvMsgHandler
