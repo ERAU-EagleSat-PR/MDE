@@ -345,17 +345,9 @@ main(void)
     BoardPowerInit(); // Initialize the Pins controlling the board power
     // includes turning power off
 
-#ifdef DEBUG
-    EnableLED(); // Debug LEDs
+    Board1PowerOn();
+    Board2PowerOn();
 
-    // UART Enable and Configuration
-    UARTDebugEnable();
-
-    // Initialize Debug Menu
-    menuState = MAIN;
-    printDebugMenu();
-
-#endif /* DEBUG */
 
     //WatchdogsEnable(); //TODO Watchdog Timers WHEN DEBUG MODE IS OFF THIS REQUIRES THAT UART0 IS STILL ENABLED
 
@@ -366,7 +358,6 @@ main(void)
     // UART output will be on both UARTs
     //*****************************
     UARTOBCEnable();
-
     //*****************************
     // Chip Configurations
     //*****************************
@@ -396,6 +387,20 @@ main(void)
         WriteToChip(255,chip);
     }
     currentCycle = 0;
+
+
+#ifdef DEBUG
+    EnableLED(); // Debug LEDs
+
+    // UART Enable and Configuration
+    UARTDebugEnable();
+
+    // Initialize Debug Menu
+    menuState = MAIN;
+    printDebugMenu();
+
+#endif /* DEBUG */
+
 
     //*****************************
     // Other Configurations
