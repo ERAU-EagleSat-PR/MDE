@@ -191,7 +191,8 @@ void TransmitErrors()
     MDE_Error_Data_t *ptr = errorHead;
     if(ptr != NULL){
         do {
-            // Take data and fill array
+            // Take data and fill array - see SDD in the MDE documentation in Sharepoint for a description
+            // of each part of the packet
             error_data[2] = unique_id; // Unique ID
             error_data[3] = ptr->chip_id; // Chip ID 
             error_data[4] = (uint8_t) ((ptr->cell_address >> 24) & 0xFF); // Cell address, includes next 3 bytes
@@ -236,8 +237,7 @@ void TransmitErrors()
 //-----------------------------------------------------------------------------
 void TransmitHealth()
 {
-    // Create array to hold data. Add an extra character for a null
-    // terminator so we can call strlen on it
+    // Create array to hold data.
 	uint8_t health_data[HEALTH_DATA_LENGTH];
 
     // uint32_t to store the chip death data in
@@ -250,10 +250,11 @@ void TransmitHealth()
     // chip_dead_array[0] corresponds to the ones bit of health_array, chip_dead_array[1] 
     // corresponds to the twos bit of health_array, and so on
     for (i = 0; i < 32; ++i) {
-        health_array ^= (chip_death_array[i] == 1) << i;
+        health_array |= (chip_death_array[i] == 1) << i;
 	}
 
-    // Assemble Health packet
+    // Assemble Health packet - see SDD in the MDE documentation in Sharepoint for a description
+    // of each part of the packet
     health_data[0] = UART_OBC_ESCAPE;   // Escape character - signals that data is being sent
     health_data[1] = UART_OBC_HEALTH_PACKET; // Packet Type ID
     health_data[2] = unique_id; // Unique ID
@@ -329,7 +330,7 @@ void UARTOBCRecvMsgHandler(void)
 #endif /* DEBUG */
             }
 
-            // Send characters signaling start of message
+            // Send characters signaling end of message
             UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_ESCAPE);
             UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_EOM);
 		}
