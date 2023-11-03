@@ -213,14 +213,9 @@ EnableLED(void)
   {
   }
 
-  // Enable the GPIO pin for the RED LED (PF1).  Set the direction as output
-  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
+  // Enable the GPIO pin for the LEDs (PF1 - Red, PF2 - Blue, PF3 - Green).  Set the direction as output
+  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3);
 
-  // Enable the GPIO pin for the GREEN LED (PF3).  Set the direction as output
-  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_3);
-
-  // Enable the GPIO pin for the BLUE LED (PF2).  Set the direction as output
-  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
 
 }
 
@@ -235,15 +230,15 @@ BlinkRedLED(void)
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIO_PIN_1);
 
     // Delay for a bit.
-    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    for(ui32Loop = 0; ui32Loop < 20; ui32Loop++)
     {
     }
 
-    // Turn off RED LED.
+    // Turn off GREEN LED.
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x0);
 
     // Delay for a bit
-    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    for(ui32Loop = 0; ui32Loop < 10; ui32Loop++)
     {
     }
 }
@@ -259,7 +254,7 @@ BlinkBlueLED(void)
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
 
     // Delay for a bit.
-    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    for(ui32Loop = 0; ui32Loop < 10; ui32Loop++)
     {
     }
 
@@ -267,7 +262,7 @@ BlinkBlueLED(void)
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x0);
 
     // Delay for a bit
-    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    for(ui32Loop = 0; ui32Loop < 10; ui32Loop++)
     {
     }
 }
@@ -283,7 +278,7 @@ BlinkGreenLED(void)
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, GPIO_PIN_3);
 
     // Delay for a bit.
-    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    for(ui32Loop = 0; ui32Loop < 2; ui32Loop++)
     {
     }
 
@@ -291,7 +286,7 @@ BlinkGreenLED(void)
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x0);
 
     // Delay for a bit
-    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    for(ui32Loop = 0; ui32Loop < 100; ui32Loop++)
     {
     }
 }
@@ -338,8 +333,10 @@ main(void)
     BoardPowerInit(); // Initialize the Pins controlling the board power
                       // includes turning power off
 
-#ifdef DEBUG
     EnableLED(); // Debug LEDs
+
+
+#ifdef DEBUG
 
     // UART Enable and Configuration
     UARTDebugEnable();
@@ -386,16 +383,17 @@ main(void)
     // Enable processor interrupts.
     IntMasterEnable();
 
+
     //*****************************
     // Main Loop
     //*****************************
     while (1)
     {
-        #ifdef DEBUG
-            //BlinkGreenLED();
-        #else   /* Idle "heart beat" */
-            BlinkRedLED();
-        #endif /* DEBUG */
+#ifdef DEBUG
+        BlinkRedLED();
+#else
+        BlinkBlueLED();
+#endif
 
         if(UARTOBCIsDataReady())
             UARTOBCRecvMsgHandler();
