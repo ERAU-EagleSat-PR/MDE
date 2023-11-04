@@ -13,14 +13,19 @@
 *                             Function Prototypes                             *
 *******************************************************************************
 */
+// Stores incoming UART data into the message buffer
 void UARTOBCIntHandler(void);
+// Initializes the OBC UART
 void UARTOBCEnable(void);
+// Sends a series of uint8_t's to the OBC
 void UARTOBCSend(const uint8_t *pui8Buffer, uint32_t ui32Count);
+// Returns if data has been received
 bool UARTOBCIsDataReady(void);
-void FormatErrorDataPacket(void);
-void FormatHealthDataPacket(void);
+// Sends all error data available
 void TransmitErrors(void);
+// Sends a health packet
 void TramsmitHealth(void);
+// Processes an incoming message - should be called in the main while loop
 void UARTOBCRecvMsgHandler(void);
 
 // Should be called in the main while loop to send a command to OBC to reset MDE
@@ -94,67 +99,9 @@ void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count);
 // OBC UART uses to be UART pins
 #define UART_OBC_RX_PIN_CFG GPIO_PB0_U1RX
 #define UART_OBC_TX_PIN_CFG GPIO_PB1_U1TX
-/*
-*******************************************************************************
-*                          Error Data Packet Defines                          *
-*******************************************************************************
-*/
 
-// NOTE: In the next two sections, defining shifts and masks for the messages
-// masks are applied before shifts!
-
-// The shifts and masks for the error data, in case the error data formatting
-// needs to be redefined. Adding data needs changes in each chip .c file.
-#define ERROR_DATA_LENGTH           10 // Length of the packet in bytes, including the preceding escape character
-#define ERROR_DATA_HEADER_SHIFT     38
-#define ERROR_DATA_HEADER_MASK      0x3
-#define ERROR_DATA_CHIP_SHIFT       32
-#define ERROR_DATA_CHIP_MASK        0x3F
-#define ERROR_DATA_BYTE_SHIFT       6
-#define ERROR_DATA_BYTE_MASK        0x3FFFFF
-#define ERROR_DATA_DIRECTION_SHIFT  3
-#define ERROR_DATA_DIRECTION_MASK   0x1
-#define ERROR_DATA_BIT_SHIFT        0
-#define ERROR_DATA_BIT_MASK         0x7
-
-/*
-*******************************************************************************
-*                               Health Data Packets                           *
-*******************************************************************************
-*/
-
-//-----------------------------------------------------------------------------
-// TransmitHealth() Health & Responsiveness Variables //TODO
-//-----------------------------------------------------------------------------
-// The shifts and masks for the health data, in case the health data formatting
-// needs to be redefined. Adding data needs changes in main .c file.
-#define HEALTH_DATA_LENGTH          9 // Length of the packet in bytes, including the preceding escape character
-#define HEALTH_DATA_HEADER_SHIFT    56                     //while byte header
-#define HEALTH_DATA_HEADER_MASK     0xF                    //1111h
-#define HEALTH_DATA_CYCLE_SHIFT     48
-#define HEALTH_DATA_CYCLE_MASK      0xFFFF
-#define HEALTH_DATA_START_SHIFT     4
-#define HEALTH_DATA_START_MASK      0xF
-#define HEALTH_DATA_OFFSET_SHIFT    0
-#define HEALTH_DATA_OFFSET_MASK     0xF
-#define HEALTH_DATA_RESPONSIVENESS_SHIFT 8
-#define HEALTH_DATA_RESPONSIVENESS_MASK  0xFFFFFFFFFF
-
-// The unresponsiveness buffer
-// Chips can be marked as unresponsive if they do not transmit any data
-// Eventually this could be used to determine if a power cycle should happen
-// This buffer is a single 64 bit value and each bit is written to indicate
-// responsiveness. For example, bit 4 corresponds to chip 4.
-extern uint64_t chip_unresponsive;
-
-// The number of bytes to check before declaring a chip unresponsive
-#define BLANK_BYTE_UNRESPONSIVE_COUNT 8
-
-//health Packet fromatter
-    /* Funtion prototype here */
-
-//health Packet Sender
-    /* Funtion prototype here */
+#define ERROR_DATA_LENGTH   10 // Length of the error packet in bytes, including the preceding escape character
+#define HEALTH_DATA_LENGTH  9 // Length of the health packet in bytes, including the preceding escape character
 
 #endif /* SOURCE_OBC_H_ */
 
