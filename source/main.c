@@ -349,7 +349,7 @@ main(void)
     Board2PowerOn();
 
 
-    //WatchdogsEnable(); //TODO Watchdog Timers WHEN DEBUG MODE IS OFF THIS REQUIRES THAT UART0 IS STILL ENABLED
+
 
     //*****************************
     // Enable the UART for OBC 
@@ -394,7 +394,7 @@ main(void)
 
     // UART Enable and Configuration
     UARTDebugEnable();
-
+    //WatchdogsEnable(); //TODO Watchdog Timers WHEN DEBUG MODE IS OFF THIS REQUIRES THAT UART0 IS STILL ENABLED
     // Initialize Debug Menu
     menuState = MAIN;
     printDebugMenu();
