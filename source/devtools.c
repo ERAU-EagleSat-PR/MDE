@@ -180,10 +180,6 @@ printDebugMenu(void)
     } else {
         snprintf(chipBuf,10,"(error)");
     }
-
-
-
-
     // Begin menu
     switch (menuState)
     {
@@ -195,6 +191,8 @@ printDebugMenu(void)
 
     case MAIN:
         UARTCharPut(UART_DEBUG, 0xC);
+        snprintf(buf, bufSize, "NOTE: Wait for the light to begin flashing.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "Menu Selection:\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "M - Return to this menu.\n\r");
@@ -626,7 +624,7 @@ processChipFunctionsInput(int32_t recv_char)
         }
         break;
     case 't':
-        snprintf(buf,bufSize, "Beginning cycle...\n\r");
+        snprintf(buf,bufSize, "This may take a while...\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
 
         current_chip = 0;
@@ -650,6 +648,9 @@ processChipFunctionsInput(int32_t recv_char)
     case 'q':
         menuState = CHIP_SELECT;
         printDebugMenu();
+        break;
+    case 'h':
+        FlashConfiguration(current_chip);
         break;
     }
 
@@ -783,12 +784,10 @@ void processErrorInput(int32_t recv_char)
         // so we don't have to worry about doing anything to the value from rand().
         // Note that RAND_MAX for the microcontroller is 32767, so the cell address is limited
         ErrorQueue_Insert(&errorHead, rand() % UINT8_MAX, rand(), rand() % UINT8_MAX, rand() % UINT8_MAX);
-        current_error++;
         break;
     case 'r': // Delete first link, and print it.
         ErrorQueue_PrintLink(errorHead,1);
         ErrorQueue_Remove(&errorHead);
-        current_error--;
         break;
     case 'd': // Delete the entire queue.
         ErrorQueue_Destroy(&errorHead);

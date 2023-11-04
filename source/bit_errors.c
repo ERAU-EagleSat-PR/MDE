@@ -45,9 +45,6 @@ CheckErrors(uint8_t chip_number, uint32_t byte_num, uint8_t byte_data, uint8_t w
 
             // Request new error link.
             uint8_t check = ErrorQueue_Insert(&errorHead, chip_number, byte_num, byte_data, written_data);
-            // Increment count
-            if(check == 1)
-            current_error++;
         }
     }
 }
@@ -87,6 +84,7 @@ uint8_t ErrorQueue_Insert(MDE_Error_Data_t **ptr, uint8_t chip_number, uint32_t 
     if (ErrorQueue_IsEmpty(*ptr) == errorsEmpty) { // Initialize empty queue
         *ptr = ErrorQueue_Init(chip_number, byte_num, byte_data, written_data);
         if(ptr == NULL) return 0;
+        current_error++;
         return 1;
     }
     else { // Add link to existing queue
@@ -95,6 +93,7 @@ uint8_t ErrorQueue_Insert(MDE_Error_Data_t **ptr, uint8_t chip_number, uint32_t 
         new->next = (*ptr)->next;
         (*ptr)->next = new;
         (*ptr) = (*ptr)->next;
+        current_error++;
         return 1;
     }
 }
@@ -119,6 +118,7 @@ uint8_t ErrorQueue_Remove(MDE_Error_Data_t **ptr) {
     else (*ptr)->next = (*ptr)->next->next;
     // Free associated memory
     free(remove);
+    current_error--;
     // Return success
     return 1;
 }

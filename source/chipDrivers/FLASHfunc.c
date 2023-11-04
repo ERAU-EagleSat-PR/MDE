@@ -100,11 +100,183 @@ FlashStatusRead(uint8_t chip_number)
     }
     SSIDataGetNonBlocking(SPI_base, &data_buffer);
     infoFlash.RDSR = data_buffer;
-    // CS low
+
+    // CS high
     SetChipSelect(chip_number_alt);
+
+    // CS low
+    SetChipSelect(chip_number);
 
     // Return struct
     return infoFlash;
+}
+
+
+//*****************************************************************************
+//
+// Prepare the flash configuration register for 4 byte operation
+//
+//*****************************************************************************
+
+void
+FlashConfiguration(uint8_t chip_number)
+{
+    uint32_t volatile_reg_1;
+    uint32_t volatile_reg_2;
+    uint32_t status_reg;
+    uint32_t desired_data;
+    uint8_t chip_number_alt = chip_number + 7;
+    uint32_t SPI_base;
+
+    // SPI port
+    if(chip_number < 16) {
+        SPI_base = SPI0_NUM_BASE;
+    } else {
+        SPI_base = SPI1_NUM_BASE;
+    }
+
+    //
+    // First, read the first and second register so we can edit the second one. The easiest way to write them is sequentially like this.
+    //
+    SetChipSelect(chip_number_alt); //CS high
+
+    // STATUS REGISTER 1
+    SetChipSelect(chip_number); //CS low
+
+    SSIDataPut(SPI_base, FLASH_RDSR); //Config Reg 1 Read command
+    while(SSIBusy(SPI_base)) //Wait to complete command
+    {
+    }
+
+    // Clear FIFO from command
+    uint32_t temp;
+    while(SSIDataGetNonBlocking(SPI_base, &temp))
+    {
+    }
+
+    // Read register
+    SSIDataPut(SPI_base,0x00);
+    while(SSIBusy(SPI_base)) //Wait to complete clock pulses
+    {
+    }
+    SSIDataGet(SPI_base, &status_reg);
+
+    SetChipSelect(chip_number_alt); //CS high
+
+    // REGISTER 1
+    SetChipSelect(chip_number); //CS low
+
+    SSIDataPut(SPI_base, FLASH_CR1VR); //Config Reg 1 Read command
+    while(SSIBusy(SPI_base)) //Wait to complete command
+    {
+    }
+
+    // Clear FIFO from command
+    while(SSIDataGetNonBlocking(SPI_base, &temp))
+    {
+    }
+
+    // Read register
+    SSIDataPut(SPI_base,0x00);
+    while(SSIBusy(SPI_base)) //Wait to complete clock pulses
+    {
+    }
+    SSIDataGet(SPI_base, &volatile_reg_1);
+
+    SetChipSelect(chip_number_alt); //CS high
+
+    // REGISTER 2
+    SetChipSelect(chip_number); //CS low
+
+    SSIDataPut(SPI_base, FLASH_CR2VR); //Config Reg 2 Read command
+    while(SSIBusy(SPI_base)) //Wait to complete command
+    {
+    }
+
+    // Clear FIFO from command
+    while(SSIDataGetNonBlocking(SPI_base, &temp))
+    {
+    }
+
+    // Read register
+    SSIDataPut(SPI_base,0x00);
+    while(SSIBusy(SPI_base)) //Wait to complete clock pulses
+    {
+    }
+    SSIDataGet(SPI_base, &volatile_reg_2);
+
+    SetChipSelect(chip_number_alt); //CS high
+
+    char buf[20];
+    uint8_t bufSize = 20;
+
+    snprintf(buf,bufSize, "SR output: "BYTE_TO_BINARY_PATTERN"\n\r", BYTE_TO_BINARY(volatile_reg_2));
+    UARTDebugSend((uint8_t*) buf, strlen(buf));
+
+    // Desired state of the status register
+    desired_data = volatile_reg_2 | FLASH_CONFIG;
+
+    // Begin write cycle with WRENV command
+
+    SetChipSelect(chip_number); //CS low
+
+    // WREN command to write to non-volatile registers
+    SSIDataPut(SPI_base,FLASH_WRENV);
+    while(SSIBusy(SPI_base)){}
+
+    SetChipSelect(chip_number_alt); //CS high
+
+    // Write registers until Config 2 is completed
+    SetChipSelect(chip_number); //CS low
+
+    SSIDataPut(SPI_base,FLASH_WRR); // Write registers command
+    while(SSIBusy(SPI_base)){}
+
+    SSIDataPut(SPI_base,status_reg);
+    while(SSIBusy(SPI_base)){}
+
+    SSIDataPut(SPI_base,volatile_reg_1);
+    while(SSIBusy(SPI_base)){}
+
+    SSIDataPut(SPI_base,desired_data);
+    while(SSIBusy(SPI_base)){}
+
+    SetChipSelect(chip_number_alt); //CS high ending write
+    // WRENV latch is automatically undone
+
+    // REGISTER 2
+    SetChipSelect(chip_number); //CS low
+
+    SSIDataPut(SPI_base, FLASH_CR2VR); //Config Reg 2 Read command
+    while(SSIBusy(SPI_base)) //Wait to complete command
+    {
+    }
+
+    // Clear FIFO from command
+    while(SSIDataGetNonBlocking(SPI_base, &temp))
+    {
+    }
+
+    // Read register
+    SSIDataPut(SPI_base,0x00);
+    while(SSIBusy(SPI_base)) //Wait to complete clock pulses
+    {
+    }
+    SSIDataGet(SPI_base, &volatile_reg_2);
+
+    SetChipSelect(chip_number_alt); //CS high
+
+    snprintf(buf,bufSize, "SR output: "BYTE_TO_BINARY_PATTERN"\n\r", BYTE_TO_BINARY(volatile_reg_2));
+    UARTDebugSend((uint8_t*) buf, strlen(buf));
+    /*
+    // Disable writing
+    SetChipSelect(chip_number); //CS low
+
+    // WREN command to write to non-volatile registers
+    SSIDataPut(SPI_base,FLASH_WRITE_DISABLE);
+    while(SSIBusy(SPI_base)){}
+
+    SetChipSelect(chip_number_alt); //CS high*/
 }
 
 //*****************************************************************************
@@ -148,71 +320,71 @@ FlashErase(uint8_t chip_number)
     SetChipSelect(chip_number_alt);
 
     // CS low
-     SetChipSelect(chip_number);
+    SetChipSelect(chip_number);
 
-     // Issue erase command
-     SSIDataPut(SPI_base, FLASH_CHIP_ERASE);
-     while(SSIBusy(SPI_base))
-     {
-     }
+    // Issue erase command
+    SSIDataPut(SPI_base, FLASH_CHIP_ERASE);
+    while(SSIBusy(SPI_base))
+    {
+    }
 
-     // CS high
-     SetChipSelect(chip_number_alt);
+    // CS high
+    SetChipSelect(chip_number_alt);
 
-     // Wait for the Flash to erase before continuing
-     while(SSIDataGetNonBlocking(SPI_base, &temp))
-     {
-     }
+    // Wait for the Flash to erase before continuing
+    while(SSIDataGetNonBlocking(SPI_base, &temp))
+    {
+    }
 
-     // CS low
-     SetChipSelect(chip_number);
+    // CS low
+    SetChipSelect(chip_number);
 
-         //Transmit the Write Disable Command
-         SSIDataPut(SPI_base, FLASH_WRITE_DISABLE);
-         while(SSIBusy(SPI_base))
-         {
-         }
+    //Transmit the Write Disable Command
+    SSIDataPut(SPI_base, FLASH_WRITE_DISABLE);
+    while(SSIBusy(SPI_base))
+    {
+    }
 
-     // CS high
-     SetChipSelect(chip_number_alt);
+    // CS high
+    SetChipSelect(chip_number_alt);
 
-     // CS low
-     SetChipSelect(chip_number);
+    // CS low
+    SetChipSelect(chip_number);
 
-     SSIDataPut(SPI_base, FLASH_RDSR); //Read Status Register command
-     while(SSIBusy(SPI_base)) //Wait to complete command
-     {
-     }
+    SSIDataPut(SPI_base, FLASH_RDSR); //Read Status Register command
+    while(SSIBusy(SPI_base)) //Wait to complete command
+    {
+    }
 
-     // Clear FIFO from command
-     while(SSIDataGetNonBlocking(SPI_base, &temp))
-     {
-     }
-     SSIDataPut(SPI_base,0x00);
-     while(SSIBusy(SPI_base)) //Wait to complete command
-     {
-     }
-     SSIDataGetNonBlocking(SPI_base, &status_register);
+    // Clear FIFO from command
+    while(SSIDataGetNonBlocking(SPI_base, &temp))
+    {
+    }
+    SSIDataPut(SPI_base,0x00);
+    while(SSIBusy(SPI_base)) //Wait to complete command
+    {
+    }
+    SSIDataGetNonBlocking(SPI_base, &status_register);
 
-     //ChipWatchdogPoke(); // Poke the chip watchdog before waiting for the flash erase to complete.
+    //ChipWatchdogPoke(); // Poke the chip watchdog before waiting for the flash erase to complete.
 
-     // Loop until wipe cycle is completed.
-     while(status_register & 0x01)
-     {
-         SSIDataPut(SPI_base,0x00);
-         while(SSIBusy(SPI_base)) //Wait to complete command
-         {
-         }
-         SSIDataGet(SPI_base, &status_register);
+    // Loop until wipe cycle is completed.
+    while(status_register & 0x01)
+    {
+        SSIDataPut(SPI_base,0x00);
+        while(SSIBusy(SPI_base)) //Wait to complete command
+        {
+        }
+        SSIDataGet(SPI_base, &status_register);
 
-         // Small delay as quickly checking the register seems to pre-emptively cause a zero-result while a write is still in progress
-         // The erase cycle is so long relatively this barely matters.
-         SysCtlDelay(1600);
-     }
+        // Small delay as quickly checking the register seems to pre-emptively cause a zero-result while a write is still in progress
+        // The erase cycle is so long relatively this barely matters.
+        SysCtlDelay(1600);
+    }
 
-     // CS high
-     SetChipSelect(chip_number_alt);
-     //ChipWatchdogPoke(); // Erase success; poke watchdog a final time.
+    // CS high
+    SetChipSelect(chip_number_alt);
+    //ChipWatchdogPoke(); // Erase success; poke watchdog a final time.
 }
 
 //*****************************************************************************
@@ -248,7 +420,7 @@ FlashSequenceTransmit(uint8_t current_cycle, uint8_t chip_number)
     //  Write to the Flash
     //
 
-    // We only need to erase the chip if we are writing all 1s, and we only need to perform a Page Program if we are writing all 0s. This will save significant time waiting and doing nothing.
+    // We only need to erase the chip if we are writing all 1s, and we only need to perform a Page Program if we are writing all 0s.
     if (current_cycle == 255)
     {
         // This erase function counts as writing all 1s to memory
@@ -257,123 +429,121 @@ FlashSequenceTransmit(uint8_t current_cycle, uint8_t chip_number)
     }
     else if (current_cycle == 0)
     {
-      //
-      // Enable writing and perform a write cycle of all 0s.
-      //
-      // CS low
-      SetChipSelect(chip_number);
+        //
+        // Perform a write cycle
+        //
 
-      // Enable writing to the memory
-      SSIDataPut(SPI_base, FLASH_WRITE_ENABLE);
-      while(SSIBusy(SPI_base))
-      {
-      }
-      // CS high
-      SetChipSelect(chip_number_alt);
+        // Sequence and loop variables
+        uint32_t byte_num = 0;
+        uint32_t current_address = 0;
+        uint8_t data = 0;
+        // Loop and Write to each page of flash memory
+        for(current_address = 0; current_address < FLASH_SIZE_BYTES; current_address += FLASH_PAGE_SIZE)
+        {
+            // CS low
+            SetChipSelect(chip_number);
 
-      // Sequence and loop variables
-      uint32_t byte_num = 0;
-      uint32_t current_address = 0;
-      uint8_t data = 0;
-      // Loop and Write to each page of flash memory
-      for(current_address = 0; current_address < FLASH_SIZE_BYTES; current_address += FLASH_PAGE_SIZE)
-      {
-          // CS low
-          SetChipSelect(chip_number);
+            // Enable writing to the memory (must be done for every page)
+            SSIDataPut(SPI_base, FLASH_WRITE_ENABLE);
+            while(SSIBusy(SPI_base))
+            {
+            }
+            // CS high
+            SetChipSelect(chip_number_alt);
 
-          // Send page write command
-          SSIDataPut(SPI_base, FLASH_WRITE);
+            // CS low
+            SetChipSelect(chip_number);
 
-          // We need to send the first address of the current 256 byte block
-          SSIDataPut(SPI_base, current_address >> 24);
-          SSIDataPut(SPI_base, current_address >> 16);
-          SSIDataPut(SPI_base, current_address >> 8);
-          SSIDataPut(SPI_base, current_address);
+            // Send page write command
+            SSIDataPut(SPI_base, FLASH_WRITE);
 
-          // Wait for the transmission to complete
-          while(SSIBusy(SPI_base))
-          {
-          }
+            // We need to send the first address of the current 256 byte block
+            SSIDataPut(SPI_base, ((current_address >> 24)&0xFF));
+            SSIDataPut(SPI_base, ((current_address >> 16)&0xFF));
+            SSIDataPut(SPI_base, ((current_address >> 8)&0xFF));
+            SSIDataPut(SPI_base, (current_address&0xFF));
 
-          // Write to each byte of current page sequentially
-          for(byte_num = 0; byte_num < FLASH_PAGE_SIZE; byte_num++)
-          {
-              // Exit out if we've exceeded the maximum address
-              if(current_address + byte_num > FLASH_SIZE_BYTES){
-                  break;
-              }
+            /*SSIDataPut(SPI_base, (current_address >> 24)&0xFF);
+                SSIDataPut(SPI_base, (current_address >> 16)&0xFF);
+                SSIDataPut(SPI_base, (current_address >> 8)&0xFF);
+                SSIDataPut(SPI_base, (current_address)&0xFF);*/
+
+
+            // Wait for the transmission to complete
+            while(SSIBusy(SPI_base))
+            {
+            }
+
+            // Write to each byte of current page sequentially
+            for(byte_num = 0; byte_num < FLASH_PAGE_SIZE; byte_num++)
+            {
+                // Exit out if we've exceeded the maximum address
+                if(current_address + byte_num > FLASH_SIZE_BYTES){
+                    break;
+                }
 #ifdef DEBUG // Error seeding if in debug mode
-        if(seedErrors == 1 && ((current_address + byte_num) % SEEDERRORS_ADDRESS) == 0)
-            data = SEEDERRORS_VALUE;
-        // Begin transmitting data
-        SSIDataPut(SPI_base, data);
+                if(seedErrors == 1 && ((current_address + byte_num) % SEEDERRORS_ADDRESS) == 0)
+                    data = SEEDERRORS_VALUE;
+                // Begin transmitting data
+                SSIDataPut(SPI_base, data);
 
-        // Wait for the transmission to complete before moving on to the next byte
-        while(SSIBusy(SPI_base))
-        {
-        }
-        data = current_cycle;
+                // Wait for the transmission to complete before moving on to the next byte
+                while(SSIBusy(SPI_base))
+                {
+                }
+                data = current_cycle;
 #else // Flight mode
-        // Begin transmitting data
-        SSIDataPut(SPI_base, data);
+                // Begin transmitting data
+                SSIDataPut(SPI_base, data);
 
-        // Wait for the transmission to complete before moving on to the next byte
+                // Wait for the transmission to complete before moving on to the next byte
+                while(SSIBusy(SPI_base))
+                {
+                }
+#endif
+            }
+            // CS high
+            SetChipSelect(chip_number_alt);
+
+            // Wait for write cycle to complete before moving on to next page
+            // CS low
+            SetChipSelect(chip_number);
+
+            SSIDataPut(SPI_base, FLASH_RDSR); //Read Status Register command
+            while(SSIBusy(SPI_base)) //Wait to complete command
+            {
+            }
+
+            // Clear FIFO from command
+            while(SSIDataGetNonBlocking(SPI_base, &temp))
+            {
+            }
+
+            status_register = 0x01;
+            // Loop until status register says cycle completed
+            while(status_register & 0x01)
+            {
+                SSIDataPut(SPI_base,0x00); // Clock cycles
+                while(SSIBusy(SPI_base)) //Wait to complete command
+                {}
+                SSIDataGet(SPI_base, &status_register);
+                SysCtlDelay(1600); // Small delay to prevent mis-reads
+            }
+            // CS high
+            SetChipSelect(chip_number_alt);
+
+            // Move to next page;
+        }
+        // CS low
+        SetChipSelect(chip_number);
+
+        //Transmit the Write Disable Command
+        SSIDataPut(SPI_base, FLASH_WRITE_DISABLE);
         while(SSIBusy(SPI_base))
         {
         }
-#endif
-          }
-          // CS high
-          SetChipSelect(chip_number_alt);
-
-          // Wait for write cycle to complete before moving on to next page
-          // CS low
-          SetChipSelect(chip_number);
-
-          SSIDataPut(SPI_base, FLASH_RDSR); //Read Status Register command
-          while(SSIBusy(SPI_base)) //Wait to complete command
-          {
-          }
-
-          // Clear FIFO from command
-          while(SSIDataGetNonBlocking(SPI_base, &temp))
-          {
-          }
-          SSIDataPut(SPI_base,0x00);
-          while(SSIBusy(SPI_base)) //Wait to complete command
-          {
-          }
-          SSIDataGetNonBlocking(SPI_base, &status_register);
-
-          // Loop until page program cycle is completed.
-          while(status_register & 0x01)
-          {
-              SSIDataPut(SPI_base,0x00);
-              while(SSIBusy(SPI_base)) //Wait to complete command
-              {
-              }
-              SSIDataGet(SPI_base, &status_register);
-
-              // Small delay as quickly checking the register seems to pre-emptively cause a zero-result while a write is still in progress
-              // The write cycle is so long relatively this barely matters.
-              SysCtlDelay(1600);
-          }
-
-          // CS high
-          SetChipSelect(chip_number_alt);
-
-        // Move to next page;
-      }
-      // CS low
-      SetChipSelect(chip_number);
-
-      //Transmit the Write Disable Command
-      SSIDataPut(SPI_base, FLASH_WRITE_DISABLE);
-      while(SSIBusy(SPI_base))
-      {
-      }
-      // CS high
-      SetChipSelect(chip_number_alt);
+        // CS high
+        SetChipSelect(chip_number_alt);
     }
 }
 
@@ -420,16 +590,21 @@ FlashSequenceRetrieve(uint8_t current_cycle, uint8_t chip_number)
     {
     }
 
+    // Declare variables for the loop
+    uint32_t data = 0;
+    uint32_t byte_num = 0;
     //
     // Read from the Flash
     //
 
+    // CS low
     SetChipSelect(chip_number);
 
     // Transmit the read command
     SSIDataPut(SPI_base, FLASH_READ);
 
-    // Since this is sequential read, only need to send address zero
+    // Send address 0 for sequential read.
+    SSIDataPut(SPI_base, 0x0);
     SSIDataPut(SPI_base, 0x0);
     SSIDataPut(SPI_base, 0x0);
     SSIDataPut(SPI_base, 0x0);
@@ -441,22 +616,16 @@ FlashSequenceRetrieve(uint8_t current_cycle, uint8_t chip_number)
 
     // Clear out the empty received data from the instruction transmission
     while(SSIDataGetNonBlocking(SPI_base, &temp))
-    {
-    }
+    {}
 
-    // Declare variables for the loop
-    uint32_t data = 0;
-    uint32_t byte_num = 0;
     for(byte_num = 0; byte_num < FLASH_SIZE_BYTES; byte_num++){
-
 
         // Transmit 0, to create clock pulses
         SSIDataPut(SPI_base, 0x0);
 
         // Wait for the transaction to complete before moving on
         while(SSIBusy(SPI_base))
-        {
-        }
+        {}
 
         // Read in the data
         SSIDataGet(SPI_base, &data);
@@ -473,6 +642,8 @@ FlashSequenceRetrieve(uint8_t current_cycle, uint8_t chip_number)
 #endif
 
     }
-    // Bring CS high, ending read
+
+    // CS high, terminating read
     SetChipSelect(chip_number_alt);
 }
+

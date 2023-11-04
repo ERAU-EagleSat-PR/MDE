@@ -45,7 +45,7 @@
 
 /*
 *******************************************************************************
-*                               Functions and Stuff                           *
+*                               Timer Functions                               *
 *******************************************************************************
 */
 
@@ -100,8 +100,14 @@ MDETimerInt(void)
 
 }
 
+/*
+*******************************************************************************
+*                              Watchdog Functions                             *
+*******************************************************************************
+*/
+
 void
-MDEWatchdogsEnable(void)
+WatchdogsEnable(void)
 {
     // Enables and configures both watchdogs.
 
@@ -113,14 +119,15 @@ MDEWatchdogsEnable(void)
     reading_chip = 0;
 
     // Enable WD peripherals
-    SysCtlPeripheralEnable(MDE_WD_BASE);
-    SysCtlPeripheralEnable(CHIP_WD_BASE);
+    SysCtlPeripheralEnable(MDE_WD_SYSCTL);
+    SysCtlPeripheralEnable(CHIP_WD_SYSCTL);
     // Wait for WDs to enable
-    while(!SysCtlPeripheralReady(MDE_WD_BASE) && !SysCtlPeripheralReady(CHIP_WD_BASE))
+    while(!SysCtlPeripheralReady(MDE_WD_SYSCTL) && !SysCtlPeripheralReady(CHIP_WD_SYSCTL))
     {}
 
     // Disable resetting for the chip timer.
     // Perhaps it will later be disabled for the MDE timer; not sure how resetting will work on the sat
+    WatchdogResetDisable(MDE_WD_BASE); //TODO
     WatchdogResetDisable(CHIP_WD_BASE);
 
     // Register the interrupt handlers.
@@ -128,8 +135,8 @@ MDEWatchdogsEnable(void)
     WatchdogIntRegister(CHIP_WD_BASE, &ChipWatchdogInt);
 
     // Set both reload values
-    WatchdogReloadSet(MDE_WD_BASE, MDE_WD_TIME);
-    WatchdogReloadSet(CHIP_WD_BASE, CHIP_WD_TIME);
+    WatchdogReloadSet(MDE_WD_BASE, wd_mde_time);
+    WatchdogReloadSet(CHIP_WD_BASE, wd_chip_time);
 
     // Finally, enable both watch dogs.
     // Enables both count downs and interrupts.
@@ -151,7 +158,7 @@ ChipWatchdogPoke(void)
     // Clear interrupt just in case.
     WatchdogIntClear(CHIP_WD_BASE);
     // Set the chip watchdog timer to default value of ~~~ seconds.
-    WatchdogReloadSet(CHIP_WD_BASE, CHIP_WD_TIME);
+    WatchdogReloadSet(CHIP_WD_BASE, wd_chip_time);
 }
 
 void
@@ -169,7 +176,7 @@ MDEWatchdogPoke(void)
     // Clear interrupt just in case.
     WatchdogIntClear(MDE_WD_BASE);
     // Set the chip watchdog timer to default value of ~~~ seconds.
-    WatchdogReloadSet(MDE_WD_BASE, MDE_WD_TIME);
+    WatchdogReloadSet(MDE_WD_BASE, wd_mde_time);
 }
 
 void
@@ -179,6 +186,12 @@ MDEWatchdogInt(void)
 
     // Clear the interrupt flag
     WatchdogIntClear(MDE_WD_BASE);
+#ifdef DEBUG
+    char buf [30];
+    uint8_t bufSize = 30;
+    snprintf(buf,bufSize, "MDE WATCHDOG\n\r");
+    UARTDebugSend((uint8_t*) buf, strlen(buf));
+#endif
 }
 
 void
@@ -190,7 +203,12 @@ ChipWatchdogInt(void)
 
     // Clear the interrupt flag
     WatchdogIntClear(CHIP_WD_BASE);
-
+#ifdef DEBUG
+    char buf [30];
+    uint8_t bufSize = 30;
+    snprintf(buf,bufSize, "CHIPS WATCHDOG\n\r");
+    UARTDebugSend((uint8_t*) buf, strlen(buf));
+#endif
     // Watchdogs can't be disabled; if a chip is not being operated on, simply exit the interrupt.
     // This watchdog will be disabled in sleep mode; the other will still function
     if(!reading_chip)

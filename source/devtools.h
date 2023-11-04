@@ -65,7 +65,7 @@ void processBoardPowerInput(int32_t recv_char);
 #define BAUD_RATE_DEBUG     115200
 
 // Values controlling error seeding when debugging
-#define SEEDERRORS_ADDRESS  15
+#define SEEDERRORS_ADDRESS  100000
 #define SEEDERRORS_VALUE    0b10101010
 
 /*
