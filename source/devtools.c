@@ -163,19 +163,18 @@ printDebugMenu(void)
     char buf[60];
     uint8_t bufSize = 60;
     // Create local variable from global chip tracker to prevent overwrite
-    uint8_t workingChip = current_chip % 16;
-    uint8_t displayChip = workingChip + 1; //Chip Variable offset by 1 for better human understanding
+    uint8_t displayChip = current_chip + 1; //Chip Variable offset by 1 for better human understanding
     uint8_t workingBoard = selectedBoard;
 
     // Determine chip type
     char chipBuf[10];
-    if(workingChip <= 3) {
+    if(current_chip % 16 <= 3) {
         snprintf(chipBuf,10,"(FLASH)");
-    } else if(workingChip <= 7){
+    } else if(current_chip % 16 <= 7){
         snprintf(chipBuf,10,"(FRAM)");
-    } else if(workingChip <= 11){
+    } else if(current_chip % 16 <= 11){
         snprintf(chipBuf,10,"(MRAM)");
-    } else if(workingChip <= 15){
+    } else if(current_chip % 16 <= 15){
         snprintf(chipBuf,10,"(SRAM)");
     } else {
         snprintf(chipBuf,10,"(error)");
@@ -209,7 +208,7 @@ printDebugMenu(void)
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "H - Chip Health Functions.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf, bufSize,  "B - Change currently selected board: %d\n\r",workingBoard);
+        snprintf(buf, bufSize,  "B - Change currently selected board: %d\n\r", workingBoard);
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "E - Error queue functions.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
@@ -348,7 +347,14 @@ printDebugMenu(void)
         snprintf(buf,bufSize, "Q - Return to main menu\r\n");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
-
+    case BOARD_SELECT:
+        snprintf(buf,bufSize, "1 - Select Board 1\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "2 - Select Board 2\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+        snprintf(buf,bufSize, "Q - Return to main menu\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));        
+        break;
     default:
         UARTCharPut(UART_DEBUG, 0xC);
         snprintf(buf, bufSize, "State failure!");
@@ -389,6 +395,10 @@ processDebugInput(int32_t recv_char)
         break;
     case BOARD_POWER:
         processBoardPowerInput(recv_char);
+        break;
+    case BOARD_SELECT:
+        if(recv_char == '1')
+            selecte
         break;
     case AUTO:
         switch (recv_char)
@@ -475,9 +485,8 @@ processChipFunctionsInput(int32_t recv_char)
     IntMasterDisable();
     char buf[50];
     uint8_t bufSize = 50;
-    uint8_t workingChip = current_chip % 16;
-    uint8_t displayChip = workingChip + 1;
-    //uint8_t workingBoard = selectedBoard; // unused currently
+    uint8_t displayChip = current_chip + 1;
+    uint8_t workingBoard = selectedBoard;
 
     switch (recv_char)
     {
@@ -497,16 +506,16 @@ processChipFunctionsInput(int32_t recv_char)
         UARTDebugSend((uint8_t*) buf, strlen(buf));
 
         // Parse correct function from chip number
-        if(workingChip <= 3){ // Flash Range
+        if(current_chip % 16 <= 3){ // Flash Range
             FlashSequenceTransmit(currentCycle, current_chip);
 
-        } else if(workingChip <= 7){ // FRAM Range
+        } else if(current_chip % 16 <= 7){ // FRAM Range
             FRAMSequenceTransmit(currentCycle, current_chip);
 
-        } else if(workingChip <= 11){ // MRAM Range
+        } else if(current_chip % 16 <= 11){ // MRAM Range
             MRAMSequenceTransmit(currentCycle, current_chip);
 
-        } else if(workingChip <= 15){ // SRAM Range
+        } else if(current_chip % 16 <= 15){ // SRAM Range
             SRAMSequenceTransmit(currentCycle, current_chip);
 
         } else { // Failure State
@@ -527,16 +536,16 @@ processChipFunctionsInput(int32_t recv_char)
         UARTDebugSend((uint8_t*) buf, strlen(buf));
 
         // Read from correct chip type
-        if (workingChip <= 3){ // FLASH
+        if (current_chip % 16 <= 3){ // FLASH
             FlashSequenceRetrieve(currentCycle,current_chip);
 
-        } else if(workingChip <=7) { // FRAM
+        } else if(current_chip % 16 <=7) { // FRAM
             FRAMSequenceRetrieve(currentCycle,current_chip);
 
-        } else if(workingChip <=11) { // MRAM
+        } else if(current_chip % 16 <=11) { // MRAM
             MRAMSequenceRetrieve(currentCycle, current_chip);
 
-        } else if(workingChip <= 15) { // SRAM Range
+        } else if(current_chip % 16 <= 15) { // SRAM Range
             SRAMSequenceRetrieve(currentCycle, current_chip);
 
         } else { // Failure State
@@ -564,12 +573,12 @@ processChipFunctionsInput(int32_t recv_char)
         break;
     case 'p':
         // Write SR from correct chip type
-        if(workingChip <=7) { // FRAMFLASH
+        if(current_chip % 16 <=7) { // FRAMFLASH
             snprintf(buf,bufSize, "Nothing to prepare for this chip type.\n\r");
             UARTDebugSend((uint8_t*) buf, strlen(buf));
 
-        } else if(workingChip <=11) { // MRAM
-            MRAMStatusPrepare(workingChip);
+        } else if(current_chip % 16 <=11) { // MRAM
+            MRAMStatusPrepare(current_chip);
 
         } else { // Failure State
             snprintf(buf,bufSize, "Nothing to prepare for this chip type.\n\r");
@@ -580,9 +589,9 @@ processChipFunctionsInput(int32_t recv_char)
     case 's':
         // Read SR from correct chip type
 
-        if (workingChip <= 3){ // FLASH
+        if (current_chip % 16 <= 3){ // FLASH
             FLASHID idFlash; // struct for ID parts
-            idFlash = FlashStatusRead(workingChip);
+            idFlash = FlashStatusRead(current_chip);
           
             //Print struct to console
             sprintf(buf,"cypress id: %d \n\r",idFlash.cypID);
@@ -594,9 +603,9 @@ processChipFunctionsInput(int32_t recv_char)
             sprintf(buf,"RDSR: %d \n\r",idFlash.RDSR); //Print to console
             UARTDebugSend((uint8_t*) buf,strlen(buf));
 
-        } else if(workingChip <=7) { // FRAM
+        } else if(current_chip % 16 <=7) { // FRAM
             FRAMID idFRAM; // struct for ID parts
-            idFRAM = FRAMStatusRead(workingChip);
+            idFRAM = FRAMStatusRead(current_chip);
             // Print struct to console
             sprintf(buf,"fujitsi id: %d \n\r",idFRAM.fujID);
             UARTDebugSend((uint8_t*) buf,strlen(buf));
@@ -607,13 +616,13 @@ processChipFunctionsInput(int32_t recv_char)
             sprintf(buf,"prod ID2: %d \n\r",idFRAM.prodID2);
             UARTDebugSend((uint8_t*) buf,strlen(buf));
 
-        } else if(workingChip <= 11) { // MRAM
-            uint8_t mramSR = MRAMStatusRead(workingChip);
+        } else if(current_chip % 16 <= 11) { // MRAM
+            uint8_t mramSR = MRAMStatusRead(current_chip);
             snprintf(buf,bufSize, "SR output: "BYTE_TO_BINARY_PATTERN"\n\r", BYTE_TO_BINARY(mramSR));
             UARTDebugSend((uint8_t*) buf, strlen(buf));
 
-        } else if(workingChip <= 15) { // SRAM Range
-            uint8_t sramSR = SRAMStatusRead(workingChip);
+        } else if(current_chip % 16 <= 15) { // SRAM Range
+            uint8_t sramSR = SRAMStatusRead(current_chip);
             snprintf(buf,bufSize, "SR output: "BYTE_TO_BINARY_PATTERN"\n\r", BYTE_TO_BINARY(sramSR));
             UARTDebugSend((uint8_t*) buf, strlen(buf));
 
