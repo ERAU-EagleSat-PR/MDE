@@ -42,6 +42,7 @@ void processChipHealthInput(int32_t recv_char);
 void processErrorInput(int32_t recv_char);
 void processOBCCommandInput(int32_t recv_char);
 void processBoardPowerInput(int32_t recv_char);
+void processBoardSelectInput(int32_t recv_char);
 
 
 /*
@@ -90,11 +91,12 @@ enum MENU_STATES {  INIT,
                     CHIP_HEALTH,
                     ERROR_QUEUE,
                     OBC_COMMANDS,
-                    BOARD_POWER};
+                    BOARD_POWER,
+                    BOARD_SELECT};
 
 enum BOARDS      {  NO_BOARD,
-                    BOARD1,
-                    BOARD2};
+                    BOARD1 = 1,
+                    BOARD2 = 2};
 
 enum MEM_TYPES   {  NO_MEM_TYPE,
                     FLASH,

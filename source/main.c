@@ -80,6 +80,7 @@ uint16_t cycle_count = 0;
 // Debug Variables (from devtools.h)
 #ifdef DEBUG
 enum MENU_STATES menuState  = INIT; // Debug menu state
+enum BOARDS selectedBoardNumber = BOARD1; // Selected Board for debug
 uint8_t currentCycle;               // Value 0 or 255 for writing all 0s or 1s
 uint8_t chipSelectStep = 1;         // Used for chip type -> chip number step tracking
 uint8_t seedErrors = 0;             // Value 0 or 1 for seeding errors when writing
@@ -343,12 +344,6 @@ main(void)
     Board2PowerOn();
 
     EnableLED(); // Debug LEDs
-
-
-#ifdef DEBUG
-
-
-
 
     //*****************************
     // Enable the UART for OBC 

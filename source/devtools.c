@@ -164,7 +164,7 @@ printDebugMenu(void)
     uint8_t bufSize = 60;
     // Create local variable from global chip tracker to prevent overwrite
     uint8_t displayChip = current_chip + 1; //Chip Variable offset by 1 for better human understanding
-    uint8_t workingBoard = selectedBoard;
+    uint8_t workingBoard = selectedBoardNumber;
 
     // Determine chip type
     char chipBuf[10];
@@ -489,7 +489,6 @@ processChipFunctionsInput(int32_t recv_char)
     char buf[50];
     uint8_t bufSize = 50;
     uint8_t displayChip = current_chip + 1;
-    uint8_t workingBoard = selectedBoard;
 
     switch (recv_char)
     {
