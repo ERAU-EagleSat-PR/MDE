@@ -49,7 +49,7 @@ WriteToChip(uint32_t current_cycle, uint32_t chip_number)
 {
     // Given a chip number 0 - 31, this function calls the correct chip function
     // and writes the selected cycle to it.
-    if(chip_number > MAX_CHIP_NUMBER){
+    if(chip_number >= MAX_CHIP_NUMBER){
 #ifdef DEBUG
         char buf[80];
         sprintf(buf,"Tried to write to chip %i but no such chip exists!\n\r", chip_number);
@@ -84,7 +84,7 @@ ReadFromChip(uint32_t current_cycle, uint32_t chip_number)
 {
     // Given a chip number 0 - 31, this function calls the correct chip function
     // and reads the data, comparing it to to the selected cycle.
-  if(chip_number > MAX_CHIP_NUMBER){
+  if(chip_number >= MAX_CHIP_NUMBER){
 #ifdef DEBUG
     char buf[80];
     sprintf(buf,"Tried to read from chip %i but no such chip exists!\n\r", chip_number);
