@@ -498,16 +498,16 @@ processChipFunctionsInput(int32_t recv_char)
 
         // Parse correct function from chip number
         if(workingChip <= 3){ // Flash Range
-            FlashSequenceTransmit(currentCycle, workingChip);
+            FlashSequenceTransmit(currentCycle, current_chip);
 
         } else if(workingChip <= 7){ // FRAM Range
-            FRAMSequenceTransmit(currentCycle, workingChip);
+            FRAMSequenceTransmit(currentCycle, current_chip);
 
         } else if(workingChip <= 11){ // MRAM Range
-            MRAMSequenceTransmit(currentCycle, workingChip);
+            MRAMSequenceTransmit(currentCycle, current_chip);
 
         } else if(workingChip <= 15){ // SRAM Range
-            SRAMSequenceTransmit(currentCycle, workingChip);
+            SRAMSequenceTransmit(currentCycle, current_chip);
 
         } else { // Failure State
             UARTCharPut(UART_DEBUG, 0xC);
@@ -528,16 +528,16 @@ processChipFunctionsInput(int32_t recv_char)
 
         // Read from correct chip type
         if (workingChip <= 3){ // FLASH
-            FlashSequenceRetrieve(currentCycle,workingChip);
+            FlashSequenceRetrieve(currentCycle,current_chip);
 
         } else if(workingChip <=7) { // FRAM
-            FRAMSequenceRetrieve(currentCycle,workingChip);
+            FRAMSequenceRetrieve(currentCycle,current_chip);
 
         } else if(workingChip <=11) { // MRAM
-            MRAMSequenceRetrieve(currentCycle, workingChip);
+            MRAMSequenceRetrieve(currentCycle, current_chip);
 
         } else if(workingChip <= 15) { // SRAM Range
-            SRAMSequenceRetrieve(currentCycle, workingChip);
+            SRAMSequenceRetrieve(currentCycle, current_chip);
 
         } else { // Failure State
             UARTCharPut(UART_DEBUG, 0xC);
