@@ -397,8 +397,7 @@ processDebugInput(int32_t recv_char)
         processBoardPowerInput(recv_char);
         break;
     case BOARD_SELECT:
-        if(recv_char == '1')
-            selecte
+        processBoardSelectInput(recv_char);
         break;
     case AUTO:
         switch (recv_char)
@@ -449,7 +448,6 @@ processMainMenuInput(int32_t recv_char)
         menuState = AUTO;
         MDETimerEnable(); // Enable MDE loop
         printDebugMenu();
-
         break;
     case 'h':   // Health Functions
         UARTCharPut(UART_DEBUG, 0xC);
@@ -464,6 +462,11 @@ processMainMenuInput(int32_t recv_char)
     case 'p':   // Switch to board power menu
         UARTCharPut(UART_DEBUG, 0xC);
         menuState = BOARD_POWER;
+        printDebugMenu();
+        break;
+    case 'b': // Switch to Board Selectio nMenu
+        UARTCharPut(UART_DEBUG, 0xC);
+        menuState = BOARD_SELECT;
         printDebugMenu();
         break;
     case 'x':
@@ -693,6 +696,9 @@ processChipSelectInput(int32_t recv_char)
             current_chip = 12;
             break;
         }
+        // If Board 2 is active, add 16 to the chip number to push it into Board 2's chips (16-31)
+        if(selectedBoardNumber == BOARD2)
+            current_chip += 16;
         chipSelectStep = 2;
     }
     else if(chipSelectStep == 2)
@@ -881,6 +887,42 @@ void processBoardPowerInput(int32_t recv_char)
     IntMasterEnable();
 }
 
+//-----------------------------------------------------------------------------
+// Process Board Select Menu
+//-----------------------------------------------------------------------------
+void processBoardSelectInput(int32_t recv_char)
+{
+    IntMasterDisable();
+
+    char buf[40];
+    uint8_t bufSize = 40;
+
+    switch (recv_char) {
+        case '1':
+            UARTCharPut(UART_DEBUG, 0xC);
+            printDebugMenu();
+            selectedBoardNumber = BOARD1;
+            snprintf(buf, bufSize, "Board 1 selected.  Make sure to select a chip, as current_chip is not updated by changing boards\r\n");
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
+            break;
+        case '2':
+            UARTCharPut(UART_DEBUG, 0xC);
+            printDebugMenu();
+            selectedBoardNumber = BOARD2;
+            snprintf(buf, bufSize, "Board 2 selected.  Make sure to select a chip, as current_chip is not updated by changing boards\r\n");
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
+            break;
+        case 'q':
+            UARTCharPut(UART_DEBUG, 0xC);
+            menuState = MAIN;
+            printDebugMenu();
+            break;
+        default:
+            break;
+    }
+    // Return to menu
+    IntMasterEnable();
+}
 
 //-----------------------------------------------------------------------------
 // Process OBC Selection Menu
