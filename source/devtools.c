@@ -893,8 +893,8 @@ void processBoardSelectInput(int32_t recv_char)
 {
     IntMasterDisable();
 
-    char buf[40];
-    uint8_t bufSize = 40;
+    char buf[100];
+    uint8_t bufSize = 100;
 
     switch (recv_char) {
         case '1':
