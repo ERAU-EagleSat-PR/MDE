@@ -335,7 +335,7 @@ main(void)
 
     EnableBoard1ChipSelectPins(); // Board 1 MUX enable
 
-    //EnableBoard2ChipSelectPins(); // Board 2 MUX enable
+    EnableBoard2ChipSelectPins(); // Board 2 MUX enable
 
     BoardPowerInit(); // Initialize the Pins controlling the board power
     // includes turning power off
@@ -352,9 +352,21 @@ main(void)
     // UART output will be on both UARTs
     //*****************************
     UARTOBCEnable();
+
+    // Set up the debug menu if debugging is enabled
+#ifdef DEBUG
+    // UART Enable and Configuration
+    UARTDebugEnable();
+    char msg[] = "Wait until debug menu appears before doing anything\r\n";
+
+    UARTDebugSend((uint8_t*)msg, strlen(msg));
+
+#endif /* DEBUG */
+
     //*****************************
     // Chip Configurations
     //*****************************
+
     // Initialize Health and Death arrays
     InitializeChipHealth();
     // Check all chips before program start
@@ -382,10 +394,11 @@ main(void)
     }
     currentCycle = 0;
 
-
+    // Send the debug menu if debugging is enabled
+    // We wait to send the debug menu until the chips are written to so that the user knows
+    // They cant do anything until then
 #ifdef DEBUG
-    // UART Enable and Configuration
-    UARTDebugEnable();
+
     //WatchdogsEnable(); //TODO Watchdog Timers WHEN DEBUG MODE IS OFF THIS REQUIRES THAT UART0 IS STILL ENABLED
     // Initialize Debug Menu
     menuState = MAIN;
