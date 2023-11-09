@@ -414,7 +414,6 @@ main(void)
 
         if(UARTOBCIsDataReady())
             UARTOBCRecvMsgHandler();
-        //BlinkGreenLED();
 
 
         // currently checking to see if logic is working and if all CS port and
