@@ -323,6 +323,21 @@ main(void)
     // Enable interrupts
     IntMasterEnable();
 
+    // Startup light. This has to be before EnableSPI() as the SPI for Board 2 (SSI1) uses
+    // the GPIO Port F (pins 0-2)
+    EnableLED();
+
+    // Turn on BLUE LED
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
+
+    // Delay for a bit.
+    for(ui32Loop = 0; ui32Loop < 5000000; ui32Loop++)
+    {
+    }
+
+    // Turn off BLUE LED.
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x0);
+
     //*****************************
     // Peripheral Enablers
     //*****************************
