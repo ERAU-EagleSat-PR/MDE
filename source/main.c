@@ -343,8 +343,6 @@ main(void)
     Board1PowerOn();
     Board2PowerOn();
 
-    EnableLED(); // Debug LEDs
-
     //*****************************
     // Enable the UART for OBC 
     // which is UART1. UART0 is
@@ -419,11 +417,6 @@ main(void)
     //*****************************
     while (1)
     {
-#ifdef DEBUG
-        BlinkRedLED();
-#else
-        BlinkBlueLED();
-#endif
 
         if(UARTOBCIsDataReady())
             UARTOBCRecvMsgHandler();

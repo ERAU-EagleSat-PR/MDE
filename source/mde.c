@@ -138,6 +138,13 @@ EnableSPI(void)
     {
     }
     // Board 1 SPI
+
+    // Unlock PF0
+    // By default, PF0 is locked for use as a NMI (non maskable interrupt pin)
+    // In order to change, this, we have to unlock the pin.
+    HWREG(GPIO_PORTF_BASE+GPIO_O_LOCK) = GPIO_LOCK_KEY;
+    HWREG(GPIO_PORTF_BASE+GPIO_O_CR) |= GPIO_PIN_0;
+
     // Configure communication pins
     GPIOPinConfigure(SPI0_CLK);
     GPIOPinConfigure(SPI0_MOSI);
