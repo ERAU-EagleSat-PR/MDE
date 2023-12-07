@@ -370,6 +370,7 @@ main(void)
 #ifdef DEBUG
     // UART Enable and Configuration
     UARTDebugEnable();
+    UARTCharPut(UART_DEBUG, 0xC);
     char msg[] = "Wait until debug menu appears before doing anything\r\n";
 
     UARTDebugSend((uint8_t*)msg, strlen(msg));

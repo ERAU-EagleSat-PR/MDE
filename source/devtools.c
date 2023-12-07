@@ -190,7 +190,6 @@ printDebugMenu(void)
 
     case MAIN:
         UARTCharPut(UART_DEBUG, 0xC);
-        snprintf(buf, bufSize, "NOTE: Wait for the light to begin flashing.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize,  "Menu Selection:\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
