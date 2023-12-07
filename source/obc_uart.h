@@ -13,20 +13,17 @@
 *                             Function Prototypes                             *
 *******************************************************************************
 */
-// Stores incoming UART data into the message buffer
+// Handles an incoming message - stores characters in buffer and responds
+// All logic occurs in the interrupt handler.
 void UARTOBCIntHandler(void);
 // Initializes the OBC UART
 void UARTOBCEnable(void);
 // Sends a series of uint8_t's to the OBC
 void UARTOBCSend(const uint8_t *pui8Buffer, uint32_t ui32Count);
-// Returns if data has been received
-bool UARTOBCIsDataReady(void);
 // Sends all error data available
 void TransmitErrors(void);
 // Sends a health packet
 void TramsmitHealth(void);
-// Processes an incoming message - should be called in the main while loop
-void UARTOBCRecvMsgHandler(void);
 
 // Should be called in the main while loop to send a command to OBC to reset MDE
 // (turn it off)

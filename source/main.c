@@ -433,10 +433,6 @@ main(void)
     while (1)
     {
 
-        if(UARTOBCIsDataReady())
-            UARTOBCRecvMsgHandler();
-
-
         // currently checking to see if logic is working and if all CS port and
         // pins are active
         /*

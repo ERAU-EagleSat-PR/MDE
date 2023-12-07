@@ -58,11 +58,6 @@ static uint32_t uart_obc_msg_chars[UART_OBC_MAX_MSG_SIZE];
 // over the message safely
 static int uart_obc_msg_index = 0;
 
-// Boolean used by the interrupt handler to tell the main loop that OBC just 
-// sent us a message. Set to true at the end of the interrupt handler and set 
-// to false in the message handler (OBCUARTRecvMsgHandler). 
-static bool uart_obc_data_ready = false;
-
 // ID used to differentiate error packets. This value is incremented each time 
 // the error data is cleared. So, until OBC clears the health data, the errors
 // will be associated with the same health packet. Once data is retrieved by OBC
@@ -122,7 +117,77 @@ void UARTOBCIntHandler(void)
         UARTCharPut(UART_DEBUG, '\n');
 
 #endif /* DEBUG */
-	uart_obc_data_ready = true;
+
+	// Figure out if OBC is speaking our language
+	// All messages start with an escape character (to indicate that something is coming)
+	// followed by the start of message character
+    // Finally, an escape character is sent to signal the start of data transmission
+	if(uart_obc_msg_chars[0] == UART_OBC_ESCAPE &&
+	   uart_obc_msg_chars[1] == UART_OBC_SOM) {
+		// The command IDs are kind of stupid, but it's not like we're limited on 
+		// transmission ability, and Calvin and Hayden (Rozsell) thought it was funny
+		// Can't say I disagree - Nikhil
+		if(uart_obc_msg_chars[2] == 'M' &&
+		   uart_obc_msg_chars[3] == 'D' && 
+           uart_obc_msg_chars[4] == UART_OBC_ESCAPE &&
+		   uart_obc_msg_chars[5] == UART_OBC_EOM ) {
+			// OBC wants the health and error data, so send it to them
+
+#ifdef DEBUG
+            char msg[] = "Return health and error data\r\n";
+		    UARTDebugSend((uint8_t*)msg, strlen(msg));
+#endif /* DEBUG */
+
+            // Send characters signaling start of message
+            UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_ESCAPE);
+            UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_SOM);
+
+            // Transmit the health packet (includes prepended ESC)
+            TransmitHealth();
+
+            // If we have errors, send them
+            if((ErrorQueue_IsEmpty(errorHead) == errorsNotEmpty) && errorHead != NULL){
+                TransmitErrors();
+            }
+            // If not, send a NAK prepended with an escape
+            else {
+                UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_ESCAPE);
+                UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_NAK);
+#ifdef DEBUG
+            char msg[] = "No error data\r\n";
+            UARTDebugSend((uint8_t*)msg, strlen(msg));
+#endif /* DEBUG */
+            }
+
+            // Send characters signaling end of message
+            UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_ESCAPE);
+            UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_EOM);
+		}
+		else if(uart_obc_msg_chars[2] == 'D' &&
+		        uart_obc_msg_chars[3] == 'M' && 
+                uart_obc_msg_chars[4] == UART_OBC_ESCAPE &&
+		        uart_obc_msg_chars[5] == UART_OBC_EOM )  {
+			// OBC wants us to clear the health and error data
+
+            // If we're debugging, send output to Debug UART
+#ifdef DEBUG
+            char debug_msg[] = "Clear health data\r\n";
+			UARTDebugSend((uint8_t*)debug_msg, strlen(debug_msg));
+#endif /* DEBUG */
+
+            // Clear errors
+            ErrorQueue_Destroy(&errorHead);
+
+
+            // Increment unique_id to indicate that the next set of data is
+            // disjoint/unrelated to what was just sent
+            // We don't have to worry about overflow because the C standard defines
+            // that when unsigned integer overflow occurs, the result is just wrapped
+            // back around
+            ++unique_id;
+		}
+	}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -290,88 +355,6 @@ void TransmitHealth()
 }
 
 //-----------------------------------------------------------------------------
-// Handle an existing message in the receive buffer and send the correct response
-//-----------------------------------------------------------------------------
-void UARTOBCRecvMsgHandler(void)
-{
-	// Figure out if OBC is speaking our language
-	// All messages start with an escape character (to indicate that something is coming)
-	// followed by the start of message character
-    // Finally, an escape character is sent to signal the start of data transmission
-	if(uart_obc_msg_chars[0] == UART_OBC_ESCAPE &&
-	   uart_obc_msg_chars[1] == UART_OBC_SOM) {
-		// The command IDs are kind of stupid, but it's not like we're limited on 
-		// transmission ability, and Calvin and Hayden (Rozsell) thought it was funny
-		// Can't say I disagree - Nikhil
-		if(uart_obc_msg_chars[2] == 'M' &&
-		   uart_obc_msg_chars[3] == 'D') {
-			// OBC wants the health and error data, so send it to them
-
-#ifdef DEBUG
-            char msg[] = "Return health and error data\r\n";
-		    UARTDebugSend((uint8_t*)msg, strlen(msg));
-#endif /* DEBUG */
-
-            // Send characters signaling start of message
-            UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_ESCAPE);
-            UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_SOM);
-
-            // Transmit the health packet (includes prepended ESC)
-            TransmitHealth();
-
-            // If we have errors, send them
-            if((ErrorQueue_IsEmpty(errorHead) == errorsNotEmpty) && errorHead != NULL){
-                TransmitErrors();
-            }
-            // If not, send a NAK prepended with an escape
-            else {
-                UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_ESCAPE);
-                UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_NAK);
-#ifdef DEBUG
-            char msg[] = "No error data\r\n";
-            UARTDebugSend((uint8_t*)msg, strlen(msg));
-#endif /* DEBUG */
-            }
-
-            // Send characters signaling end of message
-            UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_ESCAPE);
-            UARTCharPut(UART_OBC_UART_PORT_BASE, UART_OBC_EOM);
-		}
-		else if(uart_obc_msg_chars[2] == 'D' &&
-		        uart_obc_msg_chars[3] == 'M') {
-			// OBC wants us to clear the health and error data
-
-            // If we're debugging, send output to Debug UART
-#ifdef DEBUG
-            char debug_msg[] = "Clear health data\r\n";
-			UARTDebugSend((uint8_t*)debug_msg, strlen(debug_msg));
-#endif /* DEBUG */
-
-            // Clear errors
-            ErrorQueue_Destroy(&errorHead);
-
-
-            // Increment unique_id to indicate that the next set of data is
-            // disjoint/unrelated to what was just sent
-            // We don't have to worry about overflow because the C standard defines
-            // that when unsigned integer overflow occurs, the result is just wrapped
-            // back around
-            ++unique_id;
-		}
-	}
-	// Set the data_ready variable to false
-	// The message has been processed, so there's no need to check it again
-	uart_obc_data_ready = false;
-}
-
-//-----------------------------------------------------------------------------
-// Check if a message has been received
-//-----------------------------------------------------------------------------
-bool UARTOBCIsDataReady() {
-    return uart_obc_data_ready;
-}
-
-//-----------------------------------------------------------------------------
 // Send a packet to OBC requesting a reset (power cycle MDE by turning off the 3.3V rail)
 //-----------------------------------------------------------------------------
 void MDERequestReset(void) {
@@ -389,7 +372,7 @@ void UARTOBCSetMsg(const uint8_t *pui8Buffer, uint32_t ui32Count) {
     for(i = 0; i < ui32Count; ++i) {
         uart_obc_msg_chars[i] = pui8Buffer[i];
     }
-    uart_obc_data_ready = true;
+    UARTOBCIntHandler();
 }
 
 #endif /* DEBUG */
