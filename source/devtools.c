@@ -936,18 +936,18 @@ void processOBCCommandInput(int32_t recv_char)
     switch (recv_char) {
         case 'g':
             UARTCharPut(UART_DEBUG, 0xC);
-            UARTOBCSetMsg(get_msg, 7);
             printDebugMenu();
+            UARTOBCSetMsg(get_msg, 7);
             break;
         case 'c':
             UARTCharPut(UART_DEBUG, 0xC);
-            UARTOBCSetMsg(clr_msg, 7);
             printDebugMenu();
+            UARTOBCSetMsg(clr_msg, 7);
             break;
         case 'r':
             UARTCharPut(UART_DEBUG, 0xC);
-            MDERequestReset();
             printDebugMenu();
+            MDERequestReset();
             UARTDebugSend("Request Power Off\r\n", 19);
             break;
         case 'q':
