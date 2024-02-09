@@ -22,7 +22,8 @@
 #include "FLASHfunc.h"
 #include "source/multiplexer.h"
 #include "source/mde.h"
-#include "source/devtools.h"
+#include "source/UART0_func.h"
+#include "source/bit_errors.h"
 
 
 //*****************************************************************************
@@ -207,12 +208,6 @@ FlashConfiguration(uint8_t chip_number)
 
     SetChipSelect(chip_number_alt); //CS high
 
-    char buf[20];
-    uint8_t bufSize = 20;
-
-    snprintf(buf,bufSize, "SR output: "BYTE_TO_BINARY_PATTERN"\n\r", BYTE_TO_BINARY(volatile_reg_2));
-    UARTDebugSend((uint8_t*) buf, strlen(buf));
-
     // Desired state of the status register
     desired_data = volatile_reg_2 | FLASH_CONFIG;
 
@@ -266,9 +261,7 @@ FlashConfiguration(uint8_t chip_number)
 
     SetChipSelect(chip_number_alt); //CS high
 
-    snprintf(buf,bufSize, "SR output: "BYTE_TO_BINARY_PATTERN"\n\r", BYTE_TO_BINARY(volatile_reg_2));
-    UARTDebugSend((uint8_t*) buf, strlen(buf));
-    /*
+
     // Disable writing
     SetChipSelect(chip_number); //CS low
 
@@ -276,7 +269,7 @@ FlashConfiguration(uint8_t chip_number)
     SSIDataPut(SPI_base,FLASH_WRITE_DISABLE);
     while(SSIBusy(SPI_base)){}
 
-    SetChipSelect(chip_number_alt); //CS high*/
+    SetChipSelect(chip_number_alt); //CS high
 }
 
 //*****************************************************************************
@@ -379,7 +372,7 @@ FlashErase(uint8_t chip_number)
 
         // Small delay as quickly checking the register seems to pre-emptively cause a zero-result while a write is still in progress
         // The erase cycle is so long relatively this barely matters.
-        SysCtlDelay(1600);
+        SysCtlDelay(1400);
     }
 
     // CS high

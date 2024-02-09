@@ -38,7 +38,7 @@
 #include "source/devtools.h"
 #include "source/chips.h"
 #include "source/mde_timers.h"
-#include "source/devtools.h"
+#include "source/UART0_func.h"
 
 //******************************************************************//
 //                                                                  //

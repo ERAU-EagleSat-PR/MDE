@@ -4,7 +4,7 @@
  *  The various timers for the MDE chips
  *
  *  Created on: Dec 30, 2022
- *      Author: Calvin
+ *      Author: Tyler
  */
 
 #ifndef SOURCE_MDE_TIMERS_H_
@@ -43,7 +43,7 @@ void MDEWatchdogInt(void);
 // Cycle time is the time it takes for a timer interrupt to trigger in seconds
 // Timer cycles is how many cycles the timer will do before performing a check
 #define MEMORY_CYCLE_TIME 4 //minutes. nearly the max value timer can wait.
-#define MEMORY_CYCLE_COUNT 0 //22 //  0 inclusive. Amount of times last timer will trigger before an MDE cycle begins. 90/4 = 22.5 -> 22
+#define MEMORY_CYCLE_COUNT 1 //22 //  0 inclusive. Amount of times last timer will trigger before an MDE cycle begins. 90/4 = 22.5 -> 22
 
 // Variables for the watchdog timers.
 #define MDE_WD_SYSCTL SYSCTL_PERIPH_WDOG0

@@ -40,7 +40,9 @@
 #include "source/multiplexer.h"
 #include "source/obc_uart.h"
 #include "source/mde_timers.h"
+#include "source/UART0_func.h"
 #include "source/devtools.h"
+
 
 // Chip drivers
 #include "source/chipDrivers/FLASHfunc.h"
@@ -62,6 +64,8 @@ uint32_t timer_current_cycle = 0;  // Maximum timer value is limited by the 32 b
 uint32_t wd_chip_time = (uint32_t)CHIP_WD_TIME * (uint32_t)MINUTE * (uint32_t)SYS_CLK_SPEED;
 uint32_t wd_mde_time =  (uint32_t)SYS_CLK_SPEED;// * (uint32_t)4 * (uint32_t)MINUTE;
 
+volatile uint32_t ui32Loop;         // Loop variable for blink
+
 // Error Variables
 uint32_t current_error = 0;         // global error count (from bit_errors.c)
 MDE_Error_Data_t *errorHead = 0;
@@ -76,15 +80,14 @@ bool reading_chip;                  // read/write tracker (from mde_timers.h)
 // Cycle count - global tracker for the number of times MDE has gone through the main
 // experiment loop
 uint16_t cycle_count = 0;
+uint8_t currentCycle;               // Value 0 or 255 for writing all 0s or 1s
 
 // Debug Variables (from devtools.h)
 #ifdef DEBUG
 enum MENU_STATES menuState  = INIT; // Debug menu state
 enum BOARDS selectedBoardNumber = BOARD1; // Selected Board for debug
-uint8_t currentCycle;               // Value 0 or 255 for writing all 0s or 1s
 uint8_t chipSelectStep = 1;         // Used for chip type -> chip number step tracking
 uint8_t seedErrors = 0;             // Value 0 or 1 for seeding errors when writing
-volatile uint32_t ui32Loop;         // Loop variable for blink
 #endif
 
 
@@ -205,7 +208,7 @@ EnableBoard2ChipSelectPins(void)
  *                                LED FUNCTIONS                               *
  ******************************************************************************
  */
-#ifdef DEBUG
+
 
 //-----------------------------------------------------------------------------
 // Enables the RGB LED
@@ -299,7 +302,7 @@ BlinkGreenLED(void)
     {
     }
 }
-#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 //*****************************************************************************
@@ -330,8 +333,9 @@ main(void)
     // Turn on BLUE LED
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
 
+    uint16_t k;
     // Delay for a bit.
-    for(ui32Loop = 0; ui32Loop < 5000000; ui32Loop++)
+    for(k = 0; k < 5000; k++)
     {
     }
 
@@ -343,9 +347,9 @@ main(void)
     //*****************************
 
     MDETimerConfigure();
-#ifdef DEBUG
-    MDETimerDisable(); // For debugging reasons. In flight mode, likely its fine to leave the timer on.
-#endif
+
+    MDETimerDisable();
+
     EnableSPI(); // Chip SPI communications
 
     EnableBoard1ChipSelectPins(); // Board 1 MUX enable
@@ -371,12 +375,14 @@ main(void)
     // UART Enable and Configuration
     UARTDebugEnable();
     UARTCharPut(UART_DEBUG, 0xC);
-    char msg[] = "Wait until debug menu appears before doing anything\r\n";
+    char buf[60] = "Wait until debug menu appears before doing anything\r\n";
+    uint8_t bufSize = 60;
+    UARTDebugSend((uint8_t*)buf, strlen(buf));
 
-    UARTDebugSend((uint8_t*)msg, strlen(msg));
+#else /* DEBUG */
+    UARTDebugEnable(); // Still need the UART for watchdogs
 
-#endif /* DEBUG */
-
+#endif
     //*****************************
     // Chip Configurations
     //*****************************
@@ -386,6 +392,10 @@ main(void)
     // Check all chips before program start
     uint8_t chip;
     uint8_t norm;
+
+    char buf[60];
+    uint8_t bufSize = 60;
+
     for(chip = 0; chip < MAX_CHIP_NUMBER; chip++)
     {
         norm = chip%16;
@@ -398,13 +408,26 @@ main(void)
         {
             //MRAMStatusPrepare(chip);
         }
+
+        snprintf(buf, bufSize,  "Check chip %d...",chip);
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+
         CheckChipHealth(chip); // Check health of all chips. This will also initialize chip health array to 1s assuming they are all working.
+
+        snprintf(buf, bufSize, "%d\r\n",chip_health_array[chip].HealthCount);
+        UARTDebugSend((uint8_t*)buf, strlen(buf));
     }
 
     // Initialize all data to 1s, and begin on a 0 cycle.
     for(chip = 0; chip < MAX_CHIP_NUMBER; chip++)
     {
+        snprintf(buf, bufSize, "Write to chip %d....", chip);
+        UARTDebugSend((uint8_t*)buf, strlen(buf));
+
         WriteToChip(255,chip);
+
+        snprintf(buf, bufSize,  "Done\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
     }
     currentCycle = 0;
 
@@ -418,9 +441,10 @@ main(void)
     menuState = MAIN;
     printDebugMenu();
 
-#endif /* DEBUG */
-
-
+#else /* DEBUG */
+    // Enable flight mode
+    MDETimerEnable();
+#endif
     //*****************************
     // Other Configurations
     //*****************************

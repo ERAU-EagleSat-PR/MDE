@@ -74,11 +74,9 @@ CheckChipHealth(uint8_t chip_number)
     {
         // Retrieve the contents of the status register
         uint8_t MRAM_register = MRAMStatusRead(chip_number);
-        // Apply expected result as a bitwise mask, to eliminate extra register bits which could be set
-        MRAM_register = MRAM_register & MRAM_EXPECTED;
 
         // Check for an incorrect return
-        if (MRAM_register != MRAM_EXPECTED)
+        if ((MRAM_register^MRAM_EXPECTED) != 0)
         {
             chip_health = chip_health_array[chip_number].HealthCount + 1; // Increment value in array by 1 if failed
         }
@@ -87,11 +85,9 @@ CheckChipHealth(uint8_t chip_number)
     {
         // Retrieve the contents of the status register
         uint8_t SRAM_register = SRAMStatusRead(chip_number);
-        // Apply expected result as a bitwise mask, to eliminate extra register bits which could be set
-        SRAM_register = SRAM_register & SRAM_EXPECTED;
 
         // Check for an incorrect return
-        if (SRAM_register != SRAM_EXPECTED)
+        if ((SRAM_register^SRAM_EXPECTED) != 0)
         {
             chip_health = chip_health_array[chip_number].HealthCount + 1; // Increment value in array by 1 if failed
         }

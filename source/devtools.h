@@ -13,7 +13,7 @@
 // In debug mode, all output is printed in a human readable format, while in
 // non-debug (flight) mode, all output is sent in the agreed packet format.
 // To enable and disable debug mode, comment or un-comment the following line.
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 
 #include "source/bit_errors.h"
@@ -23,11 +23,6 @@
 *                             Function Prototypes                             *
 *******************************************************************************
 */
-
-//UART communication
-void UARTDebugIntHandler(void);
-void UARTDebugEnable(void);
-void UARTDebugSend(const uint8_t *pui8Buffer, uint32_t ui32Count);
 
 //Print functions
 void printDebugMenu(void);
@@ -51,20 +46,6 @@ void processBoardSelectInput(int32_t recv_char);
 *******************************************************************************
 */
 
-//-----------------------------------------------------------------------------
-// UART for Debug
-//-----------------------------------------------------------------------------
-
-// The UART to Use debug terminal through
-#define ENABLE_UART_DEBUG
-
-#define UART_DEBUG          UART0_BASE
-#define UART_DEBUG_BASE     UART0_BASE
-#define UART_DEBUG_SYSCTL   SYSCTL_PERIPH_UART0
-
-// The baud rate to use for either UART connection
-#define BAUD_RATE_DEBUG     115200
-
 // Values controlling error seeding when debugging
 #define SEEDERRORS_ADDRESS  100000
 #define SEEDERRORS_VALUE    0b10101010
@@ -74,7 +55,7 @@ void processBoardSelectInput(int32_t recv_char);
 *                                  Globals                                    *
 *******************************************************************************
 */
-extern uint8_t currentCycle;   // Value 0 or 1 for writing 0s or 1s
+
 extern uint8_t chipSelectStep; // Used for chip type -> chip number step tracking
 extern uint8_t seedErrors;     // Value 0 or 1 if errors should be seeded when writing.
 

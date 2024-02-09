@@ -24,7 +24,8 @@
 #include "SRAMfunc.h"
 #include "source/multiplexer.h"
 #include "source/mde.h"
-#include "source/devtools.h"
+#include "source/UART0_func.h"
+#include "source/bit_errors.h"
 
 //*****************************************************************************
 //

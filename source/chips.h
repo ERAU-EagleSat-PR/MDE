@@ -25,8 +25,8 @@ void ReadFromChip(uint32_t current_cycle, uint32_t chip_number);
 *                                  Constants                                  *
 *******************************************************************************
 */
-//#define MAX_CHIP_NUMBER 16 // 16 chips for one board, DEBUGGING purposes only.
-#define MAX_CHIP_NUMBER 32 // 32 chips across 2 boards.
+#define MAX_CHIP_NUMBER 16 // 16 chips for one board, DEBUGGING purposes only.
+//#define MAX_CHIP_NUMBER 32 // 32 chips across 2 boards.
 
 
 /*
@@ -36,6 +36,7 @@ void ReadFromChip(uint32_t current_cycle, uint32_t chip_number);
  */
 // Global tracker of currently active chip. Should be kept up to date, it is used for watchdog timer tracking.
 extern uint8_t current_chip;
+extern uint8_t currentCycle;   // Value 0 or 1 for writing 0s or 1s
 
 //-----------------------------------------------------------------------------
 // SPI port and pin defines

@@ -41,7 +41,7 @@
 #include "source/mde.h"
 #include "source/chips.h"
 #include "source/chip_health.h"
-#include "source/devtools.h"
+#include "source/UART0_func.h"
 
 /*
 *******************************************************************************
@@ -85,17 +85,27 @@ void MDETimerDisable(void)
 void
 MDETimerInt(void)
 {
+    char buf [20];
+    uint8_t bufSize = 20;
     // Clear timer interrupt
     TimerIntClear(MDE_TIMER_BASE, MDE_TIMER_INT);
 
     if(timer_current_cycle >= MEMORY_CYCLE_COUNT)
     {
+        // temp for testing
+        snprintf(buf,bufSize, "Timer Trigger\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+
         // Call the function to begin a new cycle.
         current_chip = 0;
         MDEProcessCycle();
         timer_current_cycle = 0;
     }
     else
+        // temp for testing
+        snprintf(buf,bufSize, "Timer Tick\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+
         timer_current_cycle++;
 
 }
