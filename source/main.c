@@ -398,15 +398,15 @@ main(void)
 
     for(chip = 0; chip < MAX_CHIP_NUMBER; chip++)
     {
-        norm = chip%16;
+        norm = chip % 16;
 
         if(norm < 4)
         {
-            //FlashConfiguration(chip);
+            FlashConfiguration(chip);
         }
         else if (norm >= 8 && norm < 12) // If the chip is MRAM, prepare its status register
         {
-            //MRAMStatusPrepare(chip);
+            MRAMStatusPrepare(chip);
         }
 
         snprintf(buf, bufSize,  "Check chip %d...",chip);
