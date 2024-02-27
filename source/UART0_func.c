@@ -29,8 +29,9 @@
 #include "driverlib/pin_map.h"
 
 // Other Includes
-#include "source/UART0_func.h"
 #include "source/devtools.h"
+#include "source/UART0_func.h"
+
 
 //-----------------------------------------------------------------------------
 // The UART0 interrupt handler. Debugging UART

@@ -23,7 +23,7 @@ void UARTOBCSend(const uint8_t *pui8Buffer, uint32_t ui32Count);
 // Sends all error data available
 void TransmitErrors(void);
 // Sends a health packet
-void TramsmitHealth(void);
+void TransmitHealth(void);
 
 // Should be called in the main while loop to send a command to OBC to reset MDE
 // (turn it off)

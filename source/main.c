@@ -370,13 +370,14 @@ main(void)
     //*****************************
     UARTOBCEnable();
 
+    char buf[60] = "Wait until debug menu appears before doing anything\r\n";
+    uint8_t bufSize = 60;
+
     // Set up the debug menu if debugging is enabled
 #ifdef DEBUG
     // UART Enable and Configuration
     UARTDebugEnable();
     UARTCharPut(UART_DEBUG, 0xC);
-    char buf[60] = "Wait until debug menu appears before doing anything\r\n";
-    uint8_t bufSize = 60;
     UARTDebugSend((uint8_t*)buf, strlen(buf));
 
 #else /* DEBUG */
@@ -392,9 +393,6 @@ main(void)
     // Check all chips before program start
     uint8_t chip;
     uint8_t norm;
-
-    char buf[60];
-    uint8_t bufSize = 60;
 
     for(chip = 0; chip < MAX_CHIP_NUMBER; chip++)
     {
@@ -419,12 +417,12 @@ main(void)
     }
 
     // Initialize all data to 1s, and begin on a 0 cycle.
-    for(chip = 0; chip < MAX_CHIP_NUMBER; chip++)
+    for(chip = 16; chip < MAX_CHIP_NUMBER; chip++)
     {
         snprintf(buf, bufSize, "Write to chip %d....", chip);
         UARTDebugSend((uint8_t*)buf, strlen(buf));
 
-        WriteToChip(255,chip);
+        //WriteToChip(255,chip);
 
         snprintf(buf, bufSize,  "Done\r\n");
         UARTDebugSend((uint8_t*) buf, strlen(buf));

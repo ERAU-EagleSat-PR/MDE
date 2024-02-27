@@ -36,7 +36,9 @@
 #include "chipDrivers/MRAMfunc.h"
 #include "chipDrivers/SRAMfunc.h"
 #include "source/devtools.h"
-
+#ifdef DEBUG
+#include "source/UART0_func.h"
+#endif
 //*****************************************************************************
 //
 // Writes the given sequence to the chip indicated by chip number.

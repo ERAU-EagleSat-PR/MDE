@@ -5,7 +5,7 @@
  *      Author: Calvin
  */
 
-#ifdef DEBUG
+
 /*
  *******************************************************************************
  *                                   Includes                                  *
@@ -32,6 +32,7 @@
 #include "driverlib/rom.h"
 #include "driverlib/timer.h"
 #include "driverlib/ssi.h"
+#include "driverlib/uart.h"
 
 // Custom Memory Drivers
 #include "chipDrivers/FLASHfunc.h"
@@ -41,6 +42,7 @@
 
 // Additional Includes
 #include "source/devtools.h"
+#ifdef DEBUG
 #include "source/multiplexer.h"
 #include "source/chips.h"
 #include "source/mde.h"
@@ -49,6 +51,7 @@
 #include "source/bit_errors.h"
 #include "source/obc_uart.h"
 #include "source/UART0_func.h"
+
 
 /*
  *******************************************************************************

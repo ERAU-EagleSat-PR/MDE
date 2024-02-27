@@ -32,6 +32,7 @@
 #include "source/devtools.h"    // Used to write debug code
 #include "source/mde.h"         // Used to access the cycle count
 #include "source/chip_health.h" // Used to access chip_death_array
+#include "source/UART0_func.h"
 
 /*
 *******************************************************************************
@@ -303,7 +304,7 @@ void TransmitErrors()
 //-----------------------------------------------------------------------------
 // Create the health data packet and transmit it over UART to OBC
 //-----------------------------------------------------------------------------
-void TransmitHealth()
+void TransmitHealth(void)
 {
     // Create array to hold data.
 	uint8_t health_data[HEALTH_DATA_LENGTH];
