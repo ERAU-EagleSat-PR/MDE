@@ -74,8 +74,8 @@ extern uint16_t cycle_count; // cycle count - tracks number of memory cycles
 #define SPI0_CLK_NUM        GPIO_PIN_2
 #define SPI0_MISO           GPIO_PA4_SSI0RX
 #define SPI0_MOSI           GPIO_PA5_SSI0TX
-#define SPI0_MOSI_NUM       GPIO_PIN_5
 #define SPI0_MISO_NUM       GPIO_PIN_4
+#define SPI0_MOSI_NUM       GPIO_PIN_5
 
 // SSI pins and ports Board 2
 #define SPI1_NUM_BASE       SSI1_BASE
@@ -84,10 +84,10 @@ extern uint16_t cycle_count; // cycle count - tracks number of memory cycles
 #define SPI1_PORT           GPIO_PORTF_BASE
 #define SPI1_CLK            GPIO_PF2_SSI1CLK
 #define SPI1_CLK_NUM        GPIO_PIN_2
-#define SPI1_MOSI           GPIO_PF1_SSI1TX
 #define SPI1_MISO           GPIO_PF0_SSI1RX
-#define SPI1_MOSI_NUM       GPIO_PIN_1
+#define SPI1_MOSI           GPIO_PF1_SSI1TX
 #define SPI1_MISO_NUM       GPIO_PIN_0
+#define SPI1_MOSI_NUM       GPIO_PIN_1
 
 // Clock information needed for SPI timing/rate
 // The target clock speed for the system clock, 16 MHz

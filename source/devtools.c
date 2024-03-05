@@ -254,14 +254,6 @@ printDebugMenu(void)
         snprintf(buf,bufSize, "Q - Return to main menu\r\n");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
-    case BOARD_SELECT:
-        snprintf(buf,bufSize, "1 - Select Board 1\r\n");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf,bufSize, "2 - Select Board 2\r\n");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf,bufSize, "Q - Return to main menu\r\n");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));        
-        break;
     default:
         UARTCharPut(UART_DEBUG, 0xC);
         snprintf(buf, bufSize, "State failure!");
@@ -302,9 +294,6 @@ processDebugInput(int32_t recv_char)
         break;
     case BOARD_POWER:
         processBoardPowerInput(recv_char);
-        break;
-    case BOARD_SELECT:
-        processBoardSelectInput(recv_char);
         break;
     case AUTO:
         switch (recv_char)
@@ -371,10 +360,15 @@ processMainMenuInput(int32_t recv_char)
         menuState = BOARD_POWER;
         printDebugMenu();
         break;
-    case 'b': // Switch to Board Selectio nMenu
+    case 'b': // Switch boards
         UARTCharPut(UART_DEBUG, 0xC);
-        menuState = BOARD_SELECT;
+        if(selectedBoardNumber == BOARD1)
+            selectedBoardNumber = BOARD2;
+        else
+            selectedBoardNumber = BOARD1;
         printDebugMenu();
+        snprintf(buf, bufSize,  "Board selection changed; make sure to update the chip number.\n\r");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
     case 'x':
         UARTCharPut(UART_DEBUG, 0xC);
@@ -789,43 +783,6 @@ void processBoardPowerInput(int32_t recv_char)
             break;
     }
 
-    // Return to menu
-    IntMasterEnable();
-}
-
-//-----------------------------------------------------------------------------
-// Process Board Select Menu
-//-----------------------------------------------------------------------------
-void processBoardSelectInput(int32_t recv_char)
-{
-    IntMasterDisable();
-
-    char buf[100];
-    uint8_t bufSize = 100;
-
-    switch (recv_char) {
-        case '1':
-            UARTCharPut(UART_DEBUG, 0xC);
-            printDebugMenu();
-            selectedBoardNumber = BOARD1;
-            snprintf(buf, bufSize, "Board 1 selected.  Make sure to select a chip, as current_chip is not updated by changing boards\r\n");
-            UARTDebugSend((uint8_t*) buf, strlen(buf));
-            break;
-        case '2':
-            UARTCharPut(UART_DEBUG, 0xC);
-            printDebugMenu();
-            selectedBoardNumber = BOARD2;
-            snprintf(buf, bufSize, "Board 2 selected.  Make sure to select a chip, as current_chip is not updated by changing boards\r\n");
-            UARTDebugSend((uint8_t*) buf, strlen(buf));
-            break;
-        case 'q':
-            UARTCharPut(UART_DEBUG, 0xC);
-            menuState = MAIN;
-            printDebugMenu();
-            break;
-        default:
-            break;
-    }
     // Return to menu
     IntMasterEnable();
 }

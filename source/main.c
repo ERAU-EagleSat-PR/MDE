@@ -72,7 +72,7 @@ MDE_Error_Data_t *errorHead = 0;
 
 // Global Chip Trackers
 uint8_t auto_chip_number = 0;       // Chip tracker for auto mode (from mde.h)
-uint8_t current_chip = 1;           // track active chip (from chips.h)
+uint8_t current_chip = 17;           // track active chip (from chips.h)
 CHIPHEALTH chip_health_array[32];   // track chip health (from chiphealth.h)
 bool chip_death_array[32];          // track dead chips (from chiphealth.h)
 bool reading_chip;                  // read/write tracker (from mde_timers.h)
@@ -85,7 +85,7 @@ uint8_t currentCycle;               // Value 0 or 255 for writing all 0s or 1s
 // Debug Variables (from devtools.h)
 #ifdef DEBUG
 enum MENU_STATES menuState  = INIT; // Debug menu state
-enum BOARDS selectedBoardNumber = BOARD1; // Selected Board for debug
+enum BOARDS selectedBoardNumber = BOARD2; // Selected Board for debug
 uint8_t chipSelectStep = 1;         // Used for chip type -> chip number step tracking
 uint8_t seedErrors = 0;             // Value 0 or 1 for seeding errors when writing
 #endif
