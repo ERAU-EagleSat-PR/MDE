@@ -31,6 +31,7 @@
 #include "source/chips.h"
 #include "source/chip_health.h"
 
+#include "source/UART0_func.h"
 
 // Update this function to use multiple levels of failure; IE, if a chip fails three times in a row, it should be considered DEAD permanently.
 // Alternatively if the watchdog is triggered twice should be considered dead as well
@@ -52,9 +53,9 @@ CheckChipHealth(uint8_t chip_number)
         FLASHID FLASH_register = FlashStatusRead(chip_number);
 
         // One mismatch will be a fail condition
-        if(FLASH_register.cypID != FLASH_CYP_ID //|| FLASH_register.RDSR != 0b00000000                  Option here to check if the WIP bit of the register is a 1 or not.
+        if(FLASH_register.cypID != FLASH_CYP_ID          || FLASH_register.RDSR & 0x01                // Option here to check if the WIP bit of the register is a 1 or not.
                 || FLASH_register.prodID1 != FLASH_PROD1 || FLASH_register.prodID2 != FLASH_PROD2)    // I believe it may be stuck 1 if the chip dies, but could also be a 1 even if chip is not dead.
-        {
+        {                                                                                             // however if it is still 1 on a new cycle, safe to assume chip is stuck or dead
             chip_health = chip_health_array[chip_number].HealthCount + 1; // Increment value in array by 1 if failed
         }
     }
@@ -81,7 +82,7 @@ CheckChipHealth(uint8_t chip_number)
             chip_health = chip_health_array[chip_number].HealthCount + 1; // Increment value in array by 1 if failed
         }
     }
-    else                            // SRAM
+    else if (chip_number_norm < 16) // SRAM
     {
         // Retrieve the contents of the status register
         uint8_t SRAM_register = SRAMStatusRead(chip_number);

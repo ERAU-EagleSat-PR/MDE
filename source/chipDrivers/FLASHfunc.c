@@ -24,7 +24,7 @@
 #include "source/mde.h"
 #include "source/UART0_func.h"
 #include "source/bit_errors.h"
-
+#include "source/chip_health.h"
 
 //*****************************************************************************
 //
@@ -58,7 +58,7 @@ FlashStatusRead(uint8_t chip_number)
     while(SSIDataGetNonBlocking(SPI_base, &temp))
     {
     }
-
+    SysCtlDelay(10);
     SSIDataPut(SPI_base,0x00);
     while(SSIBusy(SPI_base)) //Wait to complete clock pulses
     {
@@ -95,7 +95,8 @@ FlashStatusRead(uint8_t chip_number)
     while(SSIDataGetNonBlocking(SPI_base, &temp))
     {
     }
-    SSIDataPut(SPI_base,0x00);
+    SysCtlDelay(10);
+    SSIDataPut(SPI_base,0x00); // Clocks
     while(SSIBusy(SPI_base)) //Wait to complete command
     {
     }
@@ -361,19 +362,7 @@ FlashErase(uint8_t chip_number)
 
     //ChipWatchdogPoke(); // Poke the chip watchdog before waiting for the flash erase to complete.
 
-    // Loop until wipe cycle is completed.
-    while(status_register & 0x01)
-    {
-        SSIDataPut(SPI_base,0x00);
-        while(SSIBusy(SPI_base)) //Wait to complete command
-        {
-        }
-        SSIDataGet(SPI_base, &status_register);
-
-        // Small delay as quickly checking the register seems to pre-emptively cause a zero-result while a write is still in progress
-        // The erase cycle is so long relatively this barely matters.
-        SysCtlDelay(1400);
-    }
+    // No need to wait for chip erase to complete; it will either be done by our next cycle, or not. Health check will flag a FLASH chip with WIP bit on.
 
     // CS high
     SetChipSelect(chip_number_alt);
@@ -511,7 +500,7 @@ FlashSequenceTransmit(uint8_t current_cycle, uint8_t chip_number)
             while(SSIDataGetNonBlocking(SPI_base, &temp))
             {
             }
-
+            uint32_t stuckCount = 0;
             status_register = 0x01;
             // Loop until status register says cycle completed
             while(status_register & 0x01)
@@ -521,11 +510,18 @@ FlashSequenceTransmit(uint8_t current_cycle, uint8_t chip_number)
                 {}
                 SSIDataGet(SPI_base, &status_register);
                 SysCtlDelay(1600); // Small delay to prevent mis-reads
+                stuckCount++;
+                if(stuckCount>10000)
+                    break;
             }
             // CS high
             SetChipSelect(chip_number_alt);
-
             // Move to next page;
+            if(stuckCount > 10000) // Failed to write to chip
+            {
+                chip_health_array[chip_number].HealthCount++;
+                break;
+            }
         }
         // CS low
         SetChipSelect(chip_number);
@@ -619,9 +615,9 @@ FlashSequenceRetrieve(uint8_t current_cycle, uint8_t chip_number)
         // Wait for the transaction to complete before moving on
         while(SSIBusy(SPI_base))
         {}
-
+        SysCtlDelay(10); // Slight delay to ensure command is processed first
         // Read in the data
-        SSIDataGet(SPI_base, &data);
+        SSIDataGetNonBlocking(SPI_base, &data); // Nonblocking to prevent stuck conditions
 
         // Send data to be checked and packaged
         CheckErrors(chip_number, byte_num, data, current_cycle);

@@ -58,7 +58,7 @@ FRAMStatusRead(uint8_t chip_number)
     while(SSIDataGetNonBlocking(SPI_base, &temp))
     {
     }
-
+    SysCtlDelay(10);
     SSIDataPut(SPI_base,0x0);
     while(SSIBusy(SPI_base)) //Wait to complete clock cycle
     {}
@@ -260,9 +260,9 @@ FRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
         while(SSIBusy(SPI_base))
         {
         }
-
+        SysCtlDelay(10);
         // Read in the data
-        SSIDataGet(SPI_base, &data);
+        SSIDataGetNonBlocking(SPI_base, &data);
 
         // Send data to be checked and packaged
         CheckErrors(chip_number, byte_num, data, current_cycle);

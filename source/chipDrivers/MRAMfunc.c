@@ -77,7 +77,8 @@ MRAMStatusRead(uint8_t chip_number)
 
     // Send a clock pulse and retrieve the status register
     SSIDataPut(SPI_base, 0x00);
-    SSIDataGet(SPI_base, &data);
+    SysCtlDelay(10);
+    SSIDataGetNonBlocking(SPI_base, &data);
 
     // CS high to end read
     SetChipSelect(chip_number_alt);
@@ -366,9 +367,9 @@ MRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
         while(SSIBusy(SPI_base))
         {
         }
-
+        SysCtlDelay(10);
         // Read in the data
-        SSIDataGet(SPI_base, &data);
+        SSIDataGetNonBlocking(SPI_base, &data);
         // Send data to be checked and packaged
         CheckErrors(chip_number, byte_num, data, current_cycle);
 

@@ -58,6 +58,9 @@ SRAMStatusRead(uint32_t chip_number)
     // SRAM is always 12 to 15, so subtracting 7 is fine.
     chip_number_alt = chip_number - 7;
 
+    //  Initial CS high
+    SetChipSelect(chip_number_alt);
+
     // CS Low for RDMR
     SetChipSelect(chip_number);
 
@@ -72,10 +75,12 @@ SRAMStatusRead(uint32_t chip_number)
     while(SSIDataGetNonBlocking(SPI_base, &temp))
     {
     }
+    SSIDataGetNonBlocking(SPI_base, &temp);
 
     // Send a clock pulse and retrieve the status register
     SSIDataPut(SPI_base, 0x00);
-    SSIDataGet(SPI_base, &data);
+    SysCtlDelay(10);
+    SSIDataGetNonBlocking(SPI_base, &data);
 
     // CS high to end read
     SetChipSelect(chip_number_alt);
@@ -266,9 +271,9 @@ SRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
         while(SSIBusy(SPI_base))
         {
         }
-
+        SysCtlDelay(10);
         // Read in the data
-        SSIDataGet(SPI_base, &data);
+        SSIDataGetNonBlocking(SPI_base, &data);
         // Send data to be checked and packaged
         CheckErrors(chip_number, byte_num, data, current_cycle);
 

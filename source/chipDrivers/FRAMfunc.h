@@ -28,8 +28,8 @@ FRAMID FRAMStatusRead(uint8_t chip_number);
 // Expected values from FRAM device ID register
 #define FRAM_FUJ_ID 0x04
 #define FRAM_CONT_CODE 0x7F
-#define FRAM_PROD1 0x48
-#define FRAM_PROD2 0x0A
+#define FRAM_PROD1 0x01 //0x48
+#define FRAM_PROD2 0x01 //0x0A Docu says these values, but we get 1 and 1 from all 8 chips though they work. Not sure.
 
 // FRAM Size
 #define FRAM_SIZE_BYTES 2048
