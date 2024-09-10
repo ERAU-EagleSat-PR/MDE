@@ -82,31 +82,24 @@ void MDETimerDisable(void)
 
     TimerDisable(MDE_TIMER_BASE, TIMER_A);
 }
+
 void
 MDETimerInt(void)
 {
+#ifdef TIMER_DEBUG
     char buf [20];
     uint8_t bufSize = 20;
+#endif
+
     // Clear timer interrupt
     TimerIntClear(MDE_TIMER_BASE, MDE_TIMER_INT);
 
-    if(timer_current_cycle >= MEMORY_CYCLE_COUNT)
-    {
-        // temp for testing
-        snprintf(buf,bufSize, "Timer Trigger\n\r");
-        UARTDebugSend((uint8_t*) buf, strlen(buf));
 
-        // Call the function to begin a new cycle.
-        current_chip = 0;
-        MDEProcessCycle();
-        timer_current_cycle = 0;
-    }
-    else
-        // temp for testing
+#ifdef TIMER_DEBUG
         snprintf(buf,bufSize, "Timer Tick\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
-
-        timer_current_cycle++;
+#endif
+    ++timer_current_cycle;
 
 }
 

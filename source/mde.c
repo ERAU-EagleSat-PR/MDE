@@ -54,11 +54,11 @@ MDEProcessCycle(void)
     // Perform a complete cycle of the MDE experiment including
     // health check, data read, error check, and data write.
     // !! Set current_chip global var to 0 before beginning a brand new cycle.
+    MDETimerDisable();
 #ifdef DEBUG
     char buf[40];
     uint8_t bufSize = 40;
 
-    MDETimerDisable();
     snprintf(buf,bufSize, "Beginning MDE %u cycle...\n\r", currentCycle);
     UARTDebugSend((uint8_t*) buf, strlen(buf));
 #endif
@@ -114,8 +114,8 @@ MDEProcessCycle(void)
 #ifdef DEBUG
     snprintf(buf,bufSize, "MDE Cycle complete.\n\r");
     UARTDebugSend((uint8_t*) buf, strlen(buf));
-    MDETimerEnable();
 #endif
+    MDETimerEnable();
 }
 
 //******************************************************************//

@@ -370,19 +370,16 @@ main(void)
     //*****************************
     UARTOBCEnable();
 
-    char buf[60] = "Wait until debug menu appears before doing anything\r\n";
-    uint8_t bufSize = 60;
 
+
+    UARTDebugEnable();
     // Set up the debug menu if debugging is enabled
 #ifdef DEBUG
+    char buf[60] = "Wait until debug menu appears before doing anything\r\n";
+    uint8_t bufSize = 60;
     // UART Enable and Configuration
-    UARTDebugEnable();
     UARTCharPut(UART_DEBUG, 0xC);
     UARTDebugSend((uint8_t*)buf, strlen(buf));
-
-#else /* DEBUG */
-    UARTDebugEnable(); // Still need the UART for watchdogs
-
 #endif
     //*****************************
     // Chip Configurations
@@ -407,25 +404,31 @@ main(void)
             MRAMStatusPrepare(chip);
         }
 
+#ifdef DEBUG
         snprintf(buf, bufSize,  "Check chip %d...",chip);
         UARTDebugSend((uint8_t*) buf, strlen(buf));
+#endif
 
         CheckChipHealth(chip); // Check health of all chips. This will also initialize chip health array to 1s assuming they are all working.
 
+#ifdef DEBUG
         snprintf(buf, bufSize, "%d\r\n",chip_health_array[chip].HealthCount);
         UARTDebugSend((uint8_t*)buf, strlen(buf));
+#endif
     }
 
     // Initialize all data to 1s, and begin on a 0 cycle.
-    for(chip = 16; chip < MAX_CHIP_NUMBER; chip++)
+    for(chip = 0; chip < MAX_CHIP_NUMBER; chip++)
     {
+#ifdef DEBUG
         snprintf(buf, bufSize, "Write to chip %d....", chip);
         UARTDebugSend((uint8_t*)buf, strlen(buf));
-
-        //WriteToChip(255,chip);
-
+#endif
+        WriteToChip(255,chip);
+#ifdef DEBUG
         snprintf(buf, bufSize,  "Done\r\n");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
+#endif
     }
     currentCycle = 0;
 
@@ -443,6 +446,8 @@ main(void)
     // Enable flight mode
     MDETimerEnable();
 #endif
+    MDETimerEnable();
+
     //*****************************
     // Other Configurations
     //*****************************
@@ -455,6 +460,17 @@ main(void)
     //*****************************
     while (1)
     {
+        if(timer_current_cycle >= MEMORY_CYCLE_COUNT)
+        {
+#ifdef TIMER_DEBUG
+            snprintf(buf,bufSize, "Timer Trigger\n\r");
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
+#endif
+            // Call the function to begin a new cycle.
+            current_chip = 0;
+            MDEProcessCycle();
+            timer_current_cycle = 0;
+        }
 
         // currently checking to see if logic is working and if all CS port and
         // pins are active

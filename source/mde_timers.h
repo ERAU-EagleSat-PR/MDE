@@ -42,7 +42,7 @@ void MDEWatchdogInt(void);
 
 // Cycle time is the time it takes for a timer interrupt to trigger in seconds
 // Timer cycles is how many cycles the timer will do before performing a check
-#define MEMORY_CYCLE_TIME 4 //minutes. nearly the max value timer can wait.
+#define MEMORY_CYCLE_TIME 90 //minutes. nearly the max value timer can wait.
 #define MEMORY_CYCLE_COUNT 22 //  0 inclusive. Amount of times last timer will trigger before an MDE cycle begins. 90/4 = 22.5 -> 22
 
 // Variables for the watchdog timers.

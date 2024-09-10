@@ -43,8 +43,9 @@ void FlashConfiguration(uint8_t chip_number);
 #define FLASH_PROD1 0x60
 #define FLASH_PROD2 0x19
 
-//#define FLASH_SIZE_BYTES 256000000
-#define FLASH_SIZE_BYTES 8000000 // It takes a long time to do all 256 million bytes. For debugging.
+//#define FLASH_SIZE_BYTES 25600 // It takes a long time to do all 256 million bytes. For debugging.
+#define FLASH_SIZE_BYTES 256000000
+
 #define FLASH_PAGE_SIZE 256
 
 #endif /* FLASHFUNC_H_ */
