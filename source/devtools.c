@@ -52,6 +52,7 @@
 #include "source/obc_uart.h"
 #include "source/UART0_func.h"
 
+bool timer_enable = true;
 
 /*
  *******************************************************************************
@@ -127,7 +128,10 @@ printDebugMenu(void)
         // Board Power functions
         snprintf(buf, bufSize,  "P - Board Power Control\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
-        snprintf(buf, bufSize,  "X - Restart Program.\n\r");                       // TODO
+        if (timer_enable)
+            snprintf(buf, bufSize,  "T - Disable Process Cycle Timer\n\r");
+        else
+            snprintf(buf, bufSize,  "T - Enable Process Cycle Timer\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
 
@@ -370,10 +374,25 @@ processMainMenuInput(int32_t recv_char)
         snprintf(buf, bufSize,  "Board selection changed; make sure to update the chip number.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
-    case 'x':
+    case 't':
         UARTCharPut(UART_DEBUG, 0xC);
         printDebugMenu();
-        snprintf(buf, bufSize,  "Function Not Implemented.\n\r");              // TODO
+
+        timer_enable = !timer_enable;
+        if (timer_enable) {
+            if ( timer_current_cycle >= MEMORY_CYCLE_COUNT) {
+                snprintf(buf, bufSize,  "MDE Process Cycle started, not starting timer\n\r");
+            }
+            else {
+                MDETimerEnable();
+                snprintf(buf, bufSize,  "MDE Process Cycle Timer started\n\r");
+            }
+        }
+        else {
+            MDETimerDisable();
+            snprintf(buf, bufSize,  "MDE Process Cycle Timer stopped\n\r");
+
+        }
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         break;
     }
