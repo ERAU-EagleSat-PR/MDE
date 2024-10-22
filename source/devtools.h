@@ -13,7 +13,6 @@
 // In debug mode, all output is printed in a human readable format, while in
 // non-debug (flight) mode, all output is sent in the agreed packet format.
 // To enable and disable debug mode, comment or un-comment the following line.
-#define DEBUG
 
 #ifdef DEBUG
 

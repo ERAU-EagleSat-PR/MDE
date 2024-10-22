@@ -463,26 +463,19 @@ FlashSequenceTransmit(uint8_t current_cycle, uint8_t chip_number)
                 if(current_address + byte_num > FLASH_SIZE_BYTES){
                     break;
                 }
+                data = current_cycle;
+
 #ifdef DEBUG // Error seeding if in debug mode
                 if(seedErrors == 1 && ((current_address + byte_num) % SEEDERRORS_ADDRESS) == 0)
                     data = SEEDERRORS_VALUE;
-                // Begin transmitting data
-                SSIDataPut(SPI_base, data);
-
-                // Wait for the transmission to complete before moving on to the next byte
-                while(SSIBusy(SPI_base))
-                {
-                }
-                data = current_cycle;
-#else // Flight mode
-                // Begin transmitting data
-                SSIDataPut(SPI_base, data);
-
-                // Wait for the transmission to complete before moving on to the next byte
-                while(SSIBusy(SPI_base))
-                {
-                }
 #endif
+                // Begin transmitting data
+                SSIDataPut(SPI_base, data);
+
+                // Wait for the transmission to complete before moving on to the next byte
+                while(SSIBusy(SPI_base))
+                {
+                }
             }
             // CS high
             SetChipSelect(chip_number_alt);

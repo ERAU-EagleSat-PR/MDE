@@ -148,26 +148,20 @@ SRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
 
     for(byte_num = 0; byte_num < SRAM_SIZE_BYTES; byte_num++)
     {
+        data = current_cycle;
+
 #ifdef DEBUG // Seeded errors in debug mode
         if(seedErrors == 1 && (byte_num % SEEDERRORS_ADDRESS) == 0)
             data = SEEDERRORS_VALUE;
-        // Begin transmitting data
-        SSIDataPut(SPI_base, data);
-
-        // Wait for the transmission to complete before moving on to the next byte
-        while(SSIBusy(SPI_base))
-        {
-        }
-        data = current_cycle;
-#else // Flight mode
-        // Begin transmitting data
-        SSIDataPut(SPI_base, data);
-
-        // Wait for the transmission to complete before moving on to the next byte
-        while(SSIBusy(SPI_base))
-        {
-        }
 #endif
+
+        // Begin transmitting data
+        SSIDataPut(SPI_base, data);
+
+        // Wait for the transmission to complete before moving on to the next byte
+        while(SSIBusy(SPI_base))
+        {
+        }
         if(byte_num == 262140) // SRAM Die Boundary - must re-initiate write when crossing in to second memory cell.
         {             // ^ Magic value based on SRAM address/page organization. Boundary is 0x3FFFF, number is FFFF*4pages.
             // Bring CS high, ending write

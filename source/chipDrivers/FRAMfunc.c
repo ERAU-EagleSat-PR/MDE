@@ -151,27 +151,20 @@ FRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
 
     uint32_t byte_num = 0;
     for(byte_num = 0; byte_num < FRAM_SIZE_BYTES; byte_num++){
+        data = current_cycle;
+
         // Seeded errors if in debug mode
 #ifdef DEBUG
         if(seedErrors == 1 && (byte_num % SEEDERRORS_ADDRESS) == 0)
             data = SEEDERRORS_VALUE;
-        // Begin transmitting data
-        SSIDataPut(SPI_base, data);
-
-        // Wait for the transmission to complete before moving on to the next byte
-        while(SSIBusy(SPI_base))
-        {
-        }
-        data = current_cycle;
-#else // Flight mode
-        // Begin transmitting data
-        SSIDataPut(SPI_base, data);
-
-        // Wait for the transmission to complete before moving on to the next byte
-        while(SSIBusy(SPI_base))
-        {
-        }
 #endif
+        // Begin transmitting data
+        SSIDataPut(SPI_base, data);
+
+        // Wait for the transmission to complete before moving on to the next byte
+        while(SSIBusy(SPI_base))
+        {
+        }
     }
     // CS high
     SetChipSelect(chip_number_alt);

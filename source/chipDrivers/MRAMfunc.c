@@ -243,26 +243,20 @@ MRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
     uint32_t byte_num = 0;
     // Loop through all of memory
     for(byte_num = 0; byte_num < MRAM_SIZE_BYTES; byte_num++){
+        data = current_cycle;
+
 #ifdef DEBUG
         if(seedErrors == 1 && (byte_num % SEEDERRORS_ADDRESS) == 0)
             data = SEEDERRORS_VALUE;
-        // Begin transmitting data
-        SSIDataPut(SPI_base, data);
-
-        // Wait for the transmission to complete before moving on to the next byte
-        while(SSIBusy(SPI_base))
-        {
-        }
-        data = current_cycle;
-#else
-        // Begin transmitting data
-        SSIDataPut(SPI_base, data);
-
-        // Wait for the transmission to complete before moving on to the next byte
-        while(SSIBusy(SPI_base))
-        {
-        }
 #endif
+
+        // Begin transmitting data
+        SSIDataPut(SPI_base, data);
+
+        // Wait for the transmission to complete before moving on to the next byte
+        while(SSIBusy(SPI_base))
+        {
+        }
 
     }
 
