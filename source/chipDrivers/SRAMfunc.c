@@ -24,10 +24,14 @@
 #include "SRAMfunc.h"
 #include "source/multiplexer.h"
 #include "source/mde.h"
+#include "source/UART0_func.h"
+#include "source/bit_errors.h"
 
-#ifdef DEBUG
-#include "source/devtools.h"
-#endif
+//*****************************************************************************
+//
+// Read and return the SRAM status register.
+//
+//*****************************************************************************
 
 uint8_t
 SRAMStatusRead(uint32_t chip_number)
@@ -54,6 +58,9 @@ SRAMStatusRead(uint32_t chip_number)
     // SRAM is always 12 to 15, so subtracting 7 is fine.
     chip_number_alt = chip_number - 7;
 
+    //  Initial CS high
+    SetChipSelect(chip_number_alt);
+
     // CS Low for RDMR
     SetChipSelect(chip_number);
 
@@ -68,10 +75,12 @@ SRAMStatusRead(uint32_t chip_number)
     while(SSIDataGetNonBlocking(SPI_base, &temp))
     {
     }
+    SSIDataGetNonBlocking(SPI_base, &temp);
 
     // Send a clock pulse and retrieve the status register
     SSIDataPut(SPI_base, 0x00);
-    SSIDataGet(SPI_base, &data);
+    SysCtlDelay(10);
+    SSIDataGetNonBlocking(SPI_base, &data);
 
     // CS high to end read
     SetChipSelect(chip_number_alt);
@@ -117,12 +126,7 @@ SRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
     }
 
     // Set data depending on the cycle
-    uint32_t data;
-    if(current_cycle == 1) {
-        data = 255;
-    } else {
-        data = 0;
-    }
+    uint32_t data = current_cycle;
 
     //
     // Write to the SRAM.
@@ -144,21 +148,46 @@ SRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
 
     for(byte_num = 0; byte_num < SRAM_SIZE_BYTES; byte_num++)
     {
-        // Some fake errors for testing
-        // If seeded errors are needed, change the flag in the primary header
-#ifdef SEEDERRORS
-            if(byte_num == SEEDERRORS_ADDRESS)
-            {
-                data = SEEDERRORS_VALUE;
-            }
+#ifdef DEBUG // Seeded errors in debug mode
+        if(seedErrors == 1 && (byte_num % SEEDERRORS_ADDRESS) == 0)
+            data = SEEDERRORS_VALUE;
+        // Begin transmitting data
+        SSIDataPut(SPI_base, data);
+
+        // Wait for the transmission to complete before moving on to the next byte
+        while(SSIBusy(SPI_base))
+        {
+        }
+        data = current_cycle;
+#else // Flight mode
+        // Begin transmitting data
+        SSIDataPut(SPI_base, data);
+
+        // Wait for the transmission to complete before moving on to the next byte
+        while(SSIBusy(SPI_base))
+        {
+        }
 #endif
+        if(byte_num == 262140) // SRAM Die Boundary - must re-initiate write when crossing in to second memory cell.
+        {             // ^ Magic value based on SRAM address/page organization. Boundary is 0x3FFFF, number is FFFF*4pages.
+            // Bring CS high, ending write
+            SetChipSelect(chip_number_alt);
+            // Set CS low
+            SetChipSelect(chip_number);
 
-       // Begin transmitting data
-       SSIDataPut(SPI_base, data);
+            // Transmit the write command
+            SSIDataPut(SPI_base, SRAM_WRITE);
 
-       // Wait for the transmission to complete before moving on to the next byte
-       while(SSIBusy(SPI_base))
-       {}
+            // Second half of sequential write; send address for the second die. Address 0x040000 for second die.
+            SSIDataPut(SPI_base, 0x04);
+            SSIDataPut(SPI_base, 0x00);
+            SSIDataPut(SPI_base, 0x00);
+
+            // Wait for the transaction to complete
+            while(SSIBusy(SPI_base))
+            {
+            }
+        }
     }
     // Pull CS high again, unlatching WREN
     SetChipSelect(chip_number_alt);
@@ -182,6 +211,11 @@ SRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
     uint8_t chip_number_alt;
     uint32_t SPI_base;
     //uint32_t chip_port = RetrieveChipPort(chip_number);
+
+#ifdef DEBUG
+    char buf[10];
+    uint8_t bufSize = 10;
+#endif
 
     // Random chip selection for setting CS high
     // SRAM are always 12 to 15, so fine to subtract 7.
@@ -208,6 +242,8 @@ SRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
     SSIDataPut(SPI_base, 0x0);
     SSIDataPut(SPI_base, 0x0);
     SSIDataPut(SPI_base, 0x0);
+    // 8 dummy cycles per data sheet.
+    SSIDataPut(SPI_base, 0x0);
 
     // Wait for the transaction to complete
     while(SSIBusy(SPI_base))
@@ -228,7 +264,6 @@ SRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
     // Loop through all data
 
     for(byte_num = 0; byte_num < SRAM_SIZE_BYTES; byte_num++){
-
         // Transmit 0, to create clock pulses
         SSIDataPut(SPI_base, 0x0);
 
@@ -236,22 +271,49 @@ SRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
         while(SSIBusy(SPI_base))
         {
         }
-
+        SysCtlDelay(10);
         // Read in the data
-        SSIDataGet(SPI_base, &data);
-#ifdef DEBUG
-        char str[12];
-        sprintf(str, "%d ", data);
-        UARTDebugSend((uint8_t*) str, strlen(str));
-#endif
-        // Send data to be compared and prepared
-        //CheckErrors(data, sequence, byte_num, chip_number);
-    }
+        SSIDataGetNonBlocking(SPI_base, &data);
+        // Send data to be checked and packaged
+        CheckErrors(chip_number, byte_num, data, current_cycle);
 
-    // Set CS high, ending read
-    SetChipSelect(chip_number_alt);
+        if(byte_num == 262140) // SRAM Die Boundary - must re-initiate read in second memory cell.
+        {             // ^ Magic value based on SRAM address/page organization. Boundary is 0x3FFFF
+            // Bring CS high, ending read
+            SetChipSelect(chip_number_alt);
+            // Set CS low
+            SetChipSelect(chip_number);
+
+            // Transmit the read command
+            SSIDataPut(SPI_base, SRAM_READ);
+
+            // Second half of sequential read; send address for the second die. Address 0x040000 for second die.
+            SSIDataPut(SPI_base, 0x04);
+            SSIDataPut(SPI_base, 0x00);
+            SSIDataPut(SPI_base, 0x00);
+            // 8 dummy cycles per data sheet.
+            SSIDataPut(SPI_base, 0x0);
+
+            // Wait for the transaction to complete
+            while(SSIBusy(SPI_base))
+            {
+            }
+
+            // Clear out the FIFO receive buffer
+            //
+            while(SSIDataGetNonBlocking(SPI_base, &temp))
+            {
+            }
+        }
+
 #ifdef DEBUG
-        sprintf(str, "\r\n", data);
-        UARTDebugSend((uint8_t*) str, strlen(str));
+        if(byte_num < 10)
+        {
+            snprintf(buf,bufSize, "%u ", data);
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
+        }
 #endif
+    }
+    // Bring CS high, ending read
+    SetChipSelect(chip_number_alt);
 }

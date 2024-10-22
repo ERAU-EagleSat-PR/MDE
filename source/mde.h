@@ -15,6 +15,7 @@
 *                             Function Prototypes                             *
 *******************************************************************************
 */
+void MDEProcessCycle(void);
 void EnableSPI(void);
 
 /*
@@ -54,8 +55,9 @@ void EnableSPI(void);
 #define CS_SRAM4   15
 
 // Tracking variables for writing and reading from chips
-extern uint32_t current_sequence_offset;
-extern unsigned short cycle_count;
+extern uint8_t auto_chip_number; // current chip tracked by global variable to allow returns from watchdog interrupts.
+extern uint32_t current_data_cycle; // Current data cylce, 0 or 1. Probably doesn't need to be global, should consider it.
+extern uint16_t cycle_count; // cycle count - tracks number of memory cycles
 
 //**************************************************************//
 //                                                              //
@@ -72,8 +74,8 @@ extern unsigned short cycle_count;
 #define SPI0_CLK_NUM        GPIO_PIN_2
 #define SPI0_MISO           GPIO_PA4_SSI0RX
 #define SPI0_MOSI           GPIO_PA5_SSI0TX
-#define SPI0_MOSI_NUM       GPIO_PIN_5
 #define SPI0_MISO_NUM       GPIO_PIN_4
+#define SPI0_MOSI_NUM       GPIO_PIN_5
 
 // SSI pins and ports Board 2
 #define SPI1_NUM_BASE       SSI1_BASE
@@ -82,15 +84,44 @@ extern unsigned short cycle_count;
 #define SPI1_PORT           GPIO_PORTF_BASE
 #define SPI1_CLK            GPIO_PF2_SSI1CLK
 #define SPI1_CLK_NUM        GPIO_PIN_2
-#define SPI1_MOSI           GPIO_PF1_SSI1TX
 #define SPI1_MISO           GPIO_PF0_SSI1RX
-#define SPI1_MOSI_NUM       GPIO_PIN_1
+#define SPI1_MOSI           GPIO_PF1_SSI1TX
 #define SPI1_MISO_NUM       GPIO_PIN_0
+#define SPI1_MOSI_NUM       GPIO_PIN_1
 
 // Clock information needed for SPI timing/rate
 // The target clock speed for the system clock, 16 MHz
 #define SYS_CLK_SPEED 16000000
 // SPI clock speed. Cannot exceed masterclock, defined above, or any of the maximum chip speeds
 #define SPI_CLK_SPEED 4000000
+
+//**************************************************************//
+//                                                              //
+//      GPIO information for controlling power to the boards    //
+//                                                              //
+//**************************************************************//
+// The system peripheral macro for the GPIOs controlling power to
+// the boards. Currently GPIO Port D
+#define BOARD_POWER_GPIO_SYSCTL_PERIPH SYSCTL_PERIPH_GPIOD
+// The GPIO base for the GPIOs controlling power to the boards. 
+// Currently GPIO Port D
+#define BOARD_POWER_GPIO_BASE GPIO_PORTD_BASE
+
+// The pins that control whether power is supplied to the chips on the boards.
+// These pins are active high i.e. to supply power the pins should be set to 1
+
+// The pin for board 1
+#define BOARD_POWER_BOARD_1_PIN GPIO_PIN_6
+// The pin for board 2
+#define BOARD_POWER_BOARD_2_PIN GPIO_PIN_7
+
+// Initializes the GPIOs
+void BoardPowerInit(void);
+
+// Controls the GPIO pins
+void Board1PowerOn(void);
+void Board1PowerOff(void);
+void Board2PowerOn(void);
+void Board2PowerOff(void);
 
 #endif /* MDE_H_ */

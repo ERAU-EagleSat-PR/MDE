@@ -4,7 +4,6 @@
 #ifndef SOURCE_CHIP_HEALTH_H_
 #define SOURCE_CHIP_HEALTH_H_
 
-#include "source/chips.h"
 
 //
 // Data structure for general chip health
@@ -18,14 +17,16 @@ typedef struct {
 // Function Prototypes
 //
 uint8_t CheckChipHealth(uint8_t chip_number);
+void InitializeChipHealth(void);
 
 //
 // Global chip health array
 //
-extern CHIPHEALTH chip_health_array[MAX_CHIP_NUMBER];
+extern CHIPHEALTH chip_health_array[32];
+extern bool chip_death_array[32];
 
-#define CHIP_MAX_WATCHDOG 2
-#define CHIP_MAX_HEALTH 3
+#define CHIP_WD_MAX 2
+#define CHIP_HEALTH_MAX 3
 
 
 #endif // Chip_health.h

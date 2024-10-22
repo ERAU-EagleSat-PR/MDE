@@ -17,9 +17,10 @@ typedef struct {
 
 // Function Prototypes
 void FlashErase(uint8_t chip_number);
-void FlashSequenceTransmit(uint8_t currentCycle, uint32_t chip_number);
-void FlashSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number);
+void FlashSequenceTransmit(uint8_t current_cycle, uint8_t chip_number);
+void FlashSequenceRetrieve(uint8_t current_cycle, uint8_t chip_number);
 FLASHID FlashStatusRead(uint8_t chip_number);
+void FlashConfiguration(uint8_t chip_number);
 
 // Flash Commands
 #define FLASH_WRITE_ENABLE 0x06
@@ -30,13 +31,21 @@ FLASHID FlashStatusRead(uint8_t chip_number);
 #define FLASH_RDSR 0x05
 #define FLASH_IDENT 0x9F
 
-// Flash Expected Device ID information
-#define FLASH_MANUFACTURER 0x01
-#define FLASH_DEVICEID_1 0x60
-#define FLASH_DEVICEID_2 0x19
+// Volatile configuration register 2 for 4 bit addressing
+#define FLASH_WRR 0x01
+#define FLASH_CR1VR 0x35
+#define FLASH_CR2VR 0x15
+#define FLASH_WRENV 0x50
+#define FLASH_CONFIG 0b00000001
 
-#define FLASH_SIZE_BYTES 256
-//#define FLASH_SIZE_BYTES 256000000
+// Flash Expected Device ID information
+#define FLASH_CYP_ID 0x01
+#define FLASH_PROD1 0x60
+#define FLASH_PROD2 0x19
+
+//#define FLASH_SIZE_BYTES 25600 // It takes a long time to do all 256 million bytes. For debugging.
+#define FLASH_SIZE_BYTES 256000000
+
 #define FLASH_PAGE_SIZE 256
 
 #endif /* FLASHFUNC_H_ */

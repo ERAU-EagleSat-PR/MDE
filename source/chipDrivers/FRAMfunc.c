@@ -1,6 +1,6 @@
 //*****************************************************************************
 //
-// This file contains the functions for the MB85RS2MTYPNF FRAM
+// This file contains the functions for the MB85RS16N FRAM
 //
 //*****************************************************************************
 
@@ -22,14 +22,12 @@
 #include "FRAMfunc.h"
 #include "source/multiplexer.h"
 #include "source/mde.h"
-
-#ifdef DEBUG
-#include "source/devtools.h"
-#endif
+#include "source/UART0_func.h"
+#include "source/bit_errors.h"
 
 //*****************************************************************************
 //
-// Retrieve and check identification information from FRAM (no check yet)
+// Retrieve and return the FRAM identification information.
 //
 //*****************************************************************************
 
@@ -60,7 +58,7 @@ FRAMStatusRead(uint8_t chip_number)
     while(SSIDataGetNonBlocking(SPI_base, &temp))
     {
     }
-
+    SysCtlDelay(10);
     SSIDataPut(SPI_base,0x0);
     while(SSIBusy(SPI_base)) //Wait to complete clock cycle
     {}
@@ -113,12 +111,7 @@ FRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
     chip_number_alt = chip_number + 7;
 
     // Set data to write depending on current cycle of all 1s or all 0s
-    uint32_t data;
-    if(current_cycle == 1){
-        data = 0b11111111; //255 in binary
-    } else {
-        data = 0; // == 0b00000000
-    }
+    uint32_t data = current_cycle;
 
     // SPI port
     if(chip_number < 16) {
@@ -158,14 +151,10 @@ FRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
 
     uint32_t byte_num = 0;
     for(byte_num = 0; byte_num < FRAM_SIZE_BYTES; byte_num++){
-
-        // Some fake errors for testing
-        // If seeded errors are needed, change the flag in the primary header
-#ifdef SEEDERRORS
-    if(byte_num == SEEDERRORS_ADDRESS){
-      data = SEEDERRORS_VALUE;
-    }
-#endif
+        // Seeded errors if in debug mode
+#ifdef DEBUG
+        if(seedErrors == 1 && (byte_num % SEEDERRORS_ADDRESS) == 0)
+            data = SEEDERRORS_VALUE;
         // Begin transmitting data
         SSIDataPut(SPI_base, data);
 
@@ -173,7 +162,16 @@ FRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number)
         while(SSIBusy(SPI_base))
         {
         }
+        data = current_cycle;
+#else // Flight mode
+        // Begin transmitting data
+        SSIDataPut(SPI_base, data);
 
+        // Wait for the transmission to complete before moving on to the next byte
+        while(SSIBusy(SPI_base))
+        {
+        }
+#endif
     }
     // CS high
     SetChipSelect(chip_number_alt);
@@ -206,6 +204,11 @@ FRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
     uint32_t SPI_base;
     uint32_t temp;
     //uint32_t chip_port = RetrieveChipPort(chip_number);
+
+#ifdef DEBUG
+    char buf[10];
+    uint8_t bufSize = 10;
+#endif
 
     // Random chip selection for setting CS high
     // FRAM is always 3-7, so always adding 7 is fine.
@@ -257,23 +260,21 @@ FRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number)
         while(SSIBusy(SPI_base))
         {
         }
-
+        SysCtlDelay(10);
         // Read in the data
-        SSIDataGet(SPI_base, &data);
+        SSIDataGetNonBlocking(SPI_base, &data);
 
-        // Send data to be compared and prepared
-        //CheckErrors(data, sequence, byte_num, chip_number);
+        // Send data to be checked and packaged
+        CheckErrors(chip_number, byte_num, data, current_cycle);
+
 #ifdef DEBUG
-        char str[12];
-        sprintf(str, "%d ", data);
-        UARTDebugSend((uint8_t*) str, strlen(str));
+        if(byte_num < 10)
+        {
+            snprintf(buf,bufSize, "%u ", data);
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
+        }
 #endif
     }
-
     // Bring CS high, ending read
     SetChipSelect(chip_number_alt);
-#ifdef DEBUG
-        sprintf(str, "\r\n", data);
-        UARTDebugSend((uint8_t*) str, strlen(str));
-#endif
 }

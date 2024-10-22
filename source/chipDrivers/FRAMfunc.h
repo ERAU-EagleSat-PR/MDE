@@ -1,6 +1,6 @@
 //*****************************************************************************
 //
-// This is the header file is for the MB85RS2MTYPNF FRAM.
+// This is the header file is for the MB85RS16N FRAM.
 //
 //*****************************************************************************
 
@@ -14,8 +14,8 @@ typedef struct {
     uint8_t prodID2;
 } FRAMID;
 
-void FRAMSequenceTransmit(uint8_t currentCycle, uint32_t chip_number);
-void FRAMSequenceRetrieve(uint8_t currentCycle, uint32_t chip_number);
+void FRAMSequenceTransmit(uint8_t current_cycle, uint32_t chip_number);
+void FRAMSequenceRetrieve(uint8_t current_cycle, uint32_t chip_number);
 FRAMID FRAMStatusRead(uint8_t chip_number);
 
 // FRAM Command Codes
@@ -28,11 +28,10 @@ FRAMID FRAMStatusRead(uint8_t chip_number);
 // Expected values from FRAM device ID register
 #define FRAM_FUJ_ID 0x04
 #define FRAM_CONT_CODE 0x7F
-#define FRAM_PROD1 0x48
-#define FRAM_PROD2 0x0A
+#define FRAM_PROD1 0x01 //0x48
+#define FRAM_PROD2 0x01 //0x0A Docu says these values, but we get 1 and 1 from all 8 chips though they work. Not sure.
 
 // FRAM Size
-//#define FRAM_SIZE_BYTES 262144
-#define FRAM_SIZE_BYTES 10
+#define FRAM_SIZE_BYTES 2048
 
 #endif /* FRAMFUNC_H_ */

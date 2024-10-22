@@ -10,12 +10,14 @@
 #ifndef SOURCE_DEVTOOLS_H_
 #define SOURCE_DEVTOOLS_H_
 
-// Whether we are running in debug mode or not.
 // In debug mode, all output is printed in a human readable format, while in
 // non-debug (flight) mode, all output is sent in the agreed packet format.
 // To enable and disable debug mode, comment or un-comment the following line.
 #define DEBUG
+
 #ifdef DEBUG
+
+#include "source/bit_errors.h"
 
 /*
 *******************************************************************************
@@ -23,14 +25,20 @@
 *******************************************************************************
 */
 
-void UARTDebugIntHandler(void);
-void UARTDebugEnable(void);
-void UARTDebugSend(const uint8_t *pui8Buffer, uint32_t ui32Count);
+//Print functions
 void printDebugMenu(void);
+void ErrorQueue_PrintLink(MDE_Error_Data_t *ptr, uint8_t printCount);
+
+//Process inputs
 void processDebugInput(int32_t recv_char);
 void processMainMenuInput(int32_t recv_char);
 void processChipFunctionsInput(int32_t recv_char);
 void processChipSelectInput(int32_t recv_char);
+void processChipHealthInput(int32_t recv_char);
+void processErrorInput(int32_t recv_char);
+void processOBCCommandInput(int32_t recv_char);
+void processBoardPowerInput(int32_t recv_char);
+
 
 /*
 *******************************************************************************
@@ -38,32 +46,37 @@ void processChipSelectInput(int32_t recv_char);
 *******************************************************************************
 */
 
-//-----------------------------------------------------------------------------
-// UART for Debug
-//-----------------------------------------------------------------------------
+// Values controlling error seeding when debugging
+#define SEEDERRORS_ADDRESS  100000
+#define SEEDERRORS_VALUE    0b10101010
 
-// The UART to Use debug terminal through
-#define ENABLE_UART_DEBUG
+/*
+*******************************************************************************
+*                                  Globals                                    *
+*******************************************************************************
+*/
 
-#define UART_DEBUG          UART0_BASE
-#define UART_DEBUG_BASE     UART0_BASE
-#define UART_DEBUG_SYSCTL   SYSCTL_PERIPH_UART0
+extern uint8_t chipSelectStep; // Used for chip type -> chip number step tracking
+extern uint8_t seedErrors;     // Value 0 or 1 if errors should be seeded when writing.
 
-// The baud rate to use for either UART connection
-#define BAUD_RATE_DEBUG     115200
-
-//-----------------------------------------------------------------------------
-// State trackers for Debug menu
-//-----------------------------------------------------------------------------
+/*
+*******************************************************************************
+*                                State Tracker                                *
+*******************************************************************************
+*/
 enum MENU_STATES {  INIT,
                     MAIN,
                     AUTO,
                     CHIP_SELECT,
-                    CHIP_FUNCTIONS};
+                    CHIP_FUNCTIONS,
+                    CHIP_HEALTH,
+                    ERROR_QUEUE,
+                    OBC_COMMANDS,
+                    BOARD_POWER};
 
 enum BOARDS      {  NO_BOARD,
-                    BOARD1,
-                    BOARD2};
+                    BOARD1 = 1,
+                    BOARD2 = 2};
 
 enum MEM_TYPES   {  NO_MEM_TYPE,
                     FLASH,
@@ -85,27 +98,6 @@ extern enum MEM_TYPES selectedChipType;
 extern enum CHIP_NUMBERS selectedChipNumber;
 //*/
 
-// Global variables for devtools
-extern uint8_t selectedChip;   // Value 0-15
-extern uint8_t selectedBoard;  // Value 0 or 1, will be changed to work as an offset when a second board is necessary in testing
-extern uint8_t currentCycle;   // Value 0 or 1 for writing 0s or 1s
-extern uint8_t chipSelectStep; // Used for chip type -> chip number step tracking
-
-//-----------------------------------------------------------------------------
-// Seed Errors
-//-----------------------------------------------------------------------------
-
-//#define SEEDERRORS
-
-// Whether to seed errors in the chips, and where and what to seed.
-// Inserting errors at addresses that are multiples of 256 are easiest to verify
-// as any address that is a multiple of 256 will have the same value as the
-// sequence start value. At these addresses, it's easy to find how many errors
-// there should be by comparing the seeded error value and sequence start value.
-// To enable or disable seeded errors, comment or un-comment the following lines.
-
-//#define SEEDERRORS_ADDRESS  65536
-//#define SEEDERRORS_VALUE    0xFF
 
 // Byte pattern for printing in binary
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"

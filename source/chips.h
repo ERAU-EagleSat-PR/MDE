@@ -16,9 +16,8 @@
 *******************************************************************************
 */
 
-void WriteToChips(uint32_t chip_number, unsigned char sequence_start, unsigned char sequence_offset);
-void ReadFromChips(uint32_t chip_number, unsigned char sequence_start, unsigned char sequence_offset);
-uint8_t CheckChipHealth(uint32_t chip_number);
+void WriteToChip(uint32_t current_cycle, uint32_t chip_number);
+void ReadFromChip(uint32_t current_cycle, uint32_t chip_number);
 // TODO: configure the SPI clock if needed
 
 /*
@@ -26,7 +25,18 @@ uint8_t CheckChipHealth(uint32_t chip_number);
 *                                  Constants                                  *
 *******************************************************************************
 */
+//#define MAX_CHIP_NUMBER 16 // 16 chips for one board, DEBUGGING purposes only.
 #define MAX_CHIP_NUMBER 32 // 32 chips across 2 boards.
+
+
+/*
+ ********************************************************************************
+ *                               Global Variables                               *
+ ********************************************************************************
+ */
+// Global tracker of currently active chip. Should be kept up to date, it is used for watchdog timer tracking.
+extern uint8_t current_chip;
+extern uint8_t currentCycle;   // Value 0 or 1 for writing 0s or 1s
 
 //-----------------------------------------------------------------------------
 // SPI port and pin defines

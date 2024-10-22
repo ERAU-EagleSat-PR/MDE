@@ -3,10 +3,10 @@
  */
 
 /*
-*******************************************************************************
-*                               Include Files                                 *
-*******************************************************************************
-*/
+ *******************************************************************************
+ *                               Include Files                                 *
+ *******************************************************************************
+ */
 
 // Standard Includes
 #include <stdint.h>
@@ -34,43 +34,68 @@
 
 // Custom Header Files
 #include "source/mde.h"
+#include "source/chips.h"
+#include "source/chip_health.h"
+#include "source/bit_errors.h"
 #include "source/multiplexer.h"
 #include "source/obc_uart.h"
+#include "source/mde_timers.h"
+#include "source/UART0_func.h"
 #include "source/devtools.h"
-#include "source/chips.h"
-//#include "source/mde_timer.h"
+
+
+// Chip drivers
+#include "source/chipDrivers/FLASHfunc.h"
+#include "source/chipDrivers/MRAMfunc.h"
+#include "source/chipDrivers/SRAMfunc.h"
+#include "source/chipDrivers/FRAMfunc.h"
 
 /*
-*******************************************************************************
-*                             Global Variables                                *
-*******************************************************************************
-*/
-
-// Loop variable for blink
-volatile uint32_t ui32Loop;
+ *******************************************************************************
+ *                        Initialize Global Variables                          *
+ *******************************************************************************
+ */
 
 // Variables for the timer
-uint32_t timer_current_cycle = 0;
-bool timer_wakeup = false;
+bool timer_wakeup = false;          // unnecessary?
+bool reading_chip = 0;
+uint32_t cycle_time_clockrate = (uint32_t)MEMORY_CYCLE_TIME * (uint32_t)MINUTE * (uint32_t)SYS_CLK_SPEED;
+uint32_t timer_current_cycle = 0;  // Maximum timer value is limited by the 32 bit architecture, so we must complete multiple timer interrupts before processing.
+uint32_t wd_chip_time = (uint32_t)CHIP_WD_TIME * (uint32_t)MINUTE * (uint32_t)SYS_CLK_SPEED;
+uint32_t wd_mde_time =  (uint32_t)SYS_CLK_SPEED;// * (uint32_t)4 * (uint32_t)MINUTE;
+
+volatile uint32_t ui32Loop;         // Loop variable for blink
 
 // Error Variables
-uint32_t current_error = 0;
+uint32_t current_error = 0;         // global error count (from bit_errors.c)
+MDE_Error_Data_t *errorHead = 0;
 
-// State tracker
+// Global Chip Trackers
+uint8_t auto_chip_number = 0;       // Chip tracker for auto mode (from mde.h)
+uint8_t current_chip = 17;           // track active chip (from chips.h)
+CHIPHEALTH chip_health_array[32];   // track chip health (from chiphealth.h)
+bool chip_death_array[32];          // track dead chips (from chiphealth.h)
+bool reading_chip;                  // read/write tracker (from mde_timers.h)
+
+// Cycle count - global tracker for the number of times MDE has gone through the main
+// experiment loop
+uint16_t cycle_count = 0;
+uint8_t currentCycle;               // Value 0 or 255 for writing all 0s or 1s
+
+// Debug Variables (from devtools.h)
 #ifdef DEBUG
-enum MENU_STATES menuState          = INIT;
-uint8_t selectedChip = 5;   // Value 0-15
-uint8_t selectedBoard = 1;  // Value 0 or 1, will be changed to work as an offset when a second board is necessary in testing
-uint8_t currentCycle = 1;   // Value 0 or 1 for writing 0s or 1s
-uint8_t chipSelectStep = 1; // Used for chip type -> chip number step tracking
+enum MENU_STATES menuState  = INIT; // Debug menu state
+enum BOARDS selectedBoardNumber = BOARD2; // Selected Board for debug
+uint8_t chipSelectStep = 1;         // Used for chip type -> chip number step tracking
+uint8_t seedErrors = 0;             // Value 0 or 1 for seeding errors when writing
 #endif
 
 
 /*
-*******************************************************************************
-*                             Function Prototypes                             *
-*******************************************************************************
-*/
+ *******************************************************************************
+ *                             Function Prototypes                             *
+ *******************************************************************************
+ */
 
 // UART Functions
 /*
@@ -86,14 +111,15 @@ void processMainMenuInput(int32_t recv_char);
 void processCSBoardMenuInput(int32_t recv_char);
 void processCSTypeMenuInput(int32_t recv_char);
 void processCSNumMenuInput(int32_t recv_char);
-*/
+ */
 
+#ifdef DEBUG
 // LED Functions
 void EnableLED(void);
 void BlinkRedLED(void);
 void BlinkBlueLED(void);
 void BlinkGreenLED(void);
-
+#endif
 
 //-----------------------------------------------------------------------------
 // Enable and configure UART1 for science
@@ -103,24 +129,20 @@ void EnablePrimaryUART(void)
 {
 
 }
-*/
+ */
 
-
-#ifdef ENABLE_UART_DEBUG
-
-
-#endif /* ENABLE_UART_DEBUG  */
 
 /*
-*******************************************************************************
-*                               Chip Select Pins                              *
-*******************************************************************************
-*/
+ *******************************************************************************
+ *                               Chip Select Pins                              *
+ *******************************************************************************
+ */
 
 //-----------------------------------------------------------------------------
 // Enables GPIO for Board 1 chip select
 //-----------------------------------------------------------------------------
-void EnableBoard1ChipSelectPins(void)
+void
+EnableBoard1ChipSelectPins(void)
 {
     IntMasterDisable();
 
@@ -144,7 +166,8 @@ void EnableBoard1ChipSelectPins(void)
 //-----------------------------------------------------------------------------
 // Enables GPIO for Board 2 chip select
 //-----------------------------------------------------------------------------
-void EnableBoard2ChipSelectPins(void)
+void
+EnableBoard2ChipSelectPins(void)
 {
     IntMasterDisable();
 
@@ -181,55 +204,53 @@ void EnableBoard2ChipSelectPins(void)
 }
 
 /*
-******************************************************************************
-*                                LED FUNCTIONS                               *
-******************************************************************************
-*/
+ ******************************************************************************
+ *                                LED FUNCTIONS                               *
+ ******************************************************************************
+ */
+
 
 //-----------------------------------------------------------------------------
 // Enables the RGB LED
 //-----------------------------------------------------------------------------
-void EnableLED(void)
+void
+EnableLED(void)
 {
 
-  // Enable LED GPIO PIN
-  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+    // Enable LED GPIO PIN
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
 
-  // Check for peripheral to be Enabled
-  while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF))
-  {
-  }
+    // Check for peripheral to be Enabled
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF))
+    {
+    }
 
-  // Enable the GPIO pin for the RED LED (PF1).  Set the direction as output
-  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
+  // Enable the GPIO pin for the LEDs (PF1 - Red, PF2 - Blue, PF3 - Green).  Set the direction as output
+  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3);
 
-  // Enable the GPIO pin for the GREEN LED (PF3).  Set the direction as output
-  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_3);
-
-  // Enable the GPIO pin for the BLUE LED (PF2).  Set the direction as output
-  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
 
 }
 
 //-----------------------------------------------------------------------------
 // Blinks the Red LED
 //-----------------------------------------------------------------------------
-void BlinkRedLED(void)
+void
+BlinkRedLED(void)
 {
 
     // Turn on RED LED
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIO_PIN_1);
 
     // Delay for a bit.
-    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    for(ui32Loop = 0; ui32Loop < 20; ui32Loop++)
     {
     }
 
-    // Turn off RED LED.
+    // Turn off GREEN LED.
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x0);
 
     // Delay for a bit
-    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    for(ui32Loop = 0; ui32Loop < 10; ui32Loop++)
     {
     }
 }
@@ -237,14 +258,15 @@ void BlinkRedLED(void)
 //-----------------------------------------------------------------------------
 // Blinks the Blue LED, Signifying the MDE is IDLE / WAITING
 //-----------------------------------------------------------------------------
-void BlinkBlueLED(void)
+void
+BlinkBlueLED(void)
 {
 
     // Turn on BLUE LED
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
 
     // Delay for a bit.
-    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    for(ui32Loop = 0; ui32Loop < 10; ui32Loop++)
     {
     }
 
@@ -252,7 +274,7 @@ void BlinkBlueLED(void)
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x0);
 
     // Delay for a bit
-    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    for(ui32Loop = 0; ui32Loop < 10; ui32Loop++)
     {
     }
 }
@@ -260,14 +282,15 @@ void BlinkBlueLED(void)
 //-----------------------------------------------------------------------------
 // Blinks the Green LED
 //-----------------------------------------------------------------------------
-void BlinkGreenLED(void)
+void
+BlinkGreenLED(void)
 {
 
     // Turn on GREEN LED
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, GPIO_PIN_3);
 
     // Delay for a bit.
-    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    for(ui32Loop = 0; ui32Loop < 2; ui32Loop++)
     {
     }
 
@@ -275,7 +298,7 @@ void BlinkGreenLED(void)
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x0);
 
     // Delay for a bit
-    for(ui32Loop = 0; ui32Loop < 500000; ui32Loop++)
+    for(ui32Loop = 0; ui32Loop < 100; ui32Loop++)
     {
     }
 }
@@ -287,7 +310,8 @@ void BlinkGreenLED(void)
 //                                      MAIN                                  *
 //                                                                            *
 //*****************************************************************************
-int main(void)
+int
+main(void)
 {
 
     // Enable lazy stacking for interrupt handlers.  This allows floating-point
@@ -297,46 +321,138 @@ int main(void)
 
     // Set the clock speed.
     SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN |
-                           SYSCTL_XTAL_16MHZ);
+                   SYSCTL_XTAL_16MHZ);
 
-    // Enable processor interrupts.
+    // Enable interrupts
     IntMasterEnable();
+
+    // Startup light. This has to be before EnableSPI() as the SPI for Board 2 (SSI1) uses
+    // the GPIO Port F (pins 0-2)
+    EnableLED();
+
+    // Turn on BLUE LED
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
+
+    uint16_t k;
+    // Delay for a bit.
+    for(k = 0; k < 5000; k++)
+    {
+    }
+
+    // Turn off BLUE LED.
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x0);
 
     //*****************************
     // Peripheral Enablers
     //*****************************
 
-    EnableLED();
+    MDETimerConfigure();
 
-    EnableSPI();
+    MDETimerDisable();
 
-    EnableBoard1ChipSelectPins();
+    EnableSPI(); // Chip SPI communications
 
-    //EnableBoard2ChipSelectPins();
+    EnableBoard1ChipSelectPins(); // Board 1 MUX enable
 
+    EnableBoard2ChipSelectPins(); // Board 2 MUX enable
+
+    BoardPowerInit(); // Initialize the Pins controlling the board power
+    // includes turning power off
+
+    Board1PowerOn();
+    Board2PowerOn();
+
+    //*****************************
+    // Enable the UART for OBC 
+    // which is UART1. UART0 is
+    // used for debug. So, if debugging, 
+    // UART output will be on both UARTs
+    //*****************************
+    UARTOBCEnable();
+
+
+
+    UARTDebugEnable();
+    // Set up the debug menu if debugging is enabled
+#ifdef DEBUG
+    char buf[60] = "Wait until debug menu appears before doing anything\r\n";
+    uint8_t bufSize = 60;
+    // UART Enable and Configuration
+    UARTCharPut(UART_DEBUG, 0xC);
+    UARTDebugSend((uint8_t*)buf, strlen(buf));
+#endif
+    //*****************************
+    // Chip Configurations
+    //*****************************
+
+    // Initialize Health and Death arrays
+    InitializeChipHealth();
+    // Check all chips before program start
+    uint8_t chip;
+    uint8_t norm;
+
+    for(chip = 0; chip < MAX_CHIP_NUMBER; chip++)
+    {
+        norm = chip % 16;
+
+        if(norm < 4)
+        {
+            FlashConfiguration(chip);
+        }
+        else if (norm >= 8 && norm < 12) // If the chip is MRAM, prepare its status register
+        {
+            MRAMStatusPrepare(chip);
+        }
 
 #ifdef DEBUG
+        snprintf(buf, bufSize,  "Check chip %d...",chip);
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+#endif
 
-    // UART Enable and Configuration
-    UARTDebugEnable();
+        CheckChipHealth(chip); // Check health of all chips. This will also initialize chip health array to 1s assuming they are all working.
 
+#ifdef DEBUG
+        snprintf(buf, bufSize, "%d\r\n",chip_health_array[chip].HealthCount);
+        UARTDebugSend((uint8_t*)buf, strlen(buf));
+#endif
+    }
+
+    // Initialize all data to 1s, and begin on a 0 cycle.
+    for(chip = 0; chip < MAX_CHIP_NUMBER; chip++)
+    {
+#ifdef DEBUG
+        snprintf(buf, bufSize, "Write to chip %d....", chip);
+        UARTDebugSend((uint8_t*)buf, strlen(buf));
+#endif
+        WriteToChip(255,chip);
+#ifdef DEBUG
+        snprintf(buf, bufSize,  "Done\r\n");
+        UARTDebugSend((uint8_t*) buf, strlen(buf));
+#endif
+    }
+    currentCycle = 0;
+
+    // Send the debug menu if debugging is enabled
+    // We wait to send the debug menu until the chips are written to so that the user knows
+    // They cant do anything until then
+#ifdef DEBUG
+
+    //WatchdogsEnable(); //TODO Watchdog Timers WHEN DEBUG MODE IS OFF THIS REQUIRES THAT UART0 IS STILL ENABLED
     // Initialize Debug Menu
     menuState = MAIN;
     printDebugMenu();
 
-#endif /* DEBUG */
+#else /* DEBUG */
+    // Enable flight mode
+    MDETimerEnable();
+#endif
+    MDETimerEnable();
 
     //*****************************
-    // Chip Configurations
+    // Other Configurations
     //*****************************
-    for(uint8_t chip = 0; chip < MAX_CHIP_COUNT; chip++)
-    {
-        if ((chip % 16) >= 8 && (chip % 16) < 12) // If the chip is MRAM, prepare its status register
-        {
-            MRAMStatusPrepare(chip);
-        }
-        CheckChipHealth(chip); // Check health of all chips. This will also initialize chip health array to 1s assuming they are all working.
-    }
+    // Enable processor interrupts.
+    IntMasterEnable();
 
 
     //*****************************
@@ -344,15 +460,17 @@ int main(void)
     //*****************************
     while (1)
     {
-
-        #ifdef DEBUG
-            BlinkRedLED();
-        #else   /* Idle "heart beat" */
-            BlinkBlueLED();
-        #endif /* DEBUG */
-
-        //BlinkGreenLED();
-
+        if(timer_current_cycle >= MEMORY_CYCLE_COUNT)
+        {
+#ifdef TIMER_DEBUG
+            snprintf(buf,bufSize, "Timer Trigger\n\r");
+            UARTDebugSend((uint8_t*) buf, strlen(buf));
+#endif
+            // Call the function to begin a new cycle.
+            current_chip = 0;
+            MDEProcessCycle();
+            timer_current_cycle = 0;
+        }
 
         // currently checking to see if logic is working and if all CS port and
         // pins are active
@@ -368,7 +486,7 @@ int main(void)
     }
 
 }
-
+// We need to send the first address of the current 256 byte block
 //*****************************************************************************
 //                                                                            *
 //                                END MAIN                                    *
