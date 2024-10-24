@@ -323,8 +323,8 @@ main(void)
     SysCtlClockSet(SYSCTL_SYSDIV_1 | SYSCTL_USE_OSC | SYSCTL_OSC_MAIN |
                    SYSCTL_XTAL_16MHZ);
 
-    // Enable interrupts
-    IntMasterEnable();
+    // Disable interrupts during startup
+    IntMasterDisable();
 
     // Startup light. This has to be before EnableSPI() as the SPI for Board 2 (SSI1) uses
     // the GPIO Port F (pins 0-2)
@@ -361,14 +361,6 @@ main(void)
 
     Board1PowerOn();
     Board2PowerOn();
-
-    //*****************************
-    // Enable the UART for OBC 
-    // which is UART1. UART0 is
-    // used for debug. So, if debugging, 
-    // UART output will be on both UARTs
-    //*****************************
-    UARTOBCEnable();
 
 
 
@@ -430,6 +422,15 @@ main(void)
         UARTDebugSend((uint8_t*) buf, strlen(buf));
 #endif
     }
+
+    //*****************************
+    // Enable the UART for OBC
+    // which is UART1. UART0 is
+    // used for debug. So, if debugging,
+    // UART output will be on both UARTs
+    //*****************************
+    UARTOBCEnable();
+
     currentCycle = 0;
 
     // Send the debug menu if debugging is enabled

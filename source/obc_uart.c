@@ -88,11 +88,6 @@ void UARTOBCIntHandler(void)
     ui32Status = UARTIntStatus(UART_OBC_UART_PORT_BASE, true);
 
     //
-    // Clear the asserted interrupts.
-    //
-    UARTIntClear(UART_OBC_UART_PORT_BASE, ui32Status);
-
-    //
     // Loop while there are unsigned characters in the receive FIFO.
     //
     while(UARTCharsAvail(UART_OBC_UART_PORT_BASE))
@@ -178,16 +173,15 @@ void UARTOBCIntHandler(void)
 
             // Clear errors
             ErrorQueue_Destroy(&errorHead);
-
-
-            // Increment unique_id to indicate that the next set of data is
-            // disjoint/unrelated to what was just sent
-            // We don't have to worry about overflow because the C standard defines
-            // that when unsigned integer overflow occurs, the result is just wrapped
-            // back around
-            ++unique_id;
 		}
+		memset(uart_obc_msg_chars, 0, 64);
 	}
+
+    //
+    // Clear the asserted interrupts.
+    //
+    UARTIntClear(UART_OBC_UART_PORT_BASE, ui32Status);
+
 
 }
 
@@ -262,7 +256,7 @@ void TransmitErrors()
         do {
             // Take data and fill array - see SDD in the MDE documentation in Sharepoint for a description
             // of each part of the packet
-            error_data[2] = unique_id; // Unique ID
+            error_data[2] = unique_id++; // Unique ID
             error_data[3] = ptr->chip_id; // Chip ID 
             error_data[4] = (uint8_t) ((ptr->cell_address >> 24) & 0xFF); // Cell address, includes next 3 bytes
             error_data[5] = (uint8_t) ((ptr->cell_address >> 16) & 0xFF);
@@ -312,21 +306,15 @@ void TransmitHealth(void)
     // uint32_t to store the chip death data in
     uint32_t health_array = 0;
 
-    // iterator variable for for loops
-    int i = 0;
 
-    // Some wild bit-level operations to turn the chip_dead_array into a uint32_t
-    // chip_dead_array[0] corresponds to the ones bit of health_array, chip_dead_array[1] 
-    // corresponds to the twos bit of health_array, and so on
-    for (i = 0; i < 32; ++i) {
-        health_array |= (chip_death_array[i] == 1) << i;
-	}
+
+    memcpy(&health_array, chip_death_array, 4);
 
     // Assemble Health packet - see SDD in the MDE documentation in Sharepoint for a description
     // of each part of the packet
     health_data[0] = UART_OBC_ESCAPE;   // Escape character - signals that data is being sent
     health_data[1] = UART_OBC_HEALTH_PACKET; // Packet Type ID
-    health_data[2] = unique_id; // Unique ID
+    health_data[2] = unique_id++; // Unique ID
     health_data[3] = (uint8_t)( (cycle_count >> 8) & 0xFF); // Cycle count high
     health_data[4] = (uint8_t)( (cycle_count) & 0xFF); // Cycle count low
     health_data[5] = (uint8_t)( (health_array >> 24) & 0xFF); // Health array for idk
@@ -335,6 +323,9 @@ void TransmitHealth(void)
     health_data[8] = (uint8_t)( (health_array) & 0xFF); // Health array for idk
 
 #ifdef DEBUG
+    // iterator variable for for loops
+    int i = 0;
+
     // Debug message, will contain each character in error_data as
     // a 2 character hex value, with spaces in between
     char debug_msg[HEALTH_DATA_LENGTH * 3 + 2];
