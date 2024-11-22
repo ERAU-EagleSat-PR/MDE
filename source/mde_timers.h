@@ -24,9 +24,7 @@ void MDETimerInt(void);
 
 // Watchdogs
 void WatchdogsEnable(void);
-void ChipWatchdogPoke(void);
 void MDEWatchdogPoke(void);
-void ChipWatchdogInt(void);
 void MDEWatchdogInt(void);
 /*
 *******************************************************************************
@@ -47,20 +45,15 @@ void MDEWatchdogInt(void);
 
 // Variables for the watchdog timers.
 #define MDE_WD_SYSCTL SYSCTL_PERIPH_WDOG0
-#define CHIP_WD_SYSCTL SYSCTL_PERIPH_WDOG1
 #define MDE_WD_BASE WATCHDOG0_BASE
-#define CHIP_WD_BASE WATCHDOG1_BASE
 
 // VVV these values need to be pre-calculated with the clock speed to avoid
 //     potential issues.
 #define MDE_WD_TIME 180 // minutes ( currently 1.5x the total cycle length. need to examine this )
-#define CHIP_WD_TIME 4 // 4 minutes. It is so long since each individual flash chip takes ~3 minutes to complete an operation,
-                       //and we don't want to poke during it in case it gets stuck.
-// NOTE: chips will run on the PIOSC clock, not system clock as it is WDT1. reduced accuracy, give it leeway
+
 
 
 // Variables for the timer
-extern uint32_t wd_chip_time;
 extern uint32_t wd_mde_time;
 extern uint32_t timer_current_cycle;
 extern uint32_t cycle_time_clockrate;

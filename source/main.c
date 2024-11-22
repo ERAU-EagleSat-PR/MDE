@@ -61,7 +61,6 @@ bool timer_wakeup = false;          // unnecessary?
 bool reading_chip = 0;
 uint32_t cycle_time_clockrate = (uint32_t)MEMORY_CYCLE_TIME * (uint32_t)MINUTE * (uint32_t)SYS_CLK_SPEED;
 uint32_t timer_current_cycle = 0;  // Maximum timer value is limited by the 32 bit architecture, so we must complete multiple timer interrupts before processing.
-uint32_t wd_chip_time = (uint32_t)CHIP_WD_TIME * (uint32_t)MINUTE * (uint32_t)SYS_CLK_SPEED;
 uint32_t wd_mde_time =  (uint32_t)SYS_CLK_SPEED;// * (uint32_t)4 * (uint32_t)MINUTE;
 
 volatile uint32_t ui32Loop;         // Loop variable for blink
