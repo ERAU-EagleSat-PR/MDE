@@ -442,11 +442,9 @@ main(void)
     menuState = MAIN;
     printDebugMenu();
 
-#else /* DEBUG */
-    // Enable flight mode
-    MDETimerEnable();
 #endif
     MDETimerEnable();
+    MDEWatchdogEnable();
 
     //*****************************
     // Other Configurations

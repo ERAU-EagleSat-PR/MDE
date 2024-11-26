@@ -125,7 +125,7 @@ MDETimerInt(void)
  */
 
 void
-WatchdogsEnable(void)
+MDEWatchdogEnable(void)
 {
     // Enables and configures watch dog timer
     // The timer triggers an interrupt that, if not handled,

@@ -23,8 +23,7 @@ void MDETimerDisable(void);
 void MDETimerInt(void);
 
 // Watchdogs
-void WatchdogsEnable(void);
-void MDEWatchdogPoke(void);
+void MDEWatchdogEnable(void);
 void MDEWatchdogInt(void);
 /*
 *******************************************************************************
