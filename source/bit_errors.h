@@ -17,8 +17,8 @@
 // MDE Error Struct/Queue Link
 typedef struct MDE_Error_Data MDE_Error_Data_t;
 struct MDE_Error_Data {
-    uint8_t chip_id;             // Chip number
     uint32_t cell_address;       // Byte address
+    uint8_t chip_id;             // Chip number
     uint8_t written_sequence;    // Written sequence (all 0s or all 1s)
     uint8_t retrieved_sequence;  // Read sequence
     MDE_Error_Data_t *next; // Pointer to the next link.
