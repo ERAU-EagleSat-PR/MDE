@@ -103,6 +103,59 @@ MDETimerInt(void)
 
 }
 
+void
+ChipTimerConfigure(void)
+{
+    // Configure the general MDE cycle timer. Does not enable timer.
+
+    // Enable peripheral
+    SysCtlPeripheralEnable(CHIP_TIMER_CTL);
+    // Wait
+    while(!SysCtlPeripheralReady(CHIP_TIMER_CTL))
+    {}
+
+    // Configure as a periodic timer
+    TimerConfigure(CHIP_TIMER_BASE, TIMER_CFG_PERIODIC);
+
+    // Enable timeout interrupts on the A timer
+    TimerIntRegister(CHIP_TIMER_BASE, TIMER_A, &ChipTimerInt);
+    TimerIntEnable(CHIP_TIMER_BASE, CHIP_TIMER_INT);
+}
+
+void ChipTimerEnable(void)
+{
+    // Reset the timer's load and enable it if needed.
+
+    TimerLoadSet(CHIP_TIMER_BASE, TIMER_A, );
+    TimerEnable(CHIP_TIMER_BASE, TIMER_A);
+}
+
+void ChipTimerDisable(void)
+{
+    // Disable the timer.
+
+    TimerDisable(CHIP_TIMER_BASE, TIMER_A);
+}
+
+void
+ChipTimerInt(void)
+{
+#ifdef TIMER_DEBUG
+    char buf [20];
+    uint8_t bufSize = 20;
+#endif
+
+    // Clear timer interrupt
+    TimerIntClear(CHIP_TIMER_BASE, CHIP_TIMER_INT);
+
+
+#ifdef TIMER_DEBUG
+    snprintf(buf,bufSize, "Chip Timer Tick\n\r");
+    UARTDebugSend((uint8_t*) buf, strlen(buf));
+#endif
+    ++chip_timer_triggers;
+}
+
 /*
 *******************************************************************************
 *                              Watchdog Functions                             *
