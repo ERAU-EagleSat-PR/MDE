@@ -72,7 +72,7 @@ void MDETimerEnable(void)
 {
     // Reset the timer's load and enable it if needed.
 
-    TimerLoadSet(MDE_TIMER_BASE, TIMER_A, cycle_time_clockrate);
+    TimerLoadSet(MDE_TIMER_BASE, TIMER_A, MDE_TIMER_CYCLES);
     TimerEnable(MDE_TIMER_BASE, TIMER_A);
 }
 
@@ -126,7 +126,7 @@ void ChipTimerEnable(void)
 {
     // Reset the timer's load and enable it if needed.
 
-    TimerLoadSet(CHIP_TIMER_BASE, TIMER_A, );
+    TimerLoadSet(CHIP_TIMER_BASE, TIMER_A, MDE_TIMER_CYCLES);
     TimerEnable(CHIP_TIMER_BASE, TIMER_A);
 }
 
@@ -210,7 +210,7 @@ MDEWatchdogEnable(void)
     WatchdogResetEnable(MDE_WD_BASE);
 
     // Set reload value
-    WatchdogReloadSet(MDE_WD_BASE, wd_mde_time);
+    WatchdogReloadSet(MDE_WD_BASE, MDE_WD_CYCLES);
 
     // Finally, enable system watchdog
     WatchdogEnable(MDE_WD_BASE);

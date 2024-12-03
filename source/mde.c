@@ -64,10 +64,6 @@ MDEProcessCycle(void)
 #endif
     uint8_t i;
 
-    // Enable chips watchdog and give it an initial poke.
-    //ChipWatchdogPoke();
-    //MDEWatchdogPoke();
-    reading_chip = true;
 
     for(i = current_chip; i < MAX_CHIP_NUMBER; i++)
     {
@@ -102,9 +98,6 @@ MDEProcessCycle(void)
         current_chip = i; // Update location tracker
     }
 
-    // Disable chips watchdog
-    //ChipWatchdogPoke();
-    reading_chip = false;
 
     // Prepare new data
     if(currentCycle == 0)
