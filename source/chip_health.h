@@ -18,6 +18,9 @@ typedef struct {
 //
 uint8_t CheckChipHealth(uint8_t chip_number);
 void InitializeChipHealth(void);
+void IncrementChipFails(uint8_t chip_number);
+
+
 
 //
 // Global chip health array
