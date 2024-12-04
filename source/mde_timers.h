@@ -51,9 +51,13 @@ void MDEWatchdogInt(void);
 #define CHIP_TIMER_BASE TIMER1_BASE
 #define CHIP_TIMER_INT TIMER_TIMA_TIMEOUT
 
-// Cycle time is the time it takes for a timer interrupt to trigger in seconds
-// Timer cycles is how many cycles the timer will do before performing a check
-#define MEMORY_CYCLE_TIME 90 //minutes. nearly the max value timer can wait.
+// How many minutes MDE should wait between process cycles
+#define MEMORY_CYCLE_TIME 5
+
+// The maximum number of times the Chip timer can trigger before
+// a chip should be flagged as unhealthy
+#define CHIP_TIMER_MAX_TRIGGERS 5
+
 
 // Variables for the watchdog timers.
 #define MDE_WD_SYSCTL SYSCTL_PERIPH_WDOG0
@@ -69,9 +73,9 @@ void MDEWatchdogInt(void);
 #define MDE_TIMER_CYCLES ((uint32_t)(SYS_CLK_SPEED * MINUTE))
 
 
+
 // Variables for the timer
-extern uint32_t timer_current_cycle;
-extern uint16_t chip_timer_triggers;
+extern uint32_t mde_timer_triggers;
 
 
 

@@ -230,7 +230,7 @@ printDebugMenu(void)
 
     case AUTO:
         UARTCharPut(UART_DEBUG, 0xC);
-        snprintf(buf, bufSize, "AUTO MODE. Cycle time: %d Cycle count: %d\r\n",MEMORY_CYCLE_TIME, MEMORY_CYCLE_COUNT);
+        snprintf(buf, bufSize, "AUTO MODE. Cycle time: %d minutes\r\n", MEMORY_CYCLE_TIME);
         UARTDebugSend((uint8_t*) buf, strlen(buf));
         snprintf(buf, bufSize, "Hit M to exit.\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
@@ -379,8 +379,9 @@ processMainMenuInput(int32_t recv_char)
         printDebugMenu();
 
         timer_enable = !timer_enable;
+
         if (timer_enable) {
-            if ( timer_current_cycle >= MEMORY_CYCLE_COUNT) {
+            if ( mde_timer_triggers >= MEMORY_CYCLE_TIME) {
                 snprintf(buf, bufSize,  "MDE Process Cycle started, not starting timer\n\r");
             }
             else {

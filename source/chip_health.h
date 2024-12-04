@@ -28,7 +28,6 @@ void IncrementChipFails(uint8_t chip_number);
 extern CHIPHEALTH chip_health_array[32];
 extern bool chip_death_array[32];
 
-#define CHIP_WD_MAX 2
 #define CHIP_HEALTH_MAX 3
 
 

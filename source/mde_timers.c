@@ -43,6 +43,16 @@
 #include "source/chip_health.h"
 #include "source/UART0_func.h"
 
+
+/*
+*******************************************************************************
+*                            MDE Timer Variables                              *
+*******************************************************************************
+*/
+
+uint32_t chip_timer_triggers = 0;
+
+
 /*
 *******************************************************************************
 *                               Timer Functions                               *
@@ -99,7 +109,7 @@ MDETimerInt(void)
         snprintf(buf,bufSize, "Timer Tick\n\r");
         UARTDebugSend((uint8_t*) buf, strlen(buf));
 #endif
-    ++timer_current_cycle;
+    ++mde_timer_triggers;
 
 }
 
@@ -125,6 +135,7 @@ ChipTimerConfigure(void)
 void ChipTimerEnable(void)
 {
     // Reset the timer's load and enable it if needed.
+    chip_timer_triggers = 0;
 
     TimerLoadSet(CHIP_TIMER_BASE, TIMER_A, MDE_TIMER_CYCLES);
     TimerEnable(CHIP_TIMER_BASE, TIMER_A);

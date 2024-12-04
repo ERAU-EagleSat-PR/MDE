@@ -58,7 +58,7 @@
 
 // Variables for the timer
 bool timer_wakeup = false;          // unnecessary?
-uint32_t timer_current_cycle = 0;  // Ticks once per minute to count up to 90 minutes
+uint32_t mde_timer_triggers = 0;  // Ticks once per minute to count up to 90 minutes
 
 volatile uint32_t ui32Loop;         // Loop variable for blink
 
@@ -454,16 +454,15 @@ main(void)
     //*****************************
     while (1)
     {
-        if(timer_current_cycle >= MEMORY_CYCLE_TIME)
+        if(mde_timer_triggers >= MEMORY_CYCLE_TIME)
         {
 #ifdef TIMER_DEBUG
             snprintf(buf,bufSize, "Timer Trigger\n\r");
             UARTDebugSend((uint8_t*) buf, strlen(buf));
 #endif
             // Call the function to begin a new cycle.
-            current_chip = 0;
             MDEProcessCycle();
-            timer_current_cycle = 0;
+            mde_timer_triggers = 0;
         }
 
 

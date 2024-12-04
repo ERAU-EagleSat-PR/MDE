@@ -65,7 +65,7 @@ MDEProcessCycle(void)
     uint8_t i;
 
 
-    for(i = current_chip; i < MAX_CHIP_NUMBER; i++)
+    for(i = 0; i < MAX_CHIP_NUMBER; i++)
     {
         //ChipWatchdogPoke(); // Reset watchdog before each chip.
         //MDEWatchdogPoke();
@@ -73,7 +73,7 @@ MDEProcessCycle(void)
         if(chip_death_array[i] == 0)
         {
             // Perform a health check on all chips, excluding dead ones.
-            if(CheckChipHealth(i) == 0)
+            if(CheckChipHealth(i))
             {
                 // If chip is healthy, immediately get its data.
                 ReadFromChip(~currentCycle, i);
@@ -95,7 +95,6 @@ MDEProcessCycle(void)
             }
         }
 #endif
-        current_chip = i; // Update location tracker
     }
 
 
